@@ -22,8 +22,19 @@ jobs:
           echo "NEXT_PUBLIC_API_URL=" >> .env
           echo "RESEND_API_KEY=$RESEND_API_KEY" >> .env
           mkdir -p docker/ssl
-          echo "$SSL_PRIVATE_KEY_B64" | base64 -d > docker/ssl/key.pem
+          # Ořezat mezery/nové řádky (GitHub Secret může přidat newline při vložení)
+          KEY_B64="$(printf '%s' "$SSL_PRIVATE_KEY_B64" | tr -d '\n\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+          echo "$KEY_B64" | base64 -d > docker/ssl/key.pem
           chmod 600 docker/ssl/key.pem
+          # Ověření, že soubor je privátní klíč (ne certifikát!)
+          if grep -q 'BEGIN CERTIFICATE' docker/ssl/key.pem; then
+            echo "::error::Do SSL_PRIVATE_KEY_B64 jsi dal CERTIFIKÁT (cert.pem). Musí tam být PRIVÁTNÍ KLÍČ (soubor s -----END PRIVATE KEY-----). V Cloudflare stáhni ten druhý soubor – origin-certificate.key nebo podobně."
+            exit 1
+          fi
+          if ! grep -q '-----BEGIN.*PRIVATE KEY-----' docker/ssl/key.pem; then
+            echo "::error::SSL_PRIVATE_KEY_B64 neobsahuje platný PEM privátní klíč. Použij soubor, který končí na -----END PRIVATE KEY----- a zakóduj: base64 -i ten-soubor.pem | tr -d '\n'"
+            exit 1
+          fi
 
       - name: Use SSL Nginx config
         run: |
