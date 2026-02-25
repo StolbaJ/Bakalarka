@@ -1,0 +1,76 @@
+# Zjednodušená verze pro testování bez SSL
+# Použití: z kořene repo (BP): docker compose -f docker/docker-compose.dev.yml up -d --build
+
+services:
+  # PostgreSQL databáze
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-ski-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=ski_inventory
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Spring Boot Backend API
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend/Dockerfile
+    container_name: backend-ski-dev
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=ski_inventory
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JWT_SECRET=dev-secret-key-minimum-32-characters-long-for-testing
+      - SERVER_PORT=8080
+      - SHOW_SQL=true
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # Next.js aplikace (context = složka Frontend_ski)
+  frontend:
+    build:
+      context: ../Frontend_ski
+      dockerfile: ../docker/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    container_name: frontend-ski-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  postgres-data-dev:
+
+networks:
+  app-network:
+    driver: bridge

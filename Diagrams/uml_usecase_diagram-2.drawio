@@ -1,0 +1,139 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0.1 Safari/605.1.15" version="29.2.1">
+  <diagram name="UML Use Case Diagram" id="usecase">
+    <mxGraphModel dx="2004" dy="970" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="fPAU3Dekb9eRj1ZD7zNH-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="680" width="890" x="90" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="adminActor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=12;fontStyle=1;labelBackgroundColor=none;" value="Administrátor&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="40" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="customerActor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=12;fontStyle=1;labelBackgroundColor=none;" value="Zákazník&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="30" x="1000" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="technicianActor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fontSize=12;fontStyle=1;labelBackgroundColor=none;align=center;" value="Technik" vertex="1">
+          <mxGeometry height="60" width="30" x="40" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="adminLogin" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Přihlášení administrátora" vertex="1">
+          <mxGeometry height="60" width="120" x="390" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="manageInventory" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Správa inventáře lyží" vertex="1">
+          <mxGeometry height="60" width="120" x="210" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="scanQR" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Skenování QR kódů" vertex="1">
+          <mxGeometry height="60" width="120" x="390" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="manageServiceTasks" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Správa servisních úkolů" vertex="1">
+          <mxGeometry height="60" width="120" x="390" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="viewStatistics" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Zobrazení statistik" vertex="1">
+          <mxGeometry height="60" width="120" x="390" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="customerLogin" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Přihlášení zákazníka" vertex="1">
+          <mxGeometry height="60" width="120" x="740" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="viewOrderDetails" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Zobrazení detailů objednávky" vertex="1">
+          <mxGeometry height="60" width="120" x="740" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="technicianLogin" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Přihlášení technika" vertex="1">
+          <mxGeometry height="60" width="120" x="230" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="addTaskNotes" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Přidání poznámek k úkolu" vertex="1">
+          <mxGeometry height="60" width="120" x="230" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="updateTaskStatus" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Aktualizace stavu úkolu" vertex="1">
+          <mxGeometry height="60" width="120" x="230" y="550" as="geometry" />
+        </mxCell>
+        <mxCell id="dataSync" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Synchronizace dat" vertex="1">
+          <mxGeometry height="60" width="120" x="165" y="384" as="geometry" />
+        </mxCell>
+        <mxCell id="rel1" edge="1" parent="1" source="adminActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="adminLogin" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="260" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel2" edge="1" parent="1" source="adminActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="manageInventory" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="260" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel3" edge="1" parent="1" source="adminActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="scanQR" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="260" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel4" edge="1" parent="1" source="adminActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="manageServiceTasks" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="260" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel5" edge="1" parent="1" source="adminActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="viewStatistics" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="260" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel6" edge="1" parent="1" source="customerActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="customerLogin" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="430" as="sourcePoint" />
+            <mxPoint x="460" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel7" edge="1" parent="1" source="customerActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="viewOrderStatus" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="430" as="sourcePoint" />
+            <mxPoint x="460" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel8" edge="1" parent="1" source="customerActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="viewOrderDetails" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="430" as="sourcePoint" />
+            <mxPoint x="460" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel9" edge="1" parent="1" source="technicianActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;align=center;" target="technicianLogin" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="630" as="sourcePoint" />
+            <mxPoint x="660" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel10" edge="1" parent="1" source="technicianActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;align=center;" target="updateTaskStatus" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="630" as="sourcePoint" />
+            <mxPoint x="660" y="480" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel11" edge="1" parent="1" source="technicianActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;align=center;" target="addTaskNotes" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="630" as="sourcePoint" />
+            <mxPoint x="660" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel15" edge="1" parent="1" source="adminActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;" target="dataSync" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="230" as="sourcePoint" />
+            <mxPoint x="860" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rel16" edge="1" parent="1" source="technicianActor" style="endArrow=none;html=1;rounded=0;strokeWidth=2;labelBackgroundColor=none;fontColor=default;align=center;" target="dataSync" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="110" y="630" as="sourcePoint" />
+            <mxPoint x="860" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="viewOrderStatus" parent="1" style="ellipse;whiteSpace=wrap;html=1;fontSize=11;labelBackgroundColor=none;" value="Zobrazení stavu objednávky" vertex="1">
+          <mxGeometry height="60" width="120" x="740" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="fPAU3Dekb9eRj1ZD7zNH-14" parent="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" value="UseCase diagram" vertex="1">
+          <mxGeometry height="30" width="120" x="475" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --background: black;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: black;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Ručička na všech klikatelných prvcích – na konci souboru, aby nic nepřepsalo */
+body button,
+body button *,
+body a,
+body a *,
+body select,
+body select *,
+body [role="button"],
+body [role="button"] *,
+body input[type="checkbox"],
+body input[type="radio"],
+body label,
+body label *,
+body [type="submit"],
+body [type="submit"] *,
+body [type="button"],
+body [type="button"] *,
+body .cursor-pointer {
+  cursor: pointer !important;
+}
+
+body button:disabled,
+body button:disabled * {
+  cursor: not-allowed !important;
+}
+

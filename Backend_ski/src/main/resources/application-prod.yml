@@ -1,0 +1,14 @@
+# Produkční konfigurace – hodnoty přepisujte env proměnnými na serveru (EC2/Docker)
+spring:
+  jpa:
+    show-sql: false
+
+# JWT – na EC2/Docker nastavte env: JWT_SECRET (min. 32 znaků), JWT_EXPIRATION (ms)
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production-minimum-32-characters}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+logging:
+  level:
+    com.ski.inventory: INFO
+    org.springframework.security: WARN

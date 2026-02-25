@@ -1,0 +1,15 @@
+spring:
+  jpa:
+    show-sql: true
+  flyway:
+    clean-disabled: false
+
+# Pro vývoj/testy - zobrazit vygenerované heslo při resetu
+app:
+  user-management:
+    show-generated-password-on-reset: true
+
+logging:
+  level:
+    com.ski.inventory: DEBUG
+    org.springframework.security: DEBUG
