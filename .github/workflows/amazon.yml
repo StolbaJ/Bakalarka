@@ -12,18 +12,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Kopírování pouze potřebných souborů na server
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "." # Zkopíruje celý repozitář
+          source: "."
           target: "/home/${{ secrets.EC2_USERNAME }}/app"
 
-      # Spuštění Docker příkazů na serveru (s .env a SSL klíčem z GitHub Secrets)
-      - name: Docker Rebuild
+      - name: Blue-green deploy (bez výpadku)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -31,20 +29,10 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/${{ secrets.EC2_USERNAME }}/app
-            # .env pro docker compose – JWT_SECRET + API URL + Resend API klíč
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
             echo "NEXT_PUBLIC_API_URL=" >> .env
             echo "RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}" >> .env
-            # SSL: privátní klíč ze secret (base64) → docker/ssl/key.pem
             mkdir -p docker/ssl
             echo "${{ secrets.SSL_PRIVATE_KEY_B64 }}" | base64 -d > docker/ssl/key.pem
             chmod 600 docker/ssl/key.pem
-            # Nginx: použij SSL konfiguraci pro bezkyservis.xyz (cert je v repozitáři jako docker/ssl/cert.pem)
-            rm -f docker/nginx/conf.d/default.conf
-            cp docker/nginx/conf.d/default-ssl.conf docker/nginx/conf.d/default.conf
-            # Smaže staré kontejnery a volume
-            sudo docker compose -f docker/docker-compose.yml --env-file .env down -v
-            # Build backend + frontend (frontend potřebuje NEXT_PUBLIC_API_URL z .env při buildu)
-            sudo docker compose -f docker/docker-compose.yml --env-file .env build --no-cache
-            sudo docker compose -f docker/docker-compose.yml --env-file .env up -d
-            sudo docker image prune -f
+            sudo bash docker/scripts/blue-green-deploy.sh

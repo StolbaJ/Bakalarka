@@ -1,14 +1,12 @@
-# Deploy na Malinu – DB se NEMAZÁ (zachová se), BE i FE se vždy sestaví bez cache.
-name: Malina Docker Deploy
+# Deploy na Malinu s plným wipem – smaže i DB (čistý stav). BE i FE vždy build --no-cache.
+name: Malina Docker Deploy (full wipe + DB)
 
 on:
-  # push:
-  #   branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  deploy:
-    runs-on: self-hosted   # Runner na RPi5 – checkout i docker běží lokálně na Malině
+  deploy-full-wipe:
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,6 +24,6 @@ jobs:
           echo "$SSL_PRIVATE_KEY_B64" | base64 -d > docker/ssl/key.pem
           chmod 600 docker/ssl/key.pem
 
-      - name: Blue-green deploy (bez výpadku, DB zachována, BE+FE build --no-cache)
+      - name: Full wipe deploy (DB smazána, BE+FE build --no-cache)
         run: |
-          sudo bash docker/scripts/blue-green-deploy.sh
+          sudo bash docker/scripts/blue-green-deploy-full-wipe.sh
