@@ -1,4 +1,3 @@
-# Deploy na Malinu – DB se NEMAZÁ (zachová se), BE i FE se vždy sestaví bez cache.
 name: Malina Docker Deploy
 
 on:
@@ -26,6 +25,13 @@ jobs:
           echo "$SSL_PRIVATE_KEY_B64" | base64 -d > docker/ssl/key.pem
           chmod 600 docker/ssl/key.pem
 
-      - name: Blue-green deploy (bez výpadku, DB zachována, BE+FE build --no-cache)
+      - name: Use SSL Nginx config
         run: |
-          sudo bash docker/scripts/blue-green-deploy.sh
+          rm -f docker/nginx/conf.d/default.conf
+          cp docker/nginx/conf.d/default-ssl.conf docker/nginx/conf.d/default.conf
+
+      - name: Docker Rebuild
+        run: |
+          sudo docker compose -f docker/docker-compose.yml --env-file .env build --no-cache
+          sudo docker compose -f docker/docker-compose.yml --env-file .env up -d
+          sudo docker image prune -f

@@ -12,6 +12,3 @@
 # Skutečná hesla (JWT_SECRET, DB_PASSWORD) se dávají přes env / GitHub Secrets.
 
 package-lock.json
-
-# Blue-green deploy stav (který stack je live) – jen na serveru
-docker/.deploy-current
