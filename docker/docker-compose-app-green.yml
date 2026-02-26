@@ -1,5 +1,4 @@
-# Green stack – spouští se samostatně (bez --profile). Síť bp_app-network musí existovat (infra s -p bp).
-version: '3.8'
+# Green stack – spouští se samostatně. Síť bp_app-network musí existovat (infra s -p bp).
 
 services:
   backend-green:

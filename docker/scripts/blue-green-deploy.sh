@@ -28,7 +28,16 @@ reload_nginx() {
 }
 
 ensure_infra_up() {
-  docker compose -p "$COMPOSE_PROJECT_INFRA" -f "$COMPOSE_INFRA" --env-file "$ENV_FILE" up -d
+  # Odstranit starý nginx-proxy (mohl zůstat z deploye bez -p bp), DB (postgres-ski) nemazat
+  docker rm -f nginx-proxy 2>/dev/null || true
+  NET_NAME="${COMPOSE_PROJECT_INFRA}_app-network"
+  if docker ps -a --format '{{.Names}}' | grep -qx postgres-ski; then
+    # Postgres už existuje (starý deploy) – spustit jen nginx, pak připojit postgres do sítě
+    docker compose -p "$COMPOSE_PROJECT_INFRA" -f "$COMPOSE_INFRA" --env-file "$ENV_FILE" up -d nginx
+    docker network connect "$NET_NAME" postgres-ski 2>/dev/null || true
+  else
+    docker compose -p "$COMPOSE_PROJECT_INFRA" -f "$COMPOSE_INFRA" --env-file "$ENV_FILE" up -d
+  fi
 }
 
 get_current() {

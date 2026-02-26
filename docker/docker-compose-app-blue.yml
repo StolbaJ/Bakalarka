@@ -1,5 +1,4 @@
-# Blue stack – spouští se samostatně (bez --profile). Síť bp_app-network musí existovat (infra s -p bp).
-version: '3.8'
+# Blue stack – spouští se samostatně. Síť bp_app-network musí existovat (infra s -p bp).
 
 services:
   backend-blue:

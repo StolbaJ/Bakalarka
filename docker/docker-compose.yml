@@ -1,7 +1,6 @@
 # Infra: postgres + nginx. Spouštět s -p bp (project name), aby síť byla bp_app-network.
 # Aplikace (blue/green) jsou v docker-compose-app-blue.yml a docker-compose-app-green.yml.
-
-version: '3.8'
+# (version je v novém Compose zastaralá, vynechána.)
 
 services:
   postgres:
