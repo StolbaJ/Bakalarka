@@ -1,4 +1,4 @@
-name: Secure Docker Deploy
+name: Malina Docker Deploy
 
 on:
   # push:
