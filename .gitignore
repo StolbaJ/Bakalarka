@@ -11,3 +11,4 @@
 # application.yml je v repu – neobsahuje hesla, jen ${VAR} a výchozí hodnoty pro lokál.
 # Skutečná hesla (JWT_SECRET, DB_PASSWORD) se dávají přes env / GitHub Secrets.
 
+package-lock.json

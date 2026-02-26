@@ -90,6 +90,7 @@ public class EmailService {
                 + "Byl vám vytvořen účet v systému BezkyServis.\n\n"
                 + "Uživatelské jméno: " + username + "\n"
                 + "Heslo: " + password + "\n\n"
+                + "Přihlásit se můžete na webu: https://bezkyservis.xyz\n\n"
                 + "Doporučujeme heslo po prvním přihlášení změnit.\n\n"
                 + "S pozdravem,\nBezkyServis";
     }
