@@ -1,27 +1,29 @@
 #!/usr/bin/env bash
-# Plný reset: smaže kontejnery i volume (DB), pak nasadí znovu. BE i FE vždy build --no-cache.
-# Volá se z kořene repozitáře. Očekává: .env, docker/ssl/key.pem.
+# Plný reset včetně DB (down -v). Bez --profile – infra s -p bp, app z app-blue compose.
 
 set -e
-COMPOSE_FILE="${COMPOSE_FILE:-docker/docker-compose.yml}"
+COMPOSE_INFRA="${COMPOSE_INFRA:-docker/docker-compose.yml}"
+COMPOSE_BLUE="${COMPOSE_BLUE:-docker/docker-compose-app-blue.yml}"
 ENV_FILE="${ENV_FILE:-.env}"
 DEPLOY_CURRENT_FILE="${DEPLOY_CURRENT_FILE:-docker/.deploy-current}"
 NGINX_CONF_DIR="${NGINX_CONF_DIR:-docker/nginx/conf.d}"
+COMPOSE_PROJECT_INFRA="${COMPOSE_PROJECT_INFRA:-bp}"
 
 cd "$(dirname "$0")/../.."
 
-echo "Full wipe: stopping containers and removing volumes (DB will be empty)..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down -v
+echo "Full wipe: stopping all and removing volumes (DB will be empty)..."
+docker compose -p "$COMPOSE_PROJECT_INFRA" -f "$COMPOSE_INFRA" --env-file "$ENV_FILE" down -v
+docker stop backend-blue frontend-blue backend-green frontend-green 2>/dev/null || true
 
 rm -f "$DEPLOY_CURRENT_FILE"
 
 echo "Building BE + FE from scratch (--no-cache)..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build --no-cache backend-blue frontend-blue
+docker compose -f "$COMPOSE_BLUE" --env-file "$ENV_FILE" build --no-cache
 
 echo "Starting infra (postgres + nginx) and blue stack..."
 cp "$NGINX_CONF_DIR/default-ssl-blue.conf" "$NGINX_CONF_DIR/default.conf"
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --profile blue
+docker compose -p "$COMPOSE_PROJECT_INFRA" -f "$COMPOSE_INFRA" --env-file "$ENV_FILE" up -d
+docker compose -f "$COMPOSE_BLUE" --env-file "$ENV_FILE" up -d
 
 echo "Waiting for backend to be healthy..."
 for i in $(seq 1 60); do

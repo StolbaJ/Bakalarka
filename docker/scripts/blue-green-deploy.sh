@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# Blue-green deploy: staré běží, nabuildí se nové, spustí se nový profil, nginx se přepne, staré se zastaví.
-# Volá se z kořene repozitáře. Očekává: .env, docker/ssl/key.pem, docker/nginx/conf.d/default-ssl-{blue,green}.conf.
-# Použití: sudo -E ./docker/scripts/blue-green-deploy.sh   (nebo z CI s docker compose přístupem)
+# Blue-green deploy bez --profile (kompatibilní se starším Docker Compose).
+# Infra: -p bp (síť bp_app-network). Aplikace: samostatné compose soubory app-blue / app-green.
 
 set -e
-COMPOSE_FILE="${COMPOSE_FILE:-docker/docker-compose.yml}"
+COMPOSE_INFRA="${COMPOSE_INFRA:-docker/docker-compose.yml}"
+COMPOSE_BLUE="${COMPOSE_BLUE:-docker/docker-compose-app-blue.yml}"
+COMPOSE_GREEN="${COMPOSE_GREEN:-docker/docker-compose-app-green.yml}"
 ENV_FILE="${ENV_FILE:-.env}"
 DEPLOY_CURRENT_FILE="${DEPLOY_CURRENT_FILE:-docker/.deploy-current}"
 NGINX_CONF_DIR="${NGINX_CONF_DIR:-docker/nginx/conf.d}"
+COMPOSE_PROJECT_INFRA="${COMPOSE_PROJECT_INFRA:-bp}"
 
-cd "$(dirname "$0")/../.."  # repo root when script is in docker/scripts/
+cd "$(dirname "$0")/../.."
 
-# Nastaví default.conf tak, aby nginx měl platný config (blue, green, nebo blue při prvním deployi)
 set_nginx_default() {
   local cur
   cur=$(get_current)
@@ -27,7 +28,7 @@ reload_nginx() {
 }
 
 ensure_infra_up() {
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+  docker compose -p "$COMPOSE_PROJECT_INFRA" -f "$COMPOSE_INFRA" --env-file "$ENV_FILE" up -d
 }
 
 get_current() {
@@ -60,9 +61,9 @@ ensure_infra_up
 
 CURRENT=$(get_current)
 if [ -z "$CURRENT" ]; then
-  # První deploy: spustit blue a nastavit jako aktuální
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build --no-cache backend-blue frontend-blue
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --profile blue
+  # První deploy: blue
+  docker compose -f "$COMPOSE_BLUE" --env-file "$ENV_FILE" build --no-cache
+  docker compose -f "$COMPOSE_BLUE" --env-file "$ENV_FILE" up -d
   wait_for_healthy backend-blue || true
   cp "$NGINX_CONF_DIR/default-ssl-blue.conf" "$NGINX_CONF_DIR/default.conf"
   reload_nginx
@@ -71,21 +72,18 @@ if [ -z "$CURRENT" ]; then
 else
   if [ "$CURRENT" = "blue" ]; then
     NEXT="green"
+    COMPOSE_NEXT="$COMPOSE_GREEN"
   else
     NEXT="blue"
+    COMPOSE_NEXT="$COMPOSE_BLUE"
   fi
-  # Build nových imagí (běží stále starý stack)
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build --no-cache backend-$NEXT frontend-$NEXT
-  # Spustit nový stack vedle starého
-  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --profile "$NEXT"
-  # Počkat na zdraví nového backendu
+  docker compose -f "$COMPOSE_NEXT" --env-file "$ENV_FILE" build --no-cache
+  docker compose -f "$COMPOSE_NEXT" --env-file "$ENV_FILE" up -d
   if ! wait_for_healthy "backend-$NEXT"; then
     echo "Warning: backend-$NEXT did not become healthy in time, switching anyway."
   fi
-  # Přepnout nginx na nový stack
   cp "$NGINX_CONF_DIR/default-ssl-$NEXT.conf" "$NGINX_CONF_DIR/default.conf"
   reload_nginx
-  # Zastavit starý stack
   docker stop backend-$CURRENT frontend-$CURRENT 2>/dev/null || true
   echo "$NEXT" > "$DEPLOY_CURRENT_FILE"
   echo "Switched to $NEXT (was $CURRENT)."

@@ -1,5 +1,5 @@
-# Blue-green deploy: postgres + nginx vždy běží; backend/frontend v profilech "blue" nebo "green".
-# První deploy: up -d --profile blue. Další: nabuildí se nová verze, spustí se druhý profil, nginx se přepne, starý profil se zastaví.
+# Infra: postgres + nginx. Spouštět s -p bp (project name), aby síť byla bp_app-network.
+# Aplikace (blue/green) jsou v docker-compose-app-blue.yml a docker-compose-app-green.yml.
 
 version: '3.8'
 
@@ -38,102 +38,6 @@ services:
     networks:
       - app-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-
-  # --- Blue stack (profil blue) ---
-  backend-blue:
-    build:
-      context: ..
-      dockerfile: docker/backend/Dockerfile
-    container_name: backend-blue
-    restart: unless-stopped
-    profiles:
-      - blue
-    env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-ski_inventory}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - JWT_SECRET=${JWT_SECRET:-your-256-bit-secret-key-change-this-in-production-minimum-32-characters}
-      - SERVER_PORT=8080
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  frontend-blue:
-    build:
-      context: ../Frontend_ski
-      dockerfile: ../docker/frontend/Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
-    container_name: frontend-blue
-    restart: unless-stopped
-    profiles:
-      - blue
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - backend-blue
-    networks:
-      - app-network
-
-  # --- Green stack (profil green) ---
-  backend-green:
-    build:
-      context: ..
-      dockerfile: docker/backend/Dockerfile
-    container_name: backend-green
-    restart: unless-stopped
-    profiles:
-      - green
-    env_file:
-      - ../.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-ski_inventory}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - JWT_SECRET=${JWT_SECRET:-your-256-bit-secret-key-change-this-in-production-minimum-32-characters}
-      - SERVER_PORT=8080
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  frontend-green:
-    build:
-      context: ../Frontend_ski
-      dockerfile: ../docker/frontend/Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
-    container_name: frontend-green
-    restart: unless-stopped
-    profiles:
-      - green
-    environment:
-      - NODE_ENV=production
-    depends_on:
-      - backend-green
-    networks:
-      - app-network
 
 volumes:
   postgres-data:
