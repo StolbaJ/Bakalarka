@@ -1,6 +1,5 @@
 package cz.cvut.fel.skiapp.backendconnection.integration;
 
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -8,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 
 public class PohodaConnection {
 

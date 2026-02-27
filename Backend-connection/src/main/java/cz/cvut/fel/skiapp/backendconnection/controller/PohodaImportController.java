@@ -23,8 +23,24 @@ public class PohodaImportController {
         this.orderService = orderService;
     }
 
+    @PostMapping(value = "/import", consumes = MediaType.APPLICATION_XML_VALUE)
+    public ResponseEntity<String> importOrders(
+            @RequestHeader("X-API-KEY") String providedApiKey,
+            @RequestBody String xmlContent) {
 
+        if (!API_KEY.equals(providedApiKey)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Neplatný API klíč.");
+        }
 
+        try {
+            orderService.importOrdersFromXml(xmlContent);
+            return ResponseEntity.ok("Import proběhl úspěšně.");
+        } catch (Exception e) {
+            log.warn("Chyba při zpracování XML", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Chyba při zpracování XML: " + e.getMessage());
+        }
+    }
 
     // --- EXPORT DAT DO POHODY ---
     @GetMapping(value = "/export", produces = MediaType.APPLICATION_XML_VALUE)

@@ -1,6 +1,8 @@
 package cz.cvut.fel.skiapp.backendconnection.service;
 
-import cz.cvut.fel.skiapp.backendconnection.repository.ServiceOrderRepository;
+import cz.cvut.fel.skiapp.backendconnection.model.PohodaOrder;
+import cz.cvut.fel.skiapp.backendconnection.model.PohodaOrderItem;
+import cz.cvut.fel.skiapp.backendconnection.repository.PohodaOrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,9 +23,9 @@ import java.util.ArrayList;
 public class PohodaOrderService {
 
     @Autowired
-    private ServiceOrderRepository orderRepository;
+    private PohodaOrderRepository orderRepository;
 
-    /*public ArrayList<PohodaOrder> importOrdersFromXml(String xmlContent) throws Exception {
+    public ArrayList<PohodaOrder> importOrdersFromXml(String xmlContent) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -105,5 +107,5 @@ public class PohodaOrderService {
 
     private LocalDate parseDate(String date) {
         return (date != null && !date.isEmpty()) ? LocalDate.parse(date) : null;
-    }*/
+    }
 }

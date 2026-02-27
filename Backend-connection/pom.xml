@@ -67,13 +67,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
-            <version>2.11.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>4.0.1</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -134,7 +127,7 @@
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>10.7.1</version>
                 <configuration>
-                    <url>jdbc:postgresql://localhost:5432/ski_conection</url>
+                    <url>jdbc:postgresql://localhost:5432/ski_connection_db</url>
                     <user>postgres</user>
                     <password>postgres</password>
                 </configuration>

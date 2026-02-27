@@ -9,11 +9,7 @@ spring:
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-external:
-  api:
-    url: ${EXTERNAL_API_URL}
-    usernameFrontend: ${EXTERNAL_API_USERNAME}
-    passwordFrontend: ${EXTERNAL_API_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -22,17 +18,27 @@ external:
       hibernate:
         format_sql: true
 
-
   flyway:
-    enabled: true
+    enabled: ${SPRING_FLYWAY_ENABLED:true}
+    table: ${SPRING_FLYWAY_TABLE:flyway_schema_history}
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
 
+external:
+  api:
+    url: ${EXTERNAL_API_URL:}
+    usernameFrontend: ${EXTERNAL_API_USERNAME:}
+    passwordFrontend: ${EXTERNAL_API_PASSWORD:}
 
+api:
+  bezky-servis:
+    url: ${API_BEZKY_SERVIS_URL:https://bezkyservis.xyz}
+  machine:
+    url: ${API_MACHINE_URL:http://localhost:5000}
 
 logging:
   level:
-    cz.cvut.fel.skiapp.backendconnection: ${LOG_LEVEL:}
+    cz.cvut.fel.skiapp.backendconnection: ${LOG_LEVEL:INFO}
     org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
-    org.flywaydb: info
+    org.flywaydb: INFO
