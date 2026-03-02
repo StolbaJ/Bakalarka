@@ -17,6 +17,8 @@ import {
   Pencil,
   Eye,
   QrCode,
+  Mail,
+  Phone,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useLanguage } from '@/contexts/LanguageContext'
@@ -566,6 +568,9 @@ function OrderDetailEdit({
   const [addingSki, setAddingSki] = useState(false)
   const [addSkiTargetStruktura, setAddSkiTargetStruktura] = useState('')
   const [editCustomerId, setEditCustomerId] = useState<number | null>(null)
+  const [customerDetail, setCustomerDetail] = useState<CustomerDetailResponse | null>(null)
+  const [customerDetailLoading, setCustomerDetailLoading] = useState(false)
+  const customerDetailRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!editing) return
@@ -587,6 +592,16 @@ function OrderDetailEdit({
     setNotes(detail.notes || '')
     setPrice(detail.price != null ? String(detail.price) : '')
   }, [editing, detail.id, detail.customerId, detail.dueDate, detail.priority, detail.status, detail.notes, detail.price])
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (customerDetailRef.current && !customerDetailRef.current.contains(e.target as Node)) {
+        setCustomerDetail(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleSave = async () => {
     setSaving(true)
@@ -823,6 +838,24 @@ function OrderDetailEdit({
     )
   }
 
+  const handleCustomerNameClick = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (detail.customerId == null) return
+    if (customerDetail?.id === detail.customerId) {
+      setCustomerDetail(null)
+      return
+    }
+    setCustomerDetailLoading(true)
+    try {
+      const c = await apiClient.getCustomer(detail.customerId)
+      setCustomerDetail(c)
+    } catch {
+      setCustomerDetail(null)
+    } finally {
+      setCustomerDetailLoading(false)
+    }
+  }
+
   return (
     <div className="bg-gray-50 border-t border-gray-200 pl-14 pr-6 pb-4">
       <datalist id="upravy-add-item-list">
@@ -836,8 +869,51 @@ function OrderDetailEdit({
           <option key={s.id} value={s.name} />
         ))}
       </datalist>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-sm">
-        <div><span className="font-medium text-gray-600">{t('common.customer')}:</span> {detail.customerName || t('common.notSet')}</div>
+      <div className="pt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 text-sm" ref={customerDetailRef}>
+        <div className="relative">
+          <span className="font-medium text-gray-600">{t('common.customer')}:</span>{' '}
+          {detail.customerId != null && detail.customerName ? (
+            <button
+              type="button"
+              onClick={handleCustomerNameClick}
+              disabled={customerDetailLoading}
+              className="text-blue-600 hover:text-blue-800 hover:underline underline-offset-2 cursor-pointer font-medium inline-flex items-center gap-1"
+            >
+              {detail.customerName}
+              <ChevronDown className={`w-4 h-4 transition-transform ${customerDetail ? 'rotate-180' : ''}`} />
+            </button>
+          ) : (
+            <span className="text-gray-700">{detail.customerName || t('common.notSet')}</span>
+          )}
+          {customerDetailLoading && (
+            <span className="ml-1 inline-block">
+              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+            </span>
+          )}
+          {customerDetail && customerDetail.id === detail.customerId && (
+            <div className="absolute left-0 top-full mt-1 z-10 min-w-[220px] rounded-lg border border-gray-200 bg-white py-3 px-3 shadow-lg">
+              {customerDetail.email && (
+                <div className="flex items-center gap-2 text-sm text-gray-700 mb-1">
+                  <Mail className="w-4 h-4 text-gray-500 shrink-0" />
+                  <a href={`mailto:${customerDetail.email}`} className="text-blue-600 hover:underline break-all">
+                    {customerDetail.email}
+                  </a>
+                </div>
+              )}
+              {customerDetail.phone && (
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <Phone className="w-4 h-4 text-gray-500 shrink-0" />
+                  <a href={`tel:${customerDetail.phone}`} className="text-blue-600 hover:underline">
+                    {customerDetail.phone}
+                  </a>
+                </div>
+              )}
+              {!customerDetail.email && !customerDetail.phone && (
+                <p className="text-sm text-gray-500">{t('common.notSet')}</p>
+              )}
+            </div>
+          )}
+        </div>
         <div><span className="font-medium text-gray-600">{t('common.dueDate')}:</span> {detail.dueDate || t('common.notSet')}</div>
       </div>
       {detail.notes && <p className="text-sm text-gray-700 mb-4"><span className="font-medium text-gray-600">{t('common.notes')}:</span> {detail.notes}</p>}

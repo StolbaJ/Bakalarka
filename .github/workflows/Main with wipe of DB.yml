@@ -1,0 +1,38 @@
+name: Malina Docker Deploy
+
+on:
+  # push:
+  #   branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted   # Runner na RPi5 – checkout i docker běží lokálně na Malině
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare .env and SSL
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SSL_PRIVATE_KEY_B64: ${{ secrets.SSL_PRIVATE_KEY_B64 }}
+        run: |
+          echo "JWT_SECRET=$JWT_SECRET" > .env
+          echo "NEXT_PUBLIC_API_URL=" >> .env
+          echo "RESEND_API_KEY=$RESEND_API_KEY" >> .env
+          mkdir -p docker/ssl
+          echo "$SSL_PRIVATE_KEY_B64" | base64 -d > docker/ssl/key.pem
+          chmod 600 docker/ssl/key.pem
+
+      - name: Use SSL Nginx config
+        run: |
+          rm -f docker/nginx/conf.d/default.conf
+          cp docker/nginx/conf.d/default-ssl.conf docker/nginx/conf.d/default.conf
+
+      - name: Docker Rebuild
+        run: |
+          sudo docker compose -f docker/docker-compose.yml --env-file .env down -v
+          sudo docker compose -f docker/docker-compose.yml --env-file .env build --no-cache
+          sudo docker compose -f docker/docker-compose.yml --env-file .env up -d
+          sudo docker image prune -f
