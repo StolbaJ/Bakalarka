@@ -1,8 +1,6 @@
 {
   "common": {
     "error": "Chyba",
-    "rateLimitWait": "Počkejte prosím {{seconds}} s kvůli omezení počtu pokusů.",
-    "rateLimitWaitShort": "Počkejte {{seconds}} s…",
     "save": "Uložit",
     "cancel": "Zrušit",
     "delete": "Smazat",
