@@ -56,6 +56,22 @@ class ApiClient {
     this.onUnauthorized = callback
   }
 
+  /** Zpětná kompatibilita: starý BE vrací pole, nový PageResponse. Vždy vrátíme PageResponse. */
+  private normalizePageResponse<T>(data: PageResponse<T> | T[]): PageResponse<T> {
+    if (Array.isArray(data)) {
+      return {
+        content: data,
+        totalElements: data.length,
+        totalPages: data.length === 0 ? 0 : 1,
+        size: data.length,
+        number: 0,
+        first: true,
+        last: true,
+      }
+    }
+    return data
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -273,7 +289,8 @@ class ApiClient {
   // Ski endpoints
   async getSkis(page = 0, size = 20): Promise<PageResponse<SkiResponse>> {
     const params = new URLSearchParams({ page: String(page), size: String(size) })
-    return this.request<PageResponse<SkiResponse>>(`/api/technician/skis?${params}`)
+    const data = await this.request<PageResponse<SkiResponse> | SkiResponse[]>(`/api/technician/skis?${params}`)
+    return this.normalizePageResponse(data)
   }
 
   async getSki(id: number): Promise<SkiResponse> {
@@ -312,7 +329,8 @@ class ApiClient {
   async getOrders(page = 0, size = 20, search?: string): Promise<PageResponse<OrderSummaryResponse>> {
     const params = new URLSearchParams({ page: String(page), size: String(size) })
     if (search != null && search.trim() !== '') params.set('search', search.trim())
-    return this.request<PageResponse<OrderSummaryResponse>>(`/api/technician/orders?${params}`)
+    const data = await this.request<PageResponse<OrderSummaryResponse> | OrderSummaryResponse[]>(`/api/technician/orders?${params}`)
+    return this.normalizePageResponse(data)
   }
 
   async getOrder(id: number): Promise<OrderDetailResponse> {
@@ -354,7 +372,8 @@ class ApiClient {
 
   async getCustomers(page = 0, size = 20): Promise<PageResponse<CustomerSummaryResponse>> {
     const params = new URLSearchParams({ page: String(page), size: String(size) })
-    return this.request<PageResponse<CustomerSummaryResponse>>(`/api/technician/customers?${params}`)
+    const data = await this.request<PageResponse<CustomerSummaryResponse> | CustomerSummaryResponse[]>(`/api/technician/customers?${params}`)
+    return this.normalizePageResponse(data)
   }
 
   async getCustomer(id: number): Promise<CustomerDetailResponse> {
