@@ -88,43 +88,10 @@ services:
       - app-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
 
-  # Denní záloha DB (pg_dump) – zálohy v volume backup-data; off-site viz docker/backup/README.md
-  backup:
-    image: postgres:16-alpine
-    container_name: backup-ski
-    restart: unless-stopped
-    env_file:
-      - ../.env
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME:-ski_inventory}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - BACKUP_RETAIN_DAYS=${BACKUP_RETAIN_DAYS:-7}
-    volumes:
-      - backup-data:/backups
-      - ./backup/backup.sh:/backup.sh:ro
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - |
-        chmod +x /backup.sh
-        echo "BACKUP: Waiting 90s for Postgres..."
-        sleep 90
-        while true; do
-          /backup.sh
-          echo "BACKUP: Next run in 24h"
-          sleep 86400
-        done
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-network
+ 
 
 volumes:
   postgres-data:
-  backup-data:
 
 networks:
   app-network:

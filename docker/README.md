@@ -34,6 +34,3 @@ Lokální běh backendu bez Dockeru (Java 21, Postgres, env): **Backend_ski/READ
 
 #### SSL / HTTPS (Cloudflare)
 Potřebuješ **doménu** (A záznam na IP serveru). Certifikát: Cloudflare Origin Certificate → ulož jako `docker/ssl/cert.pem` (v repu). Privátní klíč **ne** do repa – jen do GitHub Secret `SSL_PRIVATE_KEY_B64` (base64 klíče). Při deployi (push na `main`) se klíč zapíše na server a Nginx použije `default-ssl.conf`. Detail: **docker/ssl/README.md**.
-
-#### Zálohy DB
-Služba **backup** každých 24 h dělá `pg_dump` do volume `backup-data` (rotace 7 dní). Zálohy jsou na stejném disku jako DB – až budu chtít, doplním off-site (rsync na NAS, rclone na S3/B2 nebo USB disk). Obnovení a off-site: **docker/backup/README.md**.

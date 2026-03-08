@@ -1,10 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { apiClient, CredentialsHintResponse, isRateLimitError, getRateLimitRetrySeconds } from '@/lib/api'
-import { X, Shield, Loader2 } from 'lucide-react'
+import { apiClient, CredentialsHintResponse } from '@/lib/api'
+import { X, Shield, Loader2, Clock } from 'lucide-react'
+
+function isRateLimitError(err: unknown): err is Error & { status?: number; retryAfter?: number } {
+  return err instanceof Error && (err as Error & { status?: number }).status === 429
+}
 
 interface AdminLoginProps {
   onClose: () => void
@@ -17,22 +21,26 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [credentialsHint, setCredentialsHint] = useState<CredentialsHintResponse | null>(null)
-  const [rateLimitSeconds, setRateLimitSeconds] = useState(0)
+  const [rateLimitSeconds, setRateLimitSeconds] = useState<number | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const { loginAdmin, loginTechnician } = useAuth()
+
+  useEffect(() => {
+    if (rateLimitSeconds == null || rateLimitSeconds <= 0) return
+    intervalRef.current = setInterval(() => {
+      setRateLimitSeconds((s) => (s == null || s <= 1 ? null : s - 1))
+    }, 1000)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
+  }, [rateLimitSeconds])
 
   useEffect(() => {
     apiClient.getCredentialsHint().then(setCredentialsHint).catch(() => setCredentialsHint({ showHint: false }))
   }, [])
 
-  useEffect(() => {
-    if (rateLimitSeconds <= 0) return
-    const id = setInterval(() => setRateLimitSeconds((s) => (s <= 1 ? 0 : s - 1)), 1000)
-    return () => clearInterval(id)
-  }, [rateLimitSeconds])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (rateLimitSeconds > 0) return
     setIsLoading(true)
     setError('')
 
@@ -47,12 +55,12 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
       }
       setError(t('adminLogin.invalidCredentials'))
     } catch (err) {
-      if (isRateLimitError(err)) {
-        setRateLimitSeconds(getRateLimitRetrySeconds(err))
-        setError(t('common.rateLimitReason'))
-      } else {
-        setError(err instanceof Error ? err.message : t('adminLogin.errorLogin'))
+      if (isRateLimitError(err) && typeof err.retryAfter === 'number') {
+        setError('')
+        setRateLimitSeconds(err.retryAfter)
+        return
       }
+      setError(err instanceof Error ? err.message : t('adminLogin.errorLogin'))
     } finally {
       setIsLoading(false)
     }
@@ -108,23 +116,23 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
           </div>
           
           {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-          {rateLimitSeconds > 0 && (
-            <p className="text-amber-700 text-sm text-center bg-amber-50 py-2 px-3 rounded">
-              {t('common.rateLimitRetryIn').replace('{{seconds}}', String(rateLimitSeconds))}
+          {rateLimitSeconds != null && rateLimitSeconds > 0 && (
+            <p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 text-sm flex items-center justify-center gap-2">
+              <Clock className="w-4 h-4 shrink-0" />
+              {t('common.rateLimitWait').replace('{{seconds}}', String(rateLimitSeconds))}
             </p>
           )}
+          
           <button
             type="submit"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLoading || rateLimitSeconds > 0}
+            disabled={isLoading || (rateLimitSeconds != null && rateLimitSeconds > 0)}
           >
             {isLoading ? (
               <span className="flex items-center">
                 <Loader2 className="animate-spin h-5 w-5 mr-3" />
                 {t('adminLogin.submitting')}
               </span>
-            ) : rateLimitSeconds > 0 ? (
-              t('common.rateLimitRetryIn').replace('{{seconds}}', String(rateLimitSeconds))
             ) : (
               t('adminLogin.submit')
             )}

@@ -1,8 +1,8 @@
 {
   "common": {
     "error": "Error",
-    "rateLimitReason": "Too many attempts. Please wait due to rate limiting.",
-    "rateLimitRetryIn": "Retry in {{seconds}} s",
+    "rateLimitWait": "Please wait {{seconds}} seconds due to rate limiting.",
+    "rateLimitWaitShort": "Wait {{seconds}} s…",
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",

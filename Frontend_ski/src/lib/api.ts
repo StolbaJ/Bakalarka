@@ -89,30 +89,32 @@ class ApiClient {
           this.onUnauthorized?.()
         }
         let errorMessage = `HTTP error! status: ${response.status}`
+        let retryAfter: number | undefined
         try {
           const text = await response.text()
           if (text) {
             try {
               const error = JSON.parse(text)
               errorMessage = error.message || errorMessage
+              if (response.status === 429 && typeof error.retryAfter === 'number') {
+                retryAfter = error.retryAfter
+              }
             } catch {
               errorMessage = text || errorMessage
             }
+          }
+          if (response.status === 429 && retryAfter == null) {
+            const header = response.headers.get('Retry-After')
+            if (header != null) retryAfter = parseInt(header, 10)
           }
           console.error('API Error:', errorMessage)
         } catch {
           // ignore
         }
-        const err = new Error(errorMessage) as Error & { status?: number; retryAfterSeconds?: number }
+        const err = new Error(errorMessage) as Error & { status?: number; retryAfter?: number }
         err.status = response.status
-        if (response.status === 429) {
-          const retryAfter = response.headers.get('Retry-After')
-          if (retryAfter) {
-            const n = parseInt(retryAfter, 10)
-            err.retryAfterSeconds = Number.isNaN(n) ? 60 : Math.min(Math.max(n, 1), 300)
-          } else {
-            err.retryAfterSeconds = 60
-          }
+        if (response.status === 429 && retryAfter != null && !Number.isNaN(retryAfter)) {
+          err.retryAfter = retryAfter
         }
         throw err
       }
@@ -759,16 +761,6 @@ export interface ModificationOptionResponse {
   description: string | null
   sortOrder: number
   requiresWorkDescription: boolean
-}
-
-/** Pro 429 (rate limit) – zobrazit na FE „počkejte X s“. */
-export function isRateLimitError(err: unknown): err is Error & { status: number; retryAfterSeconds?: number } {
-  return err instanceof Error && typeof (err as Error & { status?: number }).status === 'number' && (err as Error & { status: number }).status === 429
-}
-
-export function getRateLimitRetrySeconds(err: unknown): number {
-  if (!isRateLimitError(err)) return 0
-  return err.retryAfterSeconds ?? 60
 }
 
 export const apiClient = new ApiClient()

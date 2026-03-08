@@ -1,9 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { User, Search, Phone, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { User, Search, Phone, Loader2, Clock } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
-import { isRateLimitError, getRateLimitRetrySeconds } from '@/lib/api'
+
+function isRateLimitError(err: unknown): err is Error & { status?: number; retryAfter?: number } {
+  return err instanceof Error && (err as Error & { status?: number }).status === 429
+}
 
 interface OrderLookupProps {
   onLookup: (orderNumber: string, phone: string) => Promise<boolean>
@@ -23,17 +26,21 @@ export default function OrderLookup({
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [rateLimitSeconds, setRateLimitSeconds] = useState(0)
+  const [rateLimitSeconds, setRateLimitSeconds] = useState<number | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    if (rateLimitSeconds <= 0) return
-    const id = setInterval(() => setRateLimitSeconds((s) => (s <= 1 ? 0 : s - 1)), 1000)
-    return () => clearInterval(id)
+    if (rateLimitSeconds == null || rateLimitSeconds <= 0) return
+    intervalRef.current = setInterval(() => {
+      setRateLimitSeconds((s) => (s == null || s <= 1 ? null : s - 1))
+    }, 1000)
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [rateLimitSeconds])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (rateLimitSeconds > 0) return
     const trimmedOrder = orderNumber.trim()
     const trimmedPhone = phone.trim()
     if (!trimmedOrder || !trimmedPhone) return
@@ -49,12 +56,13 @@ export default function OrderLookup({
         setError(t('orderLookup.notFound'))
       }
     } catch (err) {
-      if (isRateLimitError(err)) {
-        setRateLimitSeconds(getRateLimitRetrySeconds(err))
-        setError(t('common.rateLimitReason'))
-      } else {
-        setError(err instanceof Error ? err.message : t('orderLookup.errorLookup'))
+      if (isRateLimitError(err) && typeof err.retryAfter === 'number') {
+        setError('')
+        setRateLimitSeconds(err.retryAfter)
+        return
       }
+      const msg = err instanceof Error ? err.message : t('orderLookup.errorLookup')
+      setError(msg)
     } finally {
       setIsLoading(false)
     }
@@ -125,23 +133,22 @@ export default function OrderLookup({
           </div>
         </div>
         {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-        {rateLimitSeconds > 0 && (
-          <p className="text-amber-700 text-sm text-center bg-amber-50 py-2 px-3 rounded">
-            {t('common.rateLimitRetryIn').replace('{{seconds}}', String(rateLimitSeconds))}
+        {rateLimitSeconds != null && rateLimitSeconds > 0 && (
+          <p className="text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 text-sm flex items-center justify-center gap-2">
+            <Clock className="w-4 h-4 shrink-0" />
+            {t('common.rateLimitWait').replace('{{seconds}}', String(rateLimitSeconds))}
           </p>
         )}
         <button
           type="submit"
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isLoading || rateLimitSeconds > 0}
+          disabled={isLoading || (rateLimitSeconds != null && rateLimitSeconds > 0)}
         >
           {isLoading ? (
             <span className="flex items-center">
               <Loader2 className="animate-spin h-5 w-5 mr-3" />
               {t('common.loading')}
             </span>
-          ) : rateLimitSeconds > 0 ? (
-            t('common.rateLimitRetryIn').replace('{{seconds}}', String(rateLimitSeconds))
           ) : (
             t('orderLookup.submit')
           )}
