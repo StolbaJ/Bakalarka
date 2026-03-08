@@ -69,6 +69,31 @@ services:
     networks:
       - app-network
 
+  # Zálohy: pg_dump každých 24 h, držím 7 dní
+  backup:
+    build:
+      context: .
+      dockerfile: backup/Dockerfile
+    container_name: backup-ski
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGDATABASE=${DB_NAME:-ski_inventory}
+      - PGUSER=${DB_USER:-postgres}
+      - PGPASSWORD=${DB_PASSWORD:-postgres}
+      - RETENTION_DAYS=7
+      - BACKUP_INTERVAL_SEC=86400
+    volumes:
+      - backup-data:/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
   # Nginx reverse proxy
   nginx:
     image: nginx:alpine
@@ -92,6 +117,7 @@ services:
 
 volumes:
   postgres-data:
+  backup-data:
 
 networks:
   app-network:
