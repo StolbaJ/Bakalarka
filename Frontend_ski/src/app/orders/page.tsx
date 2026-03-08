@@ -26,6 +26,7 @@ import PaginationControls from '@/components/PaginationControls'
 import QRScanner from '@/components/QRScanner'
 import SkiDetail from '@/components/SkiDetail'
 import { SkiData } from '@/components/SkiItem'
+import SkiEditForm, { SkiFormData } from '@/components/SkiEditForm'
 import { skiResponseToData } from '@/lib/skiUtils'
 import apiClient, {
   OrderSummaryResponse,
@@ -1453,7 +1454,7 @@ function TaskItemRow({
   )
 }
 
-type CreateOrderStep = 1 | 2 | 3 | 4
+type CreateOrderStep = 1 | 2 | 3 | 4 | 5
 
 interface TaskItemDraft {
   taskName: string
@@ -1495,6 +1496,9 @@ function CreateOrderModal({
   const [newCustomerAddress, setNewCustomerAddress] = useState('')
   const [creatingCustomer, setCreatingCustomer] = useState(false)
   const [editCustomerId, setEditCustomerId] = useState<number | null>(null)
+  const [needAddSkisStep, setNeedAddSkisStep] = useState(false)
+  const [addSkiFormKey, setAddSkiFormKey] = useState(0)
+  const [creatingSki, setCreatingSki] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -1555,32 +1559,34 @@ function CreateOrderModal({
   }
 
   const goToStep2 = () => {
-    if (selectedSkiIds.length === 0) {
-      setError(t('orders.selectAtLeastOneSki'))
-      return
-    }
     setError(null)
-    setItemsPerSki(prev => {
-      const next = { ...prev }
-      selectedSkiIds.forEach(sid => {
-        if (!(sid in next)) next[sid] = []
+    const noSkis = selectedSkiIds.length === 0
+    setNeedAddSkisStep(noSkis)
+    if (!noSkis) {
+      setItemsPerSki(prev => {
+        const next = { ...prev }
+        selectedSkiIds.forEach(sid => {
+          if (!(sid in next)) next[sid] = []
+        })
+        return next
       })
-      return next
-    })
-    setTargetStrukturaPerSki(prev => {
-      const next = { ...prev }
-      selectedSkiIds.forEach(sid => {
-        if (!(sid in next)) {
-          const s = skis.find(x => x.id === sid)
-          next[sid] = s?.struktura ?? ''
-        }
+      setTargetStrukturaPerSki(prev => {
+        const next = { ...prev }
+        selectedSkiIds.forEach(sid => {
+          if (!(sid in next)) {
+            const s = skis.find(x => x.id === sid)
+            next[sid] = s?.struktura ?? ''
+          }
+        })
+        return next
       })
-      return next
-    })
+    }
     if (customerId === '') {
       setStep(2)
-    } else {
+    } else if (noSkis) {
       setStep(3)
+    } else {
+      setStep(4)
     }
   }
 
@@ -1626,7 +1632,7 @@ function CreateOrderModal({
       setCustomerId(String(created.id))
       setCreatedCustomerInThisFlow(true)
       setCustomers(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
-      setStep(3)
+      setStep(needAddSkisStep ? 3 : 4)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('orders.createCustomerError'))
     } finally {
@@ -1656,7 +1662,69 @@ function CreateOrderModal({
     })
   }
 
+  const fillItemsAndTargetForSelectedSkis = () => {
+    setItemsPerSki(prev => {
+      const next = { ...prev }
+      selectedSkiIds.forEach(sid => {
+        if (!(sid in next)) next[sid] = []
+      })
+      return next
+    })
+    setTargetStrukturaPerSki(prev => {
+      const next = { ...prev }
+      selectedSkiIds.forEach(sid => {
+        if (!(sid in next)) {
+          const s = skis.find(x => x.id === sid)
+          next[sid] = s?.struktura ?? ''
+        }
+      })
+      return next
+    })
+  }
+
+  const handleAddSkiInOrder = async (data: SkiFormData) => {
+    setError(null)
+    setCreatingSki(true)
+    try {
+      const created = await apiClient.createSki({
+        brand: data.brand,
+        model: data.model,
+        length: data.length,
+        year: data.year,
+        condition: data.condition,
+        status: data.status,
+        location: data.location,
+        notes: data.notes,
+        nextServiceDate: data.nextServiceDate,
+      })
+      const newSki = { id: created.id, skiNumber: created.skiNumber, brand: created.brand, model: created.model, length: created.length, struktura: created.struktura ?? null }
+      setSkis(prev => [...prev, newSki].sort((a, b) => a.id - b.id))
+      setSelectedSkiIds(prev => [...prev, created.id])
+      setItemsPerSki(prev => ({ ...prev, [created.id]: [] }))
+      setTargetStrukturaPerSki(prev => ({ ...prev, [created.id]: created.struktura ?? '' }))
+      setAddSkiFormKey(k => k + 1)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('orders.createSkiError'))
+    } finally {
+      setCreatingSki(false)
+    }
+  }
+
+  const goFromAddSkisToTasks = () => {
+    if (selectedSkiIds.length === 0) {
+      setError(t('orders.selectAtLeastOneSki'))
+      return
+    }
+    setError(null)
+    fillItemsAndTargetForSelectedSkis()
+    setStep(4)
+  }
+
   const handleSubmit = async () => {
+    if (selectedSkiIds.length === 0) {
+      setError(t('orders.selectAtLeastOneSki'))
+      return
+    }
     setSaving(true)
     setError(null)
     try {
@@ -1693,9 +1761,9 @@ function CreateOrderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 cursor-pointer" onClick={onClose}>
-      <div className={`bg-white rounded-xl shadow-xl w-full max-h-[90vh] overflow-y-auto cursor-default ${step === 3 || step === 4 ? 'max-w-4xl' : 'max-w-lg'}`} onClick={e => e.stopPropagation()}>
+      <div className={`bg-white rounded-xl shadow-xl w-full max-h-[90vh] overflow-y-auto cursor-default ${step === 3 || step === 4 || step === 5 ? 'max-w-4xl' : 'max-w-lg'}`} onClick={e => e.stopPropagation()}>
         <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">{t('orders.createOrderTitle')} {step}/4</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('orders.createOrderTitle')} {step}/{needAddSkisStep ? 5 : 4}</h2>
           <button type="button" onClick={onClose} className="text-gray-500 hover:text-gray-700 p-1 cursor-pointer">×</button>
         </div>
         <div className="p-6 space-y-4">
@@ -1744,7 +1812,7 @@ function CreateOrderModal({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('orders.skisInOrderRequired')}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">{t('orders.skisInOrderOptional')}</label>
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <input type="text" value={skiIdFilter} onChange={e => setSkiIdFilter(e.target.value)} placeholder={t('orders.filterById')} className="flex-1 min-w-[180px] rounded-md border border-gray-300 shadow-sm text-sm py-2 px-3" />
                       <button type="button" onClick={() => setShowQrCreate(true)} className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer shrink-0">
@@ -1772,7 +1840,7 @@ function CreateOrderModal({
                     </div>
                   )}
                   <div className="flex gap-3 pt-2">
-                    <button type="button" onClick={goToStep2} disabled={selectedSkiIds.length === 0} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium cursor-pointer">
+                    <button type="button" onClick={goToStep2} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium cursor-pointer">
                       {t('common.next')}
                     </button>
                     <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium cursor-pointer">
@@ -1814,7 +1882,39 @@ function CreateOrderModal({
                 </>
               )}
 
-              {step === 3 && (
+              {step === 3 && needAddSkisStep && (
+                <>
+                  <p className="text-sm text-gray-600">{t('orders.addSkiStepIntro')}</p>
+                  {selectedSkis.length > 0 && (
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <p className="text-sm font-medium text-gray-700 mb-2">{t('orders.addedSkisToOrder')}</p>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        {selectedSkis.map(s => (
+                          <li key={s.id}>ID {s.id} — {s.skiNumber} {s.brand} {s.model} {s.length}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div className="border border-gray-200 rounded-lg p-4 bg-white mb-4">
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">{t('orders.createSkiInOrder')}</h3>
+                    <SkiEditForm
+                      key={addSkiFormKey}
+                      onSubmit={handleAddSkiInOrder}
+                      onCancel={() => {}}
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="button" onClick={goFromAddSkisToTasks} disabled={selectedSkiIds.length === 0 || creatingSki} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium cursor-pointer">
+                      {t('orders.continueToTasks')}
+                    </button>
+                    <button type="button" onClick={() => setStep(createdCustomerInThisFlow ? 2 : 1)} disabled={creatingSki} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium cursor-pointer">
+                      {t('common.back')}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {(step === 3 && !needAddSkisStep) && (
                 <>
                   <p className="text-sm text-gray-600">{t('orders.step3Intro')}</p>
                   <div className="space-y-2 mb-4">
@@ -1888,7 +1988,81 @@ function CreateOrderModal({
                 </>
               )}
 
-              {step === 4 && (
+              {step === 4 && needAddSkisStep && (
+                <>
+                  <p className="text-sm text-gray-600">{t('orders.step3Intro')}</p>
+                  <div className="space-y-2 mb-4">
+                    <label className="block text-sm font-medium text-gray-700">{t('orders.orderPrice')}</label>
+                    <input type="number" step="0.01" min="0" value={price} onChange={e => setPrice(e.target.value)} placeholder={t('common.optional')} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <label className="block text-sm font-medium text-gray-700">{t('orders.estimatedDue')}</label>
+                    <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
+                  </div>
+                  <div className="space-y-4">
+                    {selectedSkis.map(ski => (
+                      <div key={ski.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <p className="font-medium text-gray-900 text-sm mb-2">ID {ski.id} — {ski.skiNumber} {ski.brand} {ski.model} {ski.length}</p>
+                        <div className="mb-3">
+                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('orders.targetStructureSki')}</label>
+                          <input
+                            type="text"
+                            list={`struktury-create-4-${ski.id}`}
+                            value={targetStrukturaPerSki[ski.id] ?? ''}
+                            onChange={e => setTargetStrukturaPerSki(prev => ({ ...prev, [ski.id]: e.target.value }))}
+                            placeholder={ski.struktura ?? t('orders.targetStructurePlaceholder')}
+                            className="block w-full rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
+                          />
+                          <datalist id={`struktury-create-4-${ski.id}`}>
+                            {strukturyOptions.map(s => (
+                              <option key={s.id} value={s.name} />
+                            ))}
+                          </datalist>
+                          {ski.struktura != null && ski.struktura !== '' && (
+                            <p className="text-xs text-gray-500 mt-0.5">{t('orders.currentOnSki')} {ski.struktura}</p>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600 mb-2">{t('orders.tasksOnSki')}</p>
+                        {(itemsPerSki[ski.id] || []).map((item, idx) => (
+                          <div key={idx} className="space-y-1 mb-3 p-2 bg-white rounded border border-gray-200">
+                            <div className="flex gap-2 items-center">
+                              <input
+                                type="text"
+                                list="upravy-create-list-4"
+                                value={item.taskName}
+                                onChange={e => updateItemAtSki(ski.id, idx, 'taskName', e.target.value)}
+                                placeholder={t('orders.taskNamePlaceholder')}
+                                className="min-w-0 flex-1 rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
+                              />
+                              <button type="button" onClick={() => removeItemFromSki(ski.id, idx)} className="shrink-0 px-2 py-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 text-sm rounded cursor-pointer">{t('common.delete')}</button>
+                            </div>
+                            <input type="text" value={item.taskInstruction} onChange={e => updateItemAtSki(ski.id, idx, 'taskInstruction', e.target.value)} placeholder={t('orders.howToProcessShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
+                            <input type="text" value={item.taskDescription} onChange={e => updateItemAtSki(ski.id, idx, 'taskDescription', e.target.value)} placeholder={t('orders.resultOptionalShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => addItemToSki(ski.id)} className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer">
+                          {t('orders.addTask')}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <datalist id="upravy-create-list-4">
+                    {modificationOptions.map(u => (
+                      <option key={u.id} value={u.name} />
+                    ))}
+                  </datalist>
+                  <div className="flex gap-3 pt-2">
+                    <button type="button" onClick={() => setStep(5)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium cursor-pointer">
+                      {t('common.next')}
+                    </button>
+                    <button type="button" onClick={() => setStep(3)} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium cursor-pointer">
+                      {t('common.back')}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {(step === 4 && !needAddSkisStep) && (
                 <>
                   <p className="text-sm text-gray-600">{t('orders.step4Intro')}</p>
                   <div>
@@ -1900,6 +2074,24 @@ function CreateOrderModal({
                       {saving ? t('orders.creating') : t('orders.createOrder')}
                     </button>
                     <button type="button" onClick={() => setStep(3)} disabled={saving} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium cursor-pointer">
+                      {t('common.back')}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {step === 5 && (
+                <>
+                  <p className="text-sm text-gray-600">{t('orders.step4Intro')}</p>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.notes')}</label>
+                    <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={4} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" placeholder={t('common.optional')} />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button type="button" onClick={handleSubmit} disabled={saving} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium cursor-pointer">
+                      {saving ? t('orders.creating') : t('orders.createOrder')}
+                    </button>
+                    <button type="button" onClick={() => setStep(4)} disabled={saving} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium cursor-pointer">
                       {t('common.back')}
                     </button>
                   </div>
