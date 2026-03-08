@@ -9,6 +9,9 @@ import com.ski.inventory.repository.ServiceTaskItemRepository;
 import com.ski.inventory.repository.SkiRepository;
 import com.ski.inventory.service.EmailService;
 import com.ski.inventory.service.OrderCreatedNotificationService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -82,14 +85,28 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderSummaryResponse>> getAllOrders(
-            @RequestParam(required = false) String search) {
-        List<Order> orders = orderRepository.findAllByOrderByCreatedAtDesc();
-        List<OrderSummaryResponse> result = orders.stream()
+    public ResponseEntity<PageResponse<OrderSummaryResponse>> getAllOrders(
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        if (size < 1) size = 1;
+        if (size > 100) size = 100;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orderPage = (search != null && !search.isBlank())
+                ? orderRepository.searchByOrderNumberOrCustomerNameOrderByCreatedAtDesc(search.trim(), pageable)
+                : orderRepository.findAllByOrderByCreatedAtDesc(pageable);
+        List<OrderSummaryResponse> content = orderPage.getContent().stream()
                 .map(o -> toSummaryResponse(o, (int) orderTaskRepository.countByOrderId(o.getId())))
-                .filter(o -> search == null || search.isBlank() || matchesSearch(o, search.trim()))
                 .toList();
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(new PageResponse<>(
+                content,
+                orderPage.getTotalElements(),
+                orderPage.getTotalPages(),
+                orderPage.getSize(),
+                orderPage.getNumber(),
+                orderPage.isFirst(),
+                orderPage.isLast()
+        ));
     }
 
     @GetMapping("/{id}")
@@ -472,4 +489,6 @@ public class OrderController {
             String completedAt,
             boolean requiresWorkDescription
     ) {}
+
+    public record PageResponse<T>(List<T> content, long totalElements, int totalPages, int size, int number, boolean first, boolean last) {}
 }

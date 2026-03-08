@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { useLanguage } from '@/contexts/LanguageContext'
+import PaginationControls from '@/components/PaginationControls'
 import QRScanner from '@/components/QRScanner'
 import SkiDetail from '@/components/SkiDetail'
 import { SkiData } from '@/components/SkiItem'
@@ -144,8 +145,8 @@ function EditCustomerModal({
         phone: phoneTrim,
         address: address.trim() || null,
       })
-      const list = await apiClient.getCustomers()
-      onSaved(list.slice().sort((a, b) => a.name.localeCompare(b.name)))
+      const res = await apiClient.getCustomers(0, 500)
+      onSaved(res.content.slice().sort((a, b) => a.name.localeCompare(b.name)))
       onClose()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('orders.saveError'))
@@ -205,11 +206,17 @@ function EditCustomerModal({
   )
 }
 
+const ORDERS_PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
+
 function OrdersPageContent() {
   const { t } = useLanguage()
   const searchParams = useSearchParams()
   const [orders, setOrders] = useState<OrderSummaryResponse[]>([])
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(0)
+  const [size, setSize] = useState(20)
+  const [totalElements, setTotalElements] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [showDone, setShowDone] = useState(true)
   const [loading, setLoading] = useState(true)
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null)
@@ -223,23 +230,26 @@ function OrdersPageContent() {
   const [strukturyOptions, setStrukturyOptions] = useState<StrukturaOptionResponse[]>([])
   const [modificationOptions, setModificationOptions] = useState<ModificationOptionResponse[]>([])
 
-  useEffect(() => {
-    let cancelled = false
-    async function load() {
-      setLoading(true)
-      try {
-        const data = await apiClient.getOrders()
-        if (!cancelled) setOrders(data)
-      } catch (e) {
-        console.error('Failed to load orders:', e)
-        if (!cancelled) setOrders([])
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
+  const loadOrders = useCallback(async (pageNum: number, pageSize: number, searchTerm: string) => {
+    setLoading(true)
+    try {
+      const res = await apiClient.getOrders(pageNum, pageSize, searchTerm || undefined)
+      setOrders(res.content)
+      setTotalElements(res.totalElements)
+      setTotalPages(res.totalPages)
+    } catch (e) {
+      console.error('Failed to load orders:', e)
+      setOrders([])
+      setTotalElements(0)
+      setTotalPages(0)
+    } finally {
+      setLoading(false)
     }
-    load()
-    return () => { cancelled = true }
   }, [])
+
+  useEffect(() => {
+    loadOrders(page, size, search)
+  }, [loadOrders, page, size, search])
 
   useEffect(() => {
     let cancelled = false
@@ -316,18 +326,22 @@ function OrdersPageContent() {
   const PRIORITY_ORDER = { KRITICKA: 0, VYSOKA: 1, STREDNI: 2, NIZKA: 3 } as Record<string, number>
 
   const filteredOrders = orders
-    .filter(o => {
-      if (!showDone && o.orderDone) return false
-      if (!search.trim()) return true
-      const s = search.toLowerCase()
-      return (o.orderNumber?.toLowerCase().includes(s)) || (o.customerName?.toLowerCase().includes(s))
-    })
+    .filter(o => showDone || !o.orderDone)
     .sort((a, b) => {
       if (a.orderDone !== b.orderDone) return a.orderDone ? 1 : -1
       const pa = PRIORITY_ORDER[a.priority || 'STREDNI'] ?? 2
       const pb = PRIORITY_ORDER[b.priority || 'STREDNI'] ?? 2
       return pa - pb
     })
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(Math.max(0, Math.min(newPage, totalPages - 1)))
+  }, [totalPages])
+
+  const handleSizeChange = useCallback((newSize: number) => {
+    setSize(newSize)
+    setPage(0)
+  }, [])
 
   return (
     <ProtectedRoute requiredRole="ADMIN_OR_TECHNICIAN">
@@ -351,8 +365,10 @@ function OrdersPageContent() {
             onClose={() => setShowCreateModal(false)}
             onCreated={async (created) => {
               setShowCreateModal(false)
-              const list = await apiClient.getOrders()
-              setOrders(list)
+              const res = await apiClient.getOrders(page, size, search || undefined)
+              setOrders(res.content)
+              setTotalElements(res.totalElements)
+              setTotalPages(res.totalPages)
               setExpandedOrderId(created.id)
               setOrderDetails(prev => ({ ...prev, [created.id]: created }))
             }}
@@ -369,7 +385,7 @@ function OrdersPageContent() {
               type="text"
               placeholder={t('orders.searchPlaceholder')}
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={e => { setSearch(e.target.value); setPage(0) }}
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -396,25 +412,39 @@ function OrdersPageContent() {
               <p>{t('orders.noOrders')}</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
-              {filteredOrders.map(order => (
-                <OrderRow
-                  key={order.id}
-                  order={order}
-                  detail={orderDetails[order.id]}
-                  isExpanded={expandedOrderId === order.id}
-                  expandedTaskId={expandedTaskId}
-                  onToggleOrder={() => handleToggleOrder(order.id)}
-                  onToggleTask={handleToggleTask}
-                  onOrderUpdated={handleOrderUpdated}
-                  onOpenSkiDetail={handleOpenSkiDetail}
-                  loadingSkiDetail={loadingSkiDetail}
-                  strukturyOptions={strukturyOptions}
-                  modificationOptions={modificationOptions}
+            <>
+              <div className="divide-y divide-gray-200">
+                {filteredOrders.map(order => (
+                  <OrderRow
+                    key={order.id}
+                    order={order}
+                    detail={orderDetails[order.id]}
+                    isExpanded={expandedOrderId === order.id}
+                    expandedTaskId={expandedTaskId}
+                    onToggleOrder={() => handleToggleOrder(order.id)}
+                    onToggleTask={handleToggleTask}
+                    onOrderUpdated={handleOrderUpdated}
+                    onOpenSkiDetail={handleOpenSkiDetail}
+                    loadingSkiDetail={loadingSkiDetail}
+                    strukturyOptions={strukturyOptions}
+                    modificationOptions={modificationOptions}
+                    t={t}
+                  />
+                ))}
+              </div>
+              {totalPages > 0 && (
+                <PaginationControls
+                  page={page}
+                  size={size}
+                  totalElements={totalElements}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  onSizeChange={handleSizeChange}
+                  pageSizeOptions={ORDERS_PAGE_SIZE_OPTIONS}
                   t={t}
                 />
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -575,8 +605,10 @@ function OrderDetailEdit({
   useEffect(() => {
     if (!editing) return
     let cancelled = false
-    Promise.all([apiClient.getCustomers(), apiClient.getSkis()]).then(([custList, skiList]) => {
+    Promise.all([apiClient.getCustomers(0, 500), apiClient.getSkis(0, 500)]).then(([custRes, skiRes]) => {
       if (cancelled) return
+      const custList = custRes.content
+      const skiList = skiRes.content
       setCustomers(custList.slice().sort((a, b) => a.name.localeCompare(b.name)))
       setSkis(skiList.slice().sort((a, b) => a.id - b.id).map(s => ({ id: s.id, skiNumber: s.skiNumber, brand: s.brand, model: s.model, length: s.length })))
     })
@@ -1470,13 +1502,15 @@ function CreateOrderModal({
       setLoading(true)
       setError(null)
       try {
-        const [custList, skiList, struktury, upravy] = await Promise.all([
-          apiClient.getCustomers(),
-          apiClient.getSkis(),
+        const [custRes, skiRes, struktury, upravy] = await Promise.all([
+          apiClient.getCustomers(0, 500),
+          apiClient.getSkis(0, 500),
           apiClient.getStrukturyOptions(),
           apiClient.getModificationOptions(),
         ])
         if (!cancelled) {
+          const custList = custRes.content
+          const skiList = skiRes.content
           setCustomers(custList.slice().sort((a, b) => a.name.localeCompare(b.name)))
           setSkis(skiList.slice().sort((a, b) => a.id - b.id).map(s => ({ id: s.id, skiNumber: s.skiNumber, brand: s.brand, model: s.model, length: s.length, struktura: s.struktura ?? null })))
           setStrukturyOptions(struktury)

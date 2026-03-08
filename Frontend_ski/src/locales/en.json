@@ -310,6 +310,13 @@
   "deleteModal": {
     "cancel": "Cancel"
   },
+  "pagination": {
+    "pageInfo": "Showing {from}–{to} of {total}",
+    "pageSize": "Per page:",
+    "pageOf": "Page {current} / {total}",
+    "prev": "Previous",
+    "next": "Next"
+  },
   "language": {
     "cs": "Čeština",
     "en": "English"

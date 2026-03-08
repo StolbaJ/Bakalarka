@@ -8,6 +8,9 @@ import com.ski.inventory.model.SkiStatus;
 import com.ski.inventory.repository.OrderTaskRepository;
 import com.ski.inventory.repository.SkiRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,9 +33,23 @@ public class SkiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SkiResponse>> getAllSkis() {
-        List<Ski> skis = skiRepository.findAll();
-        return ResponseEntity.ok(skis.stream().map(this::toResponse).toList());
+    public ResponseEntity<PageResponse<SkiResponse>> getAllSkis(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        if (size < 1) size = 1;
+        if (size > 100) size = 100;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Ski> skiPage = skiRepository.findAll(pageable);
+        List<SkiResponse> content = skiPage.getContent().stream().map(this::toResponse).toList();
+        return ResponseEntity.ok(new PageResponse<>(
+                content,
+                skiPage.getTotalElements(),
+                skiPage.getTotalPages(),
+                skiPage.getSize(),
+                skiPage.getNumber(),
+                skiPage.isFirst(),
+                skiPage.isLast()
+        ));
     }
 
     @GetMapping("/{id}")
@@ -229,4 +246,6 @@ public class SkiController {
             java.time.LocalDate nextServiceDate,
             String struktura
     ) {}
+
+    public record PageResponse<T>(List<T> content, long totalElements, int totalPages, int size, int number, boolean first, boolean last) {}
 }

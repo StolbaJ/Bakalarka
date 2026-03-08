@@ -271,8 +271,9 @@ class ApiClient {
   }
 
   // Ski endpoints
-  async getSkis(): Promise<SkiResponse[]> {
-    return this.request<SkiResponse[]>('/api/technician/skis')
+  async getSkis(page = 0, size = 20): Promise<PageResponse<SkiResponse>> {
+    const params = new URLSearchParams({ page: String(page), size: String(size) })
+    return this.request<PageResponse<SkiResponse>>(`/api/technician/skis?${params}`)
   }
 
   async getSki(id: number): Promise<SkiResponse> {
@@ -308,9 +309,10 @@ class ApiClient {
   }
 
   // Orders endpoints (Admin, Technician)
-  async getOrders(search?: string): Promise<OrderSummaryResponse[]> {
-    const params = search ? `?search=${encodeURIComponent(search)}` : ''
-    return this.request<OrderSummaryResponse[]>(`/api/technician/orders${params}`)
+  async getOrders(page = 0, size = 20, search?: string): Promise<PageResponse<OrderSummaryResponse>> {
+    const params = new URLSearchParams({ page: String(page), size: String(size) })
+    if (search != null && search.trim() !== '') params.set('search', search.trim())
+    return this.request<PageResponse<OrderSummaryResponse>>(`/api/technician/orders?${params}`)
   }
 
   async getOrder(id: number): Promise<OrderDetailResponse> {
@@ -350,8 +352,9 @@ class ApiClient {
     })
   }
 
-  async getCustomers(): Promise<CustomerSummaryResponse[]> {
-    return this.request<CustomerSummaryResponse[]>('/api/technician/customers')
+  async getCustomers(page = 0, size = 20): Promise<PageResponse<CustomerSummaryResponse>> {
+    const params = new URLSearchParams({ page: String(page), size: String(size) })
+    return this.request<PageResponse<CustomerSummaryResponse>>(`/api/technician/customers?${params}`)
   }
 
   async getCustomer(id: number): Promise<CustomerDetailResponse> {
@@ -704,6 +707,17 @@ export interface AuditLogPage {
   totalPages: number
   number: number
   size: number
+}
+
+/** Stránkovaná odpověď (lyže, objednávky, zákazníci). */
+export interface PageResponse<T> {
+  content: T[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+  first: boolean
+  last: boolean
 }
 
 export interface DailyStats {

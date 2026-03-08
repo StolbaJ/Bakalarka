@@ -2,6 +2,10 @@ package com.ski.inventory.controller;
 
 import com.ski.inventory.model.Customer;
 import com.ski.inventory.repository.CustomerRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +30,23 @@ public class CustomerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CustomerSummaryResponse>> getAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
-        return ResponseEntity.ok(customers.stream().map(this::toResponse).toList());
+    public ResponseEntity<PageResponse<CustomerSummaryResponse>> getAllCustomers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        if (size < 1) size = 1;
+        if (size > 100) size = 100;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        Page<Customer> customerPage = customerRepository.findAll(pageable);
+        List<CustomerSummaryResponse> content = customerPage.getContent().stream().map(this::toResponse).toList();
+        return ResponseEntity.ok(new PageResponse<>(
+                content,
+                customerPage.getTotalElements(),
+                customerPage.getTotalPages(),
+                customerPage.getSize(),
+                customerPage.getNumber(),
+                customerPage.isFirst(),
+                customerPage.isLast()
+        ));
     }
 
     @GetMapping("/{id}")
@@ -119,4 +137,5 @@ public class CustomerController {
     public record CustomerSummaryResponse(Long id, String customerNumber, String name, String phone, String email) {}
     public record CustomerDetailResponse(Long id, String customerNumber, String name, String phone, String email, String address) {}
     public record ErrorMessage(String message) {}
+    public record PageResponse<T>(List<T> content, long totalElements, int totalPages, int size, int number, boolean first, boolean last) {}
 }

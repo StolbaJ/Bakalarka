@@ -8,13 +8,20 @@ import SkiList from '@/components/SkiList'
 import SkiDetail from '@/components/SkiDetail'
 import SkiEditForm, { SkiFormData } from '@/components/SkiEditForm'
 import DeleteConfirmModal from '@/components/DeleteConfirmModal'
+import PaginationControls from '@/components/PaginationControls'
 import { SkiData } from '@/components/SkiItem'
 import { apiClient } from '@/lib/api'
 import { skiResponseToData } from '@/lib/skiUtils'
 
+const PAGE_SIZE_OPTIONS = [10, 20, 50, 100]
+
 export default function DatabasePage() {
   const { t } = useLanguage()
   const [skis, setSkis] = useState<SkiData[]>([])
+  const [page, setPage] = useState(0)
+  const [size, setSize] = useState(20)
+  const [totalElements, setTotalElements] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedSki, setSelectedSki] = useState<SkiData | null>(null)
@@ -23,23 +30,36 @@ export default function DatabasePage() {
   const [deletingSki, setDeletingSki] = useState<SkiData | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const loadSkis = useCallback(async () => {
+  const loadSkis = useCallback(async (pageNum: number, pageSize: number) => {
     setIsLoading(true)
     setError('')
     try {
-      const data = await apiClient.getSkis()
-      setSkis(data.map(skiResponseToData))
+      const res = await apiClient.getSkis(pageNum, pageSize)
+      setSkis(res.content.map(skiResponseToData))
+      setTotalElements(res.totalElements)
+      setTotalPages(res.totalPages)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('database.loadError'))
       setSkis([])
+      setTotalElements(0)
+      setTotalPages(0)
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [t])
 
   useEffect(() => {
-    loadSkis()
-  }, [loadSkis])
+    loadSkis(page, size)
+  }, [loadSkis, page, size])
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(Math.max(0, Math.min(newPage, totalPages - 1)))
+  }, [totalPages])
+
+  const handleSizeChange = useCallback((newSize: number) => {
+    setSize(newSize)
+    setPage(0)
+  }, [])
 
   const handleViewSki = async (skiId: string) => {
     const fromList = skis.find((s) => s.id === skiId)
@@ -74,7 +94,7 @@ export default function DatabasePage() {
     try {
       await apiClient.deleteSki(deletingSki.numericId)
       setDeletingSki(null)
-      await loadSkis()
+      await loadSkis(page, size)
       setSelectedSki(null)
       setEditingSki(null)
     } catch (err) {
@@ -121,7 +141,7 @@ export default function DatabasePage() {
         })
         setShowAddForm(false)
       }
-      await loadSkis()
+      await loadSkis(page, size)
     } catch (err) {
       throw err
     }
@@ -177,17 +197,31 @@ export default function DatabasePage() {
             />
           </div>
         ) : (
-          <SkiList
-            skis={skis}
-            onView={handleViewSki}
-            onEdit={handleEditSki}
-            onDelete={handleDeleteSki}
-            title={t('database.allSkis')}
-            emptyMessage={t('database.emptyMessage')}
-            showSearch={true}
-            showFilters={true}
-            defaultView="grid"
-          />
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <SkiList
+              skis={skis}
+              onView={handleViewSki}
+              onEdit={handleEditSki}
+              onDelete={handleDeleteSki}
+              title={t('database.allSkis')}
+              emptyMessage={t('database.emptyMessage')}
+              showSearch={true}
+              showFilters={true}
+              defaultView="grid"
+            />
+            {totalPages > 0 && (
+              <PaginationControls
+                page={page}
+                size={size}
+                totalElements={totalElements}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                onSizeChange={handleSizeChange}
+                pageSizeOptions={PAGE_SIZE_OPTIONS}
+                t={t}
+              />
+            )}
+          </div>
         )}
 
         {selectedSki && (

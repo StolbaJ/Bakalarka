@@ -310,6 +310,13 @@
   "deleteModal": {
     "cancel": "Zrušit"
   },
+  "pagination": {
+    "pageInfo": "Zobrazeno {from}–{to} z {total}",
+    "pageSize": "Na stránku:",
+    "pageOf": "Stránka {current} / {total}",
+    "prev": "Předchozí",
+    "next": "Další"
+  },
   "language": {
     "cs": "Čeština",
     "en": "English"
