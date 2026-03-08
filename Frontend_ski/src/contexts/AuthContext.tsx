@@ -13,10 +13,13 @@ interface User {
   email?: string
 }
 
+/** Role, které se přihlašují přes /api/auth/login (jedno volání, role z odpovědi). */
+const STAFF_ROLES: User['role'][] = ['ADMIN', 'TECHNICIAN']
+
 interface AuthContextType {
   user: User | null
-  loginAdmin: (username: string, password: string) => Promise<boolean>
-  loginTechnician: (username: string, password: string) => Promise<boolean>
+  /** Jedno volání API – přihlásí jako ADMIN nebo TECHNICIAN (případně další role v STAFF_ROLES). */
+  loginStaff: (username: string, password: string) => Promise<boolean>
   loginCustomer: (orderNumber: string, phone: string) => Promise<boolean>
   /** Přihlásí zákazníka podle odpovědi z odkazů v e-mailu (token z objednávky). */
   setUserFromAuthResponse: (response: AuthResponse) => void
@@ -119,65 +122,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => apiClient.setOnUnauthorized(null)
   }, [])
 
-  const loginAdmin = async (username: string, password: string): Promise<boolean> => {
+  const loginStaff = async (username: string, password: string): Promise<boolean> => {
     try {
-      console.log('Attempting admin login for:', username)
       const response = await apiClient.login(username, password)
-      console.log('Login response:', response)
-      
-      if (response.role !== 'ADMIN') {
+      const role = response.role as User['role']
+      if (!STAFF_ROLES.includes(role)) {
         return false
       }
-
-        const newUser: User = { 
+      const newUser: User = {
         username: response.username,
-          role: 'ADMIN', 
+        role,
         token: response.token,
-        fullName: response.fullName || undefined,
-        email: response.email || undefined,
+        fullName: response.fullName ?? undefined,
+        email: response.email ?? undefined,
         userId: response.userId,
-        }
-      
-        setUser(newUser)
-        localStorage.setItem('user', JSON.stringify(newUser))
-      console.log('Admin login successful')
-        return true
+      }
+      setUser(newUser)
+      localStorage.setItem('user', JSON.stringify(newUser))
+      return true
     } catch (error) {
       const e = error as Error & { status?: number; retryAfter?: number }
       if (e.status === 429) throw error
-      console.error('Admin login failed:', error)
-      if (error instanceof Error && error.message) {
-        console.error('Error message:', error.message)
-      }
-      return false
-    }
-  }
-
-  const loginTechnician = async (username: string, password: string): Promise<boolean> => {
-    try {
-      const response = await apiClient.login(username, password)
-      
-      // Ověřit, že uživatel má TECHNICIAN roli
-      if (response.role !== 'TECHNICIAN') {
-        return false
-      }
-
-        const newUser: User = { 
-        username: response.username,
-          role: 'TECHNICIAN', 
-        token: response.token,
-        fullName: response.fullName || undefined,
-        email: response.email || undefined,
-        userId: response.userId,
-        }
-      
-        setUser(newUser)
-        localStorage.setItem('user', JSON.stringify(newUser))
-        return true
-    } catch (error) {
-      const e = error as Error & { status?: number; retryAfter?: number }
-      if (e.status === 429) throw error
-      console.error('Technician login failed:', error)
+      console.error('Staff login failed:', error)
       return false
     }
   }
@@ -226,8 +192,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user,
-    loginAdmin,
-    loginTechnician,
+    loginStaff,
     loginCustomer,
     setUserFromAuthResponse,
     logout,

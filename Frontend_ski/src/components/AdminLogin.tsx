@@ -18,7 +18,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
   const [error, setError] = useState('')
   const [rateLimitSeconds, setRateLimitSeconds] = useState<number | null>(null)
   const [credentialsHint, setCredentialsHint] = useState<CredentialsHintResponse | null>(null)
-  const { loginAdmin, loginTechnician } = useAuth()
+  const { loginStaff } = useAuth()
 
   useEffect(() => {
     if (rateLimitSeconds === null || rateLimitSeconds <= 0) return
@@ -43,10 +43,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
     setError('')
 
     try {
-      let success = await loginAdmin(username, password)
-      if (!success) {
-        success = await loginTechnician(username, password)
-      }
+      const success = await loginStaff(username, password)
       if (success) {
         onClose()
         return
