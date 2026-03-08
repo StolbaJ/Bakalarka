@@ -103,8 +103,17 @@ class ApiClient {
         } catch {
           // ignore
         }
-        const err = new Error(errorMessage) as Error & { status?: number }
+        const err = new Error(errorMessage) as Error & { status?: number; retryAfterSeconds?: number }
         err.status = response.status
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('Retry-After')
+          if (retryAfter) {
+            const n = parseInt(retryAfter, 10)
+            err.retryAfterSeconds = Number.isNaN(n) ? 60 : Math.min(Math.max(n, 1), 300)
+          } else {
+            err.retryAfterSeconds = 60
+          }
+        }
         throw err
       }
 
@@ -750,6 +759,16 @@ export interface ModificationOptionResponse {
   description: string | null
   sortOrder: number
   requiresWorkDescription: boolean
+}
+
+/** Pro 429 (rate limit) – zobrazit na FE „počkejte X s“. */
+export function isRateLimitError(err: unknown): err is Error & { status: number; retryAfterSeconds?: number } {
+  return err instanceof Error && typeof (err as Error & { status?: number }).status === 'number' && (err as Error & { status: number }).status === 429
+}
+
+export function getRateLimitRetrySeconds(err: unknown): number {
+  if (!isRateLimitError(err)) return 0
+  return err.retryAfterSeconds ?? 60
 }
 
 export const apiClient = new ApiClient()

@@ -1,6 +1,8 @@
 {
   "common": {
     "error": "Chyba",
+    "rateLimitReason": "Příliš mnoho pokusů. Z důvodu rate limitingu prosím počkejte.",
+    "rateLimitRetryIn": "Zkusit znovu za {{seconds}} s",
     "save": "Uložit",
     "cancel": "Zrušit",
     "delete": "Smazat",

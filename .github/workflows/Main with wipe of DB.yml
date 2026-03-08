@@ -1,4 +1,4 @@
-name: Malina Docker Deploy
+name: Malina Docker Deploy with wipe of DB
 
 on:
   # push:
