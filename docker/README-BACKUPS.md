@@ -55,7 +55,7 @@ Změna: v docker-compose.yml u služby backup RETENTION_DAYS / BACKUP_INTERVAL_S
 
 ## Off-site
 
-Zálohy v backup-data jsou na stejném stroji – při výpadku RPi/SD padnou s ním. Doporučení: kopírovat zálohy mimo server.
+Zálohy v backup-data jsou na stejném stroji – při výpadku RPi/SD padnou s ním. co dál: kopírovat zálohy mimo server.
 
 Možnosti:
 

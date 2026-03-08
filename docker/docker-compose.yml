@@ -67,7 +67,7 @@ services:
     networks:
       - app-network
 
-  # Zálohy: pg_dump každých 24 h, držím 7 dní
+  # Zálohy: pg_dump každých 24 h, držím 7 dní (limit RAM aby nevyhodil RPi)
   backup:
     build:
       context: ./backup
@@ -84,6 +84,7 @@ services:
       - PGPASSWORD=${DB_PASSWORD:-postgres}
       - RETENTION_DAYS=7
       - BACKUP_INTERVAL_SEC=86400
+      - BACKUP_START_DELAY=120
     volumes:
       - backup-data:/backups
     depends_on:
@@ -91,6 +92,7 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    mem_limit: 256m
 
   # Nginx reverse proxy
   nginx:
