@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ski.inventory.model.Ski;
 import com.ski.inventory.model.SkiCondition;
 import com.ski.inventory.model.SkiStatus;
+import com.ski.inventory.monitoring.ServerErrorRecorder;
+import com.ski.inventory.service.JwtService;
 import com.ski.inventory.repository.OrderTaskRepository;
 import com.ski.inventory.repository.SkiRepository;
 import org.junit.jupiter.api.Test;
@@ -43,6 +45,10 @@ class SkiControllerTest {
     private SkiRepository skiRepository;
     @MockBean
     private OrderTaskRepository orderTaskRepository;
+    @MockBean
+    private ServerErrorRecorder serverErrorRecorder;
+    @MockBean
+    private JwtService jwtService;
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -116,7 +122,7 @@ class SkiControllerTest {
         Ski existing = createSki(1L, "SKI-001", "Old", "OldModel");
         SkiController.UpdateSkiRequest req = new SkiController.UpdateSkiRequest(
                 "NewBrand", "NewModel", "175", 2024, "race", BigDecimal.valueOf(4.0),
-                "VYBORNÝ", "V_SERVISU", "B2", "updated", null, null, null);
+                "VYORNY", "V_SERVISU", "B2", "updated", null, null, null);
         when(skiRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(skiRepository.save(any(Ski.class))).thenAnswer(inv -> inv.getArgument(0));
 
