@@ -143,6 +143,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('Admin login successful')
         return true
     } catch (error) {
+      const e = error as Error & { status?: number; retryAfter?: number }
+      if (e.status === 429) throw error
       console.error('Admin login failed:', error)
       if (error instanceof Error && error.message) {
         console.error('Error message:', error.message)
@@ -173,6 +175,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(newUser))
         return true
     } catch (error) {
+      const e = error as Error & { status?: number; retryAfter?: number }
+      if (e.status === 429) throw error
       console.error('Technician login failed:', error)
       return false
     }
@@ -199,6 +203,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(newUser))
       return true
     } catch (error) {
+      const e = error as Error & { status?: number; retryAfter?: number }
+      if (e.status === 429) throw error
       console.error('Customer login failed:', error)
       return false
     }
