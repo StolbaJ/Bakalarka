@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { apiClient, CredentialsHintResponse } from '@/lib/api'
@@ -16,8 +16,22 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [rateLimitSeconds, setRateLimitSeconds] = useState<number | null>(null)
   const [credentialsHint, setCredentialsHint] = useState<CredentialsHintResponse | null>(null)
   const { loginAdmin, loginTechnician } = useAuth()
+
+  useEffect(() => {
+    if (rateLimitSeconds === null || rateLimitSeconds <= 0) return
+    const id = setInterval(() => {
+      setRateLimitSeconds((s) => (s === null || s <= 1 ? null : s - 1))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [rateLimitSeconds])
+  const prevRateLimitRef = useRef<number | null>(null)
+  useEffect(() => {
+    if (prevRateLimitRef.current !== null && rateLimitSeconds === null) setError('')
+    prevRateLimitRef.current = rateLimitSeconds
+  }, [rateLimitSeconds])
 
   useEffect(() => {
     apiClient.getCredentialsHint().then(setCredentialsHint).catch(() => setCredentialsHint({ showHint: false }))
@@ -39,7 +53,13 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
       }
       setError(t('adminLogin.invalidCredentials'))
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('adminLogin.errorLogin'))
+      const e = err as Error & { status?: number; retryAfter?: number }
+      if (e.status === 429 && typeof e.retryAfter === 'number') {
+        setRateLimitSeconds(e.retryAfter)
+        setError(t('rateLimit.wait').replace('{seconds}', String(e.retryAfter)))
+      } else {
+        setError(err instanceof Error ? err.message : t('adminLogin.errorLogin'))
+      }
     } finally {
       setIsLoading(false)
     }
@@ -94,12 +114,17 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
             />
           </div>
           
-          {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-          
+          {error && (
+            <p className={`text-sm text-center ${rateLimitSeconds !== null ? 'text-amber-700' : 'text-red-600'}`}>
+              {rateLimitSeconds !== null
+                ? t('rateLimit.wait').replace('{seconds}', String(rateLimitSeconds))
+                : error}
+            </p>
+          )}
           <button
             type="submit"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isLoading}
+            disabled={isLoading || rateLimitSeconds !== null}
           >
             {isLoading ? (
               <span className="flex items-center">

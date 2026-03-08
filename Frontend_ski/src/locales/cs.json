@@ -1,4 +1,7 @@
 {
+  "rateLimit": {
+    "wait": "Příliš mnoho pokusů. Počkejte prosím {seconds} sekund a zkuste to znovu (omezení z důvodu bezpečnosti)."
+  },
   "common": {
     "error": "Chyba",
     "save": "Uložit",

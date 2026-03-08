@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { User, Search, Phone, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 
@@ -22,6 +22,20 @@ export default function OrderLookup({
   const [phone, setPhone] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [rateLimitSeconds, setRateLimitSeconds] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (rateLimitSeconds === null || rateLimitSeconds <= 0) return
+    const id = setInterval(() => {
+      setRateLimitSeconds((s) => (s === null || s <= 1 ? null : s - 1))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [rateLimitSeconds])
+  const prevRateLimitRef = useRef<number | null>(null)
+  useEffect(() => {
+    if (prevRateLimitRef.current !== null && rateLimitSeconds === null) setError('')
+    prevRateLimitRef.current = rateLimitSeconds
+  }, [rateLimitSeconds])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,8 +54,13 @@ export default function OrderLookup({
         setError(t('orderLookup.notFound'))
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : t('orderLookup.errorLookup')
-      setError(msg)
+      const e = err as Error & { status?: number; retryAfter?: number }
+      if (e.status === 429 && typeof e.retryAfter === 'number') {
+        setRateLimitSeconds(e.retryAfter)
+        setError(t('rateLimit.wait').replace('{seconds}', String(e.retryAfter)))
+      } else {
+        setError(err instanceof Error ? err.message : t('orderLookup.errorLookup'))
+      }
     } finally {
       setIsLoading(false)
     }
@@ -111,11 +130,17 @@ export default function OrderLookup({
             />
           </div>
         </div>
-        {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+        {error && (
+          <p className={`text-sm text-center ${rateLimitSeconds !== null ? 'text-amber-700' : 'text-red-600'}`}>
+            {rateLimitSeconds !== null
+              ? t('rateLimit.wait').replace('{seconds}', String(rateLimitSeconds))
+              : error}
+          </p>
+        )}
         <button
           type="submit"
           className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={isLoading}
+          disabled={isLoading || rateLimitSeconds !== null}
         >
           {isLoading ? (
             <span className="flex items-center">

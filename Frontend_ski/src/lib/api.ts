@@ -89,22 +89,34 @@ class ApiClient {
           this.onUnauthorized?.()
         }
         let errorMessage = `HTTP error! status: ${response.status}`
+        let retryAfter: number | undefined
         try {
           const text = await response.text()
           if (text) {
             try {
               const error = JSON.parse(text)
               errorMessage = error.message || errorMessage
+              if (response.status === 429 && typeof error.retryAfter === 'number') {
+                retryAfter = error.retryAfter
+              }
             } catch {
               errorMessage = text || errorMessage
+            }
+          }
+          if (response.status === 429 && retryAfter === undefined) {
+            const header = response.headers.get('Retry-After')
+            if (header) {
+              const parsed = parseInt(header, 10)
+              if (!Number.isNaN(parsed)) retryAfter = parsed
             }
           }
           console.error('API Error:', errorMessage)
         } catch {
           // ignore
         }
-        const err = new Error(errorMessage) as Error & { status?: number }
+        const err = new Error(errorMessage) as Error & { status?: number; retryAfter?: number }
         err.status = response.status
+        if (retryAfter !== undefined) err.retryAfter = retryAfter
         throw err
       }
 

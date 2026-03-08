@@ -1,4 +1,7 @@
 {
+  "rateLimit": {
+    "wait": "Too many attempts. Please wait {seconds} seconds and try again (rate limit for security)."
+  },
   "common": {
     "error": "Error",
     "save": "Save",
