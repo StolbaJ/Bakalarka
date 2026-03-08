@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL databáze
   postgres:
@@ -72,8 +70,8 @@ services:
   # Zálohy: pg_dump každých 24 h, držím 7 dní
   backup:
     build:
-      context: .
-      dockerfile: backup/Dockerfile
+      context: ./backup
+      dockerfile: Dockerfile
     container_name: backup-ski
     restart: unless-stopped
     env_file:
