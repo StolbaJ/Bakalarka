@@ -24,7 +24,15 @@ jmeter -n -t ski-inventory-long.jmx -l results.jtl -e -o report
 
 `-l results.jtl` = kam se zapíšou vzorky, `-e -o report` = vygeneruje HTML report do složky `report/`.
 
-Jiný host/port: `-JBASE_URL=1.2.3.4 -JPORT=8080`
+**Test proti deploynutému serveru** (místo localhost):
+
+```bash
+BASE_URL=api.mojesluzba.cz PORT=443 PROTOCOL=https ./run-load-test.sh load
+```
+
+Nebo jen doména (bez portu v URL, typicky 443):  
+`BASE_URL=api.mojesluzba.cz PORT=443 PROTOCOL=https`  
+Přihlášení zůstává admin/admin123 – na prod máš jiné heslo, takže v JMX (nebo přes CSV) ho budeš muset změnit, nebo vytvoř účet jen pro testy.
 
 ## Jak se kouknout na výsledky
 

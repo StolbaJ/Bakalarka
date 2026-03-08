@@ -1,135 +1,360 @@
-2026-02-11 17:34:30,701 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
-2026-02-11 17:34:30,717 INFO o.a.j.JMeter: Loading user properties from: /opt/homebrew/Cellar/jmeter/5.6.3/libexec/bin/user.properties
-2026-02-11 17:34:30,718 INFO o.a.j.JMeter: Loading system properties from: /opt/homebrew/Cellar/jmeter/5.6.3/libexec/bin/system.properties
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: Version 5.6.3
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: java.version=21.0.10
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: os.name=Mac OS X
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: os.arch=aarch64
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: os.version=26.2
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: file.encoding=UTF-8
-2026-02-11 17:34:30,722 INFO o.a.j.JMeter: java.awt.headless=true
-2026-02-11 17:34:30,723 INFO o.a.j.JMeter: Max memory     =1073741824
-2026-02-11 17:34:30,723 INFO o.a.j.JMeter: Available Processors =12
-2026-02-11 17:34:30,729 INFO o.a.j.JMeter: Default Locale=English (EN)
-2026-02-11 17:34:30,729 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
-2026-02-11 17:34:30,729 INFO o.a.j.JMeter: JMeterHome=/opt/homebrew/Cellar/jmeter/5.6.3/libexec
-2026-02-11 17:34:30,729 INFO o.a.j.JMeter: user.dir  =/Users/kuba/Desktop/BP/Backend_ski/jmeter
-2026-02-11 17:34:30,729 INFO o.a.j.JMeter: PWD       =/Users/kuba/Desktop/BP/Backend_ski/jmeter
-2026-02-11 17:34:30,732 INFO o.a.j.JMeter: IP: 127.0.0.1 Name: Apple--MacBook-Pro.local FullName: localhost
-2026-02-11 17:34:30,742 INFO o.a.j.JMeter: Setting property 'jmeter.reportgenerator.outputdir' to:'/Users/kuba/Desktop/BP/Backend_ski/jmeter/report'
-2026-02-11 17:34:30,745 INFO o.a.j.s.FileServer: Default base='/Users/kuba/Desktop/BP/Backend_ski/jmeter'
-2026-02-11 17:34:30,746 INFO o.a.j.s.FileServer: Set new base='/Users/kuba/Desktop/BP/Backend_ski/jmeter'
-2026-02-11 17:34:30,854 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
-2026-02-11 17:34:30,876 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
-2026-02-11 17:34:30,878 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
-2026-02-11 17:34:30,879 INFO o.a.j.s.SaveService: Loading file: ski-inventory-load.jmx
-2026-02-11 17:34:30,914 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-02-11 17:34:30,914 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-02-11 17:34:30,915 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-02-11 17:34:30,915 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
-2026-02-11 17:34:30,915 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
-2026-02-11 17:34:30,915 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
-2026-02-11 17:34:30,936 INFO o.a.j.JMeter: Creating summariser <summary>
-2026-02-11 17:34:30,938 INFO o.a.j.r.d.ReportGenerator: ReportGenerator will use for Parsing the separator: ','
-2026-02-11 17:34:30,938 INFO o.a.j.r.d.ReportGenerator: Will generate report at end of test from  results file: results.jtl
-2026-02-11 17:34:30,939 INFO o.a.j.r.d.ReportGenerator: Reading report generator properties from: /opt/homebrew/Cellar/jmeter/5.6.3/libexec/bin/reportgenerator.properties
-2026-02-11 17:34:30,939 INFO o.a.j.r.d.ReportGenerator: Merging with JMeter properties
-2026-02-11 17:34:30,941 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.temp_dir' not found, using default value 'temp' instead.
-2026-02-11 17:34:30,942 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.apdex_per_transaction' not found, using default value 'null' instead.
-2026-02-11 17:34:30,942 INFO o.a.j.r.c.ReportGeneratorConfiguration: apdex_per_transaction is empty, not APDEX per transaction customization
-2026-02-11 17:34:30,942 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.sample_filter' not found, using default value 'null' instead.
-2026-02-11 17:34:30,942 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.report_title' not found, using default value 'null' instead.
-2026-02-11 17:34:30,942 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.start_date' not found, using default value 'null' instead.
-2026-02-11 17:34:30,942 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.end_date' not found, using default value 'null' instead.
-2026-02-11 17:34:30,942 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.date_format' not found, using default value 'null' instead.
-2026-02-11 17:34:30,943 INFO o.a.j.r.c.ReportGeneratorConfiguration: Will use date range start date: null, end date: null
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.totalTPS.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.activeThreadsOverTime.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.timeVsThreads.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimeDistribution.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.transactionsPerSecond.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimePercentiles.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimePercentilesOverTime.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimesOverTime.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.connectTimeOverTime.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.latenciesOverTime.exclude_controllers' not found, using default value 'false' instead.
-2026-02-11 17:34:30,945 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.json.filters_only_sample_series' not found, using default value 'true' instead.
-2026-02-11 17:34:30,946 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.json.series_filter' not found, using default value '' instead.
-2026-02-11 17:34:30,946 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.json.show_controllers_only' not found, using default value 'false' instead.
-2026-02-11 17:34:30,946 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.html.filters_only_sample_series' not found, using default value 'true' instead.
-2026-02-11 17:34:30,946 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.html.series_filter' not found, using default value '' instead.
-2026-02-11 17:34:30,946 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.html.show_controllers_only' not found, using default value 'false' instead.
-2026-02-11 17:34:30,953 INFO o.a.j.e.StandardJMeterEngine: Running the test!
-2026-02-11 17:34:30,954 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-02-11 17:34:30,954 INFO o.a.j.s.SampleEvent: List of sample_variables: []
-2026-02-11 17:34:30,956 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
-2026-02-11 17:34:30,956 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
-2026-02-11 17:34:30,992 INFO o.a.j.r.ClassFinder: Will scan jar /opt/homebrew/Cellar/jmeter/5.6.3/libexec/lib/ext/jmeter-plugins-manager-1.9.jar with filter ExtendsClassFilter [parents=[interface org.apache.jmeter.functions.Function], inner=false, contains=null, notContains=null]. Consider exposing JMeter plugins via META-INF/services, and add JMeter-Skip-Class-Scanning=true manifest attribute so JMeter can skip classfile scanning
-2026-02-11 17:34:31,049 INFO o.a.j.JMeter: Running test (1770827671049)
-2026-02-11 17:34:31,058 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Zátěž - Public + Auth + Technician API
-2026-02-11 17:34:31,059 INFO o.a.j.e.StandardJMeterEngine: Starting 10 threads for group Zátěž - Public + Auth + Technician API.
-2026-02-11 17:34:31,059 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-02-11 17:34:31,059 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=10 ramp-up=5 delayedStart=false
-2026-02-11 17:34:31,063 INFO o.a.j.t.JMeterThread: Thread started: Zátěž - Public + Auth + Technician API 1-1
-2026-02-11 17:34:31,065 INFO o.a.j.t.ThreadGroup: Started thread group number 1
-2026-02-11 17:34:31,065 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 2 : Stres - Health endpoint
-2026-02-11 17:34:31,065 INFO o.a.j.e.StandardJMeterEngine: Starting 25 threads for group Stres - Health endpoint.
-2026-02-11 17:34:31,065 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
-2026-02-11 17:34:31,065 INFO o.a.j.t.ThreadGroup: Starting thread group... number=2 threads=25 ramp-up=3 delayedStart=false
-2026-02-11 17:34:31,065 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-1
-2026-02-11 17:34:31,068 INFO o.a.j.t.ThreadGroup: Started thread group number 2
-2026-02-11 17:34:31,068 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
-2026-02-11 17:34:31,075 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = Apple--MacBook-Pro.local
-2026-02-11 17:34:31,078 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
-2026-02-11 17:34:31,079 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
-2026-02-11 17:34:31,079 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
-2026-02-11 17:34:31,079 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
-2026-02-11 17:34:31,079 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
-2026-02-11 17:34:31,124 INFO o.a.j.r.Summariser: summary +      1 in 00:00:00 =   13.5/s Avg:    13 Min:    13 Max:    13 Err:     1 (100.00%) Active: 2 Started: 2 Finished: 0
-2026-02-11 17:34:31,136 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-1
-2026-02-11 17:34:31,136 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-1
-2026-02-11 17:34:31,149 INFO o.a.j.t.JMeterThread: Thread is done: Zátěž - Public + Auth + Technician API 1-1
-2026-02-11 17:34:31,149 INFO o.a.j.t.JMeterThread: Thread finished: Zátěž - Public + Auth + Technician API 1-1
-2026-02-11 17:34:31,190 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-2
-2026-02-11 17:34:31,200 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-2
-2026-02-11 17:34:31,200 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-2
-2026-02-11 17:34:31,309 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-3
-2026-02-11 17:34:31,321 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-3
-2026-02-11 17:34:31,321 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-3
-2026-02-11 17:34:31,430 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-4
-2026-02-11 17:34:31,445 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-4
-2026-02-11 17:34:31,445 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-4
-2026-02-11 17:34:31,548 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-5
-2026-02-11 17:34:31,562 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-5
-2026-02-11 17:34:31,562 INFO o.a.j.t.JMeterThread: Thread started: Zátěž - Public + Auth + Technician API 1-2
-2026-02-11 17:34:31,562 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-5
-2026-02-11 17:34:31,574 INFO o.a.j.t.JMeterThread: Thread is done: Zátěž - Public + Auth + Technician API 1-2
-2026-02-11 17:34:31,574 INFO o.a.j.t.JMeterThread: Thread finished: Zátěž - Public + Auth + Technician API 1-2
-2026-02-11 17:34:31,667 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-6
-2026-02-11 17:34:31,689 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-6
-2026-02-11 17:34:31,690 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-6
-2026-02-11 17:34:31,787 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-7
-2026-02-11 17:34:31,811 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-7
-2026-02-11 17:34:31,811 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-7
-2026-02-11 17:34:31,911 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-8
-2026-02-11 17:34:31,937 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-8
-2026-02-11 17:34:31,937 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-8
-2026-02-11 17:34:32,029 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-9
-2026-02-11 17:34:32,044 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-9
-2026-02-11 17:34:32,044 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-9
-2026-02-11 17:34:32,062 INFO o.a.j.t.JMeterThread: Thread started: Zátěž - Public + Auth + Technician API 1-3
-2026-02-11 17:34:32,075 INFO o.a.j.t.JMeterThread: Thread is done: Zátěž - Public + Auth + Technician API 1-3
-2026-02-11 17:34:32,075 INFO o.a.j.t.JMeterThread: Thread finished: Zátěž - Public + Auth + Technician API 1-3
-2026-02-11 17:34:32,151 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-10
-2026-02-11 17:34:32,157 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-10
-2026-02-11 17:34:32,158 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-10
-2026-02-11 17:34:32,269 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-11
-2026-02-11 17:34:32,276 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-11
-2026-02-11 17:34:32,276 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-11
-2026-02-11 17:34:32,392 INFO o.a.j.t.JMeterThread: Thread started: Stres - Health endpoint 2-12
-2026-02-11 17:34:32,406 INFO o.a.j.t.JMeterThread: Thread is done: Stres - Health endpoint 2-12
-2026-02-11 17:34:32,407 INFO o.a.j.t.JMeterThread: Thread finished: Stres - Health endpoint 2-12
-2026-02-11 17:34:32,480 INFO o.a.j.r.ResultCollector: Shutdown hook started
-2026-02-11 17:34:32,480 INFO o.a.j.r.ResultCollector: Shutdown hook ended
+2026-03-03 08:59:51,022 INFO o.a.j.u.JMeterUtils: Setting Locale to en_EN
+2026-03-03 08:59:51,036 INFO o.a.j.JMeter: Loading user properties from: /opt/homebrew/Cellar/jmeter/5.6.3/libexec/bin/user.properties
+2026-03-03 08:59:51,037 INFO o.a.j.JMeter: Loading system properties from: /opt/homebrew/Cellar/jmeter/5.6.3/libexec/bin/system.properties
+2026-03-03 08:59:51,037 INFO o.a.j.JMeter: Setting JMeter property: BASE_URL=192.168.0.126
+2026-03-03 08:59:51,037 INFO o.a.j.JMeter: Setting JMeter property: PORT=443
+2026-03-03 08:59:51,037 INFO o.a.j.JMeter: Setting JMeter property: PROTOCOL=https
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: Copyright (c) 1998-2024 The Apache Software Foundation
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: Version 5.6.3
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: java.version=21.0.10
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: java.vm.name=OpenJDK 64-Bit Server VM
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: os.name=Mac OS X
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: os.arch=aarch64
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: os.version=26.3
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: file.encoding=UTF-8
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: java.awt.headless=true
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: Max memory     =1073741824
+2026-03-03 08:59:51,040 INFO o.a.j.JMeter: Available Processors =12
+2026-03-03 08:59:51,046 INFO o.a.j.JMeter: Default Locale=English (EN)
+2026-03-03 08:59:51,046 INFO o.a.j.JMeter: JMeter  Locale=English (EN)
+2026-03-03 08:59:51,046 INFO o.a.j.JMeter: JMeterHome=/opt/homebrew/Cellar/jmeter/5.6.3/libexec
+2026-03-03 08:59:51,046 INFO o.a.j.JMeter: user.dir  =/Users/kuba/Desktop/BP/Backend_ski/jmeter
+2026-03-03 08:59:51,047 INFO o.a.j.JMeter: PWD       =/Users/kuba/Desktop/BP/Backend_ski/jmeter
+2026-03-03 08:59:51,049 INFO o.a.j.JMeter: IP: 127.0.0.1 Name: Apple--MacBook-Pro.local FullName: localhost
+2026-03-03 08:59:51,057 INFO o.a.j.JMeter: Setting property 'jmeter.reportgenerator.outputdir' to:'/Users/kuba/Desktop/BP/Backend_ski/jmeter/report'
+2026-03-03 08:59:51,059 INFO o.a.j.s.FileServer: Default base='/Users/kuba/Desktop/BP/Backend_ski/jmeter'
+2026-03-03 08:59:51,060 INFO o.a.j.s.FileServer: Set new base='/Users/kuba/Desktop/BP/Backend_ski/jmeter'
+2026-03-03 08:59:51,145 INFO o.a.j.s.SaveService: Testplan (JMX) version: 2.2. Testlog (JTL) version: 2.2
+2026-03-03 08:59:51,164 INFO o.a.j.s.SaveService: Using SaveService properties version 5.0
+2026-03-03 08:59:51,165 INFO o.a.j.s.SaveService: Using SaveService properties file encoding UTF-8
+2026-03-03 08:59:51,167 INFO o.a.j.s.SaveService: Loading file: ski-inventory-long.jmx
+2026-03-03 08:59:51,198 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/html is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-03 08:59:51,198 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xhtml+xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-03 08:59:51,198 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for application/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-03 08:59:51,198 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/xml is org.apache.jmeter.protocol.http.parser.LagartoBasedHtmlParser
+2026-03-03 08:59:51,198 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/vnd.wap.wml is org.apache.jmeter.protocol.http.parser.RegexpHTMLParser
+2026-03-03 08:59:51,198 INFO o.a.j.p.h.s.HTTPSamplerBase: Parser for text/css is org.apache.jmeter.protocol.http.parser.CssParser
+2026-03-03 08:59:51,217 INFO o.a.j.JMeter: Creating summariser <summary>
+2026-03-03 08:59:51,219 INFO o.a.j.r.d.ReportGenerator: ReportGenerator will use for Parsing the separator: ','
+2026-03-03 08:59:51,219 INFO o.a.j.r.d.ReportGenerator: Will generate report at end of test from  results file: results.jtl
+2026-03-03 08:59:51,219 INFO o.a.j.r.d.ReportGenerator: Reading report generator properties from: /opt/homebrew/Cellar/jmeter/5.6.3/libexec/bin/reportgenerator.properties
+2026-03-03 08:59:51,220 INFO o.a.j.r.d.ReportGenerator: Merging with JMeter properties
+2026-03-03 08:59:51,222 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.temp_dir' not found, using default value 'temp' instead.
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.apdex_per_transaction' not found, using default value 'null' instead.
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: apdex_per_transaction is empty, not APDEX per transaction customization
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.sample_filter' not found, using default value 'null' instead.
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.report_title' not found, using default value 'null' instead.
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.start_date' not found, using default value 'null' instead.
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.end_date' not found, using default value 'null' instead.
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.date_format' not found, using default value 'null' instead.
+2026-03-03 08:59:51,223 INFO o.a.j.r.c.ReportGeneratorConfiguration: Will use date range start date: null, end date: null
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.totalTPS.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.activeThreadsOverTime.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.timeVsThreads.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimeDistribution.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.transactionsPerSecond.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimePercentiles.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimePercentilesOverTime.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.responseTimesOverTime.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.connectTimeOverTime.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,225 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.graph.latenciesOverTime.exclude_controllers' not found, using default value 'false' instead.
+2026-03-03 08:59:51,226 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.json.filters_only_sample_series' not found, using default value 'true' instead.
+2026-03-03 08:59:51,226 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.json.series_filter' not found, using default value '' instead.
+2026-03-03 08:59:51,226 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.json.show_controllers_only' not found, using default value 'false' instead.
+2026-03-03 08:59:51,226 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.html.filters_only_sample_series' not found, using default value 'true' instead.
+2026-03-03 08:59:51,226 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.html.series_filter' not found, using default value '' instead.
+2026-03-03 08:59:51,226 INFO o.a.j.r.c.ReportGeneratorConfiguration: Property 'jmeter.reportgenerator.exporter.html.show_controllers_only' not found, using default value 'false' instead.
+2026-03-03 08:59:51,233 INFO o.a.j.e.StandardJMeterEngine: Running the test!
+2026-03-03 08:59:51,233 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-03-03 08:59:51,233 INFO o.a.j.s.SampleEvent: List of sample_variables: []
+2026-03-03 08:59:51,235 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must contain the string: '.functions.'
+2026-03-03 08:59:51,235 INFO o.a.j.e.u.CompoundVariable: Note: Function class names must not contain the string: '.gui.'
+2026-03-03 08:59:51,265 INFO o.a.j.r.ClassFinder: Will scan jar /opt/homebrew/Cellar/jmeter/5.6.3/libexec/lib/ext/jmeter-plugins-manager-1.9.jar with filter ExtendsClassFilter [parents=[interface org.apache.jmeter.functions.Function], inner=false, contains=null, notContains=null]. Consider exposing JMeter plugins via META-INF/services, and add JMeter-Skip-Class-Scanning=true manifest attribute so JMeter can skip classfile scanning
+2026-03-03 08:59:51,314 INFO o.a.j.JMeter: Running test (1772524791314)
+2026-03-03 08:59:51,322 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 1 : Long - Auth + API
+2026-03-03 08:59:51,323 INFO o.a.j.e.StandardJMeterEngine: Starting 20 threads for group Long - Auth + API.
+2026-03-03 08:59:51,323 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-03-03 08:59:51,323 INFO o.a.j.t.ThreadGroup: Starting thread group... number=1 threads=20 ramp-up=15 delayedStart=false
+2026-03-03 08:59:51,327 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-1
+2026-03-03 08:59:51,330 INFO o.a.j.t.ThreadGroup: Started thread group number 1
+2026-03-03 08:59:51,330 INFO o.a.j.e.StandardJMeterEngine: Starting ThreadGroup: 2 : Long - Health stres
+2026-03-03 08:59:51,330 INFO o.a.j.e.StandardJMeterEngine: Starting 40 threads for group Long - Health stres.
+2026-03-03 08:59:51,330 INFO o.a.j.e.StandardJMeterEngine: Thread will continue on error
+2026-03-03 08:59:51,330 INFO o.a.j.t.ThreadGroup: Starting thread group... number=2 threads=40 ramp-up=15 delayedStart=false
+2026-03-03 08:59:51,331 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-1
+2026-03-03 08:59:51,334 INFO o.a.j.t.ThreadGroup: Started thread group number 2
+2026-03-03 08:59:51,334 INFO o.a.j.e.StandardJMeterEngine: All thread groups have been started
+2026-03-03 08:59:51,337 INFO o.a.j.p.h.s.HTTPHCAbstractImpl: Local host = Apple--MacBook-Pro.local
+2026-03-03 08:59:51,339 INFO o.a.j.p.h.s.HTTPHC4Impl: HTTP request retry count = 0
+2026-03-03 08:59:51,340 INFO o.a.j.s.SampleResult: Note: Sample TimeStamps are START times
+2026-03-03 08:59:51,340 INFO o.a.j.s.SampleResult: sampleresult.default.encoding is set to UTF-8
+2026-03-03 08:59:51,340 INFO o.a.j.s.SampleResult: sampleresult.useNanoTime=true
+2026-03-03 08:59:51,340 INFO o.a.j.s.SampleResult: sampleresult.nanoThreadSleep=5000
+2026-03-03 08:59:51,376 INFO o.a.j.p.h.s.h.LazyLayeredConnectionSocketFactory: Setting up HTTPS TrustAll Socket Factory
+2026-03-03 08:59:51,379 INFO o.a.j.u.JsseSSLManager: Using default SSL protocol: TLS
+2026-03-03 08:59:51,379 INFO o.a.j.u.JsseSSLManager: SSL session context: per-thread
+2026-03-03 08:59:51,432 INFO o.a.j.u.SSLManager: JmeterKeyStore Location:  type JKS
+2026-03-03 08:59:51,434 INFO o.a.j.u.SSLManager: KeyStore created OK
+2026-03-03 08:59:51,434 WARN o.a.j.u.SSLManager: Keystore file not found, loading empty keystore
+2026-03-03 08:59:51,710 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-2
+2026-03-03 08:59:52,080 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-2
+2026-03-03 08:59:52,085 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-3
+2026-03-03 08:59:52,460 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-4
+2026-03-03 08:59:52,824 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-3
+2026-03-03 08:59:52,835 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-5
+2026-03-03 08:59:53,209 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-6
+2026-03-03 08:59:53,580 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-4
+2026-03-03 08:59:53,584 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-7
+2026-03-03 08:59:53,960 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-8
+2026-03-03 08:59:54,325 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-5
+2026-03-03 08:59:54,335 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-9
+2026-03-03 08:59:54,707 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-10
+2026-03-03 08:59:55,075 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-6
+2026-03-03 08:59:55,085 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-11
+2026-03-03 08:59:55,460 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-12
+2026-03-03 08:59:55,828 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-7
+2026-03-03 08:59:55,836 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-13
+2026-03-03 08:59:56,210 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-14
+2026-03-03 08:59:56,576 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-8
+2026-03-03 08:59:56,583 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-15
+2026-03-03 08:59:56,959 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-16
+2026-03-03 08:59:57,327 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-9
+2026-03-03 08:59:57,336 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-17
+2026-03-03 08:59:57,709 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-18
+2026-03-03 08:59:58,079 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-10
+2026-03-03 08:59:58,086 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-19
+2026-03-03 08:59:58,461 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-20
+2026-03-03 08:59:58,828 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-11
+2026-03-03 08:59:58,835 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-21
+2026-03-03 08:59:59,207 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-22
+2026-03-03 08:59:59,579 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-12
+2026-03-03 08:59:59,583 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-23
+2026-03-03 08:59:59,958 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-24
+2026-03-03 09:00:00,016 INFO o.a.j.r.Summariser: summary +   1888 in 00:00:09 =  217.1/s Avg:    81 Min:     7 Max:  1333 Err:     0 (0.00%) Active: 36 Started: 36 Finished: 0
+2026-03-03 09:00:00,329 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-13
+2026-03-03 09:00:00,335 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-25
+2026-03-03 09:00:00,707 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-26
+2026-03-03 09:00:01,073 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-14
+2026-03-03 09:00:01,085 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-27
+2026-03-03 09:00:01,458 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-28
+2026-03-03 09:00:01,825 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-15
+2026-03-03 09:00:01,830 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-29
+2026-03-03 09:00:02,207 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-30
+2026-03-03 09:00:02,578 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-16
+2026-03-03 09:00:02,587 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-31
+2026-03-03 09:00:02,957 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-32
+2026-03-03 09:00:03,328 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-17
+2026-03-03 09:00:03,335 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-33
+2026-03-03 09:00:03,709 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-34
+2026-03-03 09:00:04,076 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-18
+2026-03-03 09:00:04,082 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-35
+2026-03-03 09:00:04,458 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-36
+2026-03-03 09:00:04,825 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-19
+2026-03-03 09:00:04,835 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-37
+2026-03-03 09:00:05,209 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-38
+2026-03-03 09:00:05,576 INFO o.a.j.t.JMeterThread: Thread started: Long - Auth + API 1-20
+2026-03-03 09:00:05,581 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-39
+2026-03-03 09:00:05,959 INFO o.a.j.t.JMeterThread: Thread started: Long - Health stres 2-40
+2026-03-03 09:00:30,053 INFO o.a.j.r.Summariser: summary +   4658 in 00:00:30 =  155.1/s Avg:   362 Min:    10 Max:  2613 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:00:30,055 INFO o.a.j.r.Summariser: summary =   6546 in 00:00:39 =  169.0/s Avg:   281 Min:     7 Max:  2613 Err:     0 (0.00%)
+2026-03-03 09:01:00,001 INFO o.a.j.r.Summariser: summary +   4396 in 00:00:30 =  146.8/s Avg:   414 Min:     9 Max:  2354 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:01:00,002 INFO o.a.j.r.Summariser: summary =  10942 in 00:01:09 =  159.3/s Avg:   334 Min:     7 Max:  2613 Err:     0 (0.00%)
+2026-03-03 09:01:30,045 INFO o.a.j.r.Summariser: summary +   4346 in 00:00:30 =  144.7/s Avg:   412 Min:    11 Max:  2556 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:01:30,046 INFO o.a.j.r.Summariser: summary =  15288 in 00:01:39 =  154.8/s Avg:   356 Min:     7 Max:  2613 Err:     0 (0.00%)
+2026-03-03 09:02:00,006 INFO o.a.j.r.Summariser: summary +   4361 in 00:00:30 =  145.6/s Avg:   414 Min:    11 Max:  3189 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:02:00,007 INFO o.a.j.r.Summariser: summary =  19649 in 00:02:09 =  152.7/s Avg:   369 Min:     7 Max:  3189 Err:     0 (0.00%)
+2026-03-03 09:02:30,023 INFO o.a.j.r.Summariser: summary +   4266 in 00:00:30 =  142.1/s Avg:   422 Min:    14 Max:  3159 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:02:30,024 INFO o.a.j.r.Summariser: summary =  23915 in 00:02:39 =  150.7/s Avg:   379 Min:     7 Max:  3189 Err:     0 (0.00%)
+2026-03-03 09:03:00,244 INFO o.a.j.r.Summariser: summary +    788 in 00:00:30 =   26.1/s Avg:  1921 Min:    25 Max: 10004 Err:    52 (6.60%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:03:00,245 INFO o.a.j.r.Summariser: summary =  24703 in 00:03:09 =  130.8/s Avg:   428 Min:     7 Max: 10004 Err:    52 (0.21%)
+2026-03-03 09:03:30,025 INFO o.a.j.r.Summariser: summary +   2964 in 00:00:30 =   99.5/s Avg:   703 Min:    11 Max: 20004 Err:   106 (3.58%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:03:30,026 INFO o.a.j.r.Summariser: summary =  27667 in 00:03:39 =  126.5/s Avg:   457 Min:     7 Max: 20004 Err:   158 (0.57%)
+2026-03-03 09:04:00,021 INFO o.a.j.r.Summariser: summary +   4348 in 00:00:30 =  145.0/s Avg:   411 Min:    10 Max:  3017 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:04:00,022 INFO o.a.j.r.Summariser: summary =  32015 in 00:04:09 =  128.7/s Avg:   451 Min:     7 Max: 20004 Err:   158 (0.49%)
+2026-03-03 09:04:30,003 INFO o.a.j.r.Summariser: summary +   4374 in 00:00:30 =  145.9/s Avg:   411 Min:    10 Max:  2435 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:04:30,003 INFO o.a.j.r.Summariser: summary =  36389 in 00:04:39 =  130.6/s Avg:   446 Min:     7 Max: 20004 Err:   158 (0.43%)
+2026-03-03 09:05:00,006 INFO o.a.j.r.Summariser: summary +   4773 in 00:00:30 =  159.1/s Avg:   379 Min:     9 Max:  2540 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:05:00,006 INFO o.a.j.r.Summariser: summary =  41162 in 00:05:09 =  133.3/s Avg:   439 Min:     7 Max: 20004 Err:   158 (0.38%)
+2026-03-03 09:05:30,080 INFO o.a.j.r.Summariser: summary +   2078 in 00:00:30 =   69.1/s Avg:   777 Min:    11 Max: 13309 Err:    45 (2.17%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:05:30,081 INFO o.a.j.r.Summariser: summary =  43240 in 00:05:39 =  127.6/s Avg:   455 Min:     7 Max: 20004 Err:   203 (0.47%)
+2026-03-03 09:06:00,018 INFO o.a.j.r.Summariser: summary +   4244 in 00:00:30 =  141.8/s Avg:   461 Min:    10 Max:  8141 Err:    21 (0.49%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:06:00,019 INFO o.a.j.r.Summariser: summary =  47484 in 00:06:09 =  128.8/s Avg:   455 Min:     7 Max: 20004 Err:   224 (0.47%)
+2026-03-03 09:06:30,106 INFO o.a.j.r.Summariser: summary +   2050 in 00:00:30 =   68.1/s Avg:   713 Min:    12 Max: 10004 Err:    33 (1.61%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:06:30,107 INFO o.a.j.r.Summariser: summary =  49534 in 00:06:39 =  124.2/s Avg:   466 Min:     7 Max: 20004 Err:   257 (0.52%)
+2026-03-03 09:07:00,309 INFO o.a.j.r.Summariser: summary +   1153 in 00:00:30 =   38.2/s Avg:  1724 Min:    14 Max: 13065 Err:   199 (17.26%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:07:00,310 INFO o.a.j.r.Summariser: summary =  50687 in 00:07:09 =  118.2/s Avg:   495 Min:     7 Max: 20004 Err:   456 (0.90%)
+2026-03-03 09:07:30,020 INFO o.a.j.r.Summariser: summary +   4089 in 00:00:30 =  137.6/s Avg:   480 Min:    10 Max:  8158 Err:    40 (0.98%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:07:30,021 INFO o.a.j.r.Summariser: summary =  54776 in 00:07:39 =  119.4/s Avg:   494 Min:     7 Max: 20004 Err:   496 (0.91%)
+2026-03-03 09:08:00,028 INFO o.a.j.r.Summariser: summary +   4341 in 00:00:30 =  144.7/s Avg:   409 Min:    11 Max:  2551 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:08:00,029 INFO o.a.j.r.Summariser: summary =  59117 in 00:08:09 =  121.0/s Avg:   487 Min:     7 Max: 20004 Err:   496 (0.84%)
+2026-03-03 09:08:30,207 INFO o.a.j.r.Summariser: summary +   2523 in 00:00:30 =   83.6/s Avg:   705 Min:    11 Max:  6557 Err:     4 (0.16%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:08:30,208 INFO o.a.j.r.Summariser: summary =  61640 in 00:08:39 =  118.8/s Avg:   496 Min:     7 Max: 20004 Err:   500 (0.81%)
+2026-03-03 09:09:00,066 INFO o.a.j.r.Summariser: summary +   3836 in 00:00:30 =  128.5/s Avg:   477 Min:    10 Max:  5293 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:09:00,067 INFO o.a.j.r.Summariser: summary =  65476 in 00:09:09 =  119.3/s Avg:   495 Min:     7 Max: 20004 Err:   500 (0.76%)
+2026-03-03 09:09:30,365 INFO o.a.j.r.Summariser: summary +   3341 in 00:00:30 =  110.3/s Avg:   501 Min:    10 Max:  5266 Err:     0 (0.00%) Active: 60 Started: 60 Finished: 0
+2026-03-03 09:09:30,366 INFO o.a.j.r.Summariser: summary =  68817 in 00:09:39 =  118.8/s Avg:   495 Min:     7 Max: 20004 Err:   500 (0.73%)
+2026-03-03 09:09:51,540 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-20
+2026-03-03 09:09:51,540 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-20
+2026-03-03 09:09:51,566 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-1
+2026-03-03 09:09:51,568 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-1
+2026-03-03 09:09:51,647 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-30
+2026-03-03 09:09:51,647 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-10
+2026-03-03 09:09:51,647 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-30
+2026-03-03 09:09:51,647 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-10
+2026-03-03 09:09:51,649 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-38
+2026-03-03 09:09:51,649 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-38
+2026-03-03 09:09:51,650 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-31
+2026-03-03 09:09:51,650 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-31
+2026-03-03 09:09:51,652 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-4
+2026-03-03 09:09:51,652 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-17
+2026-03-03 09:09:51,652 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-4
+2026-03-03 09:09:51,652 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-17
+2026-03-03 09:09:51,659 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-25
+2026-03-03 09:09:51,659 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-40
+2026-03-03 09:09:51,659 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-25
+2026-03-03 09:09:51,659 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-21
+2026-03-03 09:09:51,660 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-21
+2026-03-03 09:09:51,660 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-33
+2026-03-03 09:09:51,660 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-19
+2026-03-03 09:09:51,660 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-5
+2026-03-03 09:09:51,660 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-5
+2026-03-03 09:09:51,661 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-40
+2026-03-03 09:09:51,660 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-33
+2026-03-03 09:09:51,660 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-28
+2026-03-03 09:09:51,662 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-28
+2026-03-03 09:09:51,662 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-12
+2026-03-03 09:09:51,659 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-9
+2026-03-03 09:09:51,662 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-12
+2026-03-03 09:09:51,662 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-9
+2026-03-03 09:09:51,661 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-19
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-20
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-36
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-35
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-36
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-35
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-23
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-23
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-34
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-20
+2026-03-03 09:09:51,666 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-34
+2026-03-03 09:09:51,669 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-39
+2026-03-03 09:09:51,669 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-39
+2026-03-03 09:09:51,671 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-32
+2026-03-03 09:09:51,672 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-32
+2026-03-03 09:09:51,676 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-16
+2026-03-03 09:09:51,676 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-10
+2026-03-03 09:09:51,676 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-2
+2026-03-03 09:09:51,676 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-16
+2026-03-03 09:09:51,676 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-10
+2026-03-03 09:09:51,676 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-2
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-7
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-16
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-6
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-7
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-2
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-6
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-2
+2026-03-03 09:09:51,682 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-16
+2026-03-03 09:09:51,699 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-14
+2026-03-03 09:09:51,699 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-14
+2026-03-03 09:09:51,702 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-15
+2026-03-03 09:09:51,702 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-15
+2026-03-03 09:09:51,702 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-26
+2026-03-03 09:09:51,702 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-26
+2026-03-03 09:09:51,704 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-15
+2026-03-03 09:09:51,704 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-15
+2026-03-03 09:09:51,708 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-5
+2026-03-03 09:09:51,708 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-12
+2026-03-03 09:09:51,708 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-5
+2026-03-03 09:09:51,708 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-18
+2026-03-03 09:09:51,709 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-18
+2026-03-03 09:09:51,708 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-24
+2026-03-03 09:09:51,709 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-24
+2026-03-03 09:09:51,708 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-37
+2026-03-03 09:09:51,709 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-12
+2026-03-03 09:09:51,709 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-37
+2026-03-03 09:09:51,714 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-8
+2026-03-03 09:09:51,714 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-8
+2026-03-03 09:09:51,723 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-27
+2026-03-03 09:09:51,723 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-27
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-1
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-11
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-14
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-1
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-22
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-11
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-22
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-14
+2026-03-03 09:09:51,726 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-18
+2026-03-03 09:09:51,727 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-18
+2026-03-03 09:09:51,728 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-8
+2026-03-03 09:09:51,728 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-8
+2026-03-03 09:09:51,743 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-13
+2026-03-03 09:09:51,743 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-13
+2026-03-03 09:09:51,744 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-29
+2026-03-03 09:09:51,744 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-29
+2026-03-03 09:09:51,745 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Health stres 2-3
+2026-03-03 09:09:51,745 INFO o.a.j.t.JMeterThread: Thread finished: Long - Health stres 2-3
+2026-03-03 09:09:51,748 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-6
+2026-03-03 09:09:51,748 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-6
+2026-03-03 09:09:51,751 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-4
+2026-03-03 09:09:51,751 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-4
+2026-03-03 09:09:51,757 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-7
+2026-03-03 09:09:51,757 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-7
+2026-03-03 09:09:51,769 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-17
+2026-03-03 09:09:51,769 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-17
+2026-03-03 09:09:51,798 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-13
+2026-03-03 09:09:51,799 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-13
+2026-03-03 09:09:51,803 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-3
+2026-03-03 09:09:51,803 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-3
+2026-03-03 09:09:51,838 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-9
+2026-03-03 09:09:51,838 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-9
+2026-03-03 09:09:51,888 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-11
+2026-03-03 09:09:51,888 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-11
+2026-03-03 09:09:51,891 INFO o.a.j.t.JMeterThread: Stopping because end time detected by thread: Long - Auth + API 1-19
+2026-03-03 09:09:51,892 INFO o.a.j.t.JMeterThread: Thread finished: Long - Auth + API 1-19
+2026-03-03 09:09:51,892 INFO o.a.j.e.StandardJMeterEngine: Notifying test listeners of end of test
+2026-03-03 09:09:51,894 INFO o.a.j.r.Summariser: summary +   3057 in 00:00:22 =  142.0/s Avg:   473 Min:     7 Max:  9150 Err:    32 (1.05%) Active: 0 Started: 60 Finished: 60
+2026-03-03 09:09:51,894 INFO o.a.j.r.Summariser: summary =  71874 in 00:10:01 =  119.7/s Avg:   494 Min:     7 Max: 20004 Err:   532 (0.74%)
+2026-03-03 09:09:51,895 INFO o.a.j.JMeter: Generating Dashboard
+2026-03-03 09:09:51,895 INFO o.a.j.r.d.ReportGenerator: Flushing result collector before report Generation
+2026-03-03 09:09:51,916 INFO o.a.j.r.p.NormalizerSampleConsumer: Using format, 'ms', to parse timeStamp field
+2026-03-03 09:09:52,737 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.AggregateConsumer#stopProducing(): beginDate produced 0 samples
+2026-03-03 09:09:52,737 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.AggregateConsumer#stopProducing(): endDate produced 0 samples
+2026-03-03 09:09:52,738 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.ApdexSummaryConsumer#stopProducing(): apdexSummary produced 0 samples
+2026-03-03 09:09:52,738 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.RequestsSummaryConsumer#stopProducing(): requestsSummary produced 0 samples
+2026-03-03 09:09:52,746 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.StatisticsSummaryConsumer#stopProducing(): statisticsSummary produced 0 samples
+2026-03-03 09:09:52,748 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.Top5ErrorsBySamplerConsumer#stopProducing(): top5ErrorsBySampler produced 0 samples
+2026-03-03 09:09:52,748 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.ErrorsSummaryConsumer#stopProducing(): errorsSummary produced 0 samples
+2026-03-03 09:09:52,748 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.HitsPerSecondGraphConsumer#stopProducing(): hitsPerSecond produced 0 samples
+2026-03-03 09:09:52,964 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.LatencyVSRequestGraphConsumer#stopProducing(): latencyVsRequest produced 0 samples
+2026-03-03 09:09:52,967 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.SyntheticResponseTimeDistributionGraphConsumer#stopProducing(): syntheticResponseTimeDistribution produced 0 samples
+2026-03-03 09:09:52,967 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.BytesThroughputGraphConsumer#stopProducing(): bytesThroughputOverTime produced 0 samples
+2026-03-03 09:09:52,967 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.CodesPerSecondGraphConsumer#stopProducing(): codesPerSecond produced 0 samples
+2026-03-03 09:09:53,157 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.ResponseTimeVSRequestGraphConsumer#stopProducing(): responseTimeVsRequest produced 0 samples
+2026-03-03 09:09:53,159 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.FilterConsumer#stopProducing(): startIntervalControlerFilter produced 503118 samples
+2026-03-03 09:09:53,159 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.TotalTPSGraphConsumer#stopProducing(): totalTPS produced 0 samples
+2026-03-03 09:09:53,159 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.ActiveThreadsGraphConsumer#stopProducing(): activeThreadsOverTime produced 0 samples
+2026-03-03 09:09:53,159 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.TimeVSThreadGraphConsumer#stopProducing(): timeVsThreads produced 0 samples
+2026-03-03 09:09:53,159 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.ResponseTimeDistributionGraphConsumer#stopProducing(): responseTimeDistribution produced 0 samples
+2026-03-03 09:09:53,159 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.TransactionsPerSecondGraphConsumer#stopProducing(): transactionsPerSecond produced 0 samples
+2026-03-03 09:09:53,159 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.ResponseTimePercentilesGraphConsumer#stopProducing(): responseTimePercentiles produced 0 samples
+2026-03-03 09:09:53,163 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.ResponseTimePercentilesOverTimeGraphConsumer#stopProducing(): responseTimePercentilesOverTime produced 0 samples
+2026-03-03 09:09:53,166 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.ResponseTimeOverTimeGraphConsumer#stopProducing(): responseTimesOverTime produced 0 samples
+2026-03-03 09:09:53,166 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.ConnectTimeOverTimeGraphConsumer#stopProducing(): connectTimeOverTime produced 0 samples
+2026-03-03 09:09:53,166 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.graph.impl.LatencyOverTimeGraphConsumer#stopProducing(): latenciesOverTime produced 0 samples
+2026-03-03 09:09:53,166 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.FilterConsumer#stopProducing(): nameFilter produced 1078110 samples
+2026-03-03 09:09:53,166 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.FilterConsumer#stopProducing(): dateRangeFilter produced 215622 samples
+2026-03-03 09:09:53,166 INFO o.a.j.r.p.AbstractSampleConsumer: class org.apache.jmeter.report.processor.NormalizerSampleConsumer#stopProducing(): normalizer produced 71874 samples
+2026-03-03 09:09:53,166 INFO o.a.j.r.p.CsvFileSampleSource: produce(): 71874 samples produced in 1s 234 ms on channel 0
+2026-03-03 09:09:53,166 INFO o.a.j.r.d.ReportGenerator: Exporting data using exporter:'json' of className:'org.apache.jmeter.report.dashboard.JsonExporter'
+2026-03-03 09:09:53,202 INFO o.a.j.r.d.JsonExporter: Found data for consumer statisticsSummary in context
+2026-03-03 09:09:53,202 INFO o.a.j.r.d.JsonExporter: Creating statistics for overall
+2026-03-03 09:09:53,203 INFO o.a.j.r.d.JsonExporter: Creating statistics for other transactions
+2026-03-03 09:09:53,203 INFO o.a.j.r.d.JsonExporter: Checking output folder
+2026-03-03 09:09:53,205 INFO o.a.j.r.d.JsonExporter: Writing statistics JSON to /Users/kuba/Desktop/BP/Backend_ski/jmeter/report/statistics.json
+2026-03-03 09:09:53,224 INFO o.a.j.r.d.ReportGenerator: Exporting data using exporter:'html' of className:'org.apache.jmeter.report.dashboard.HtmlTemplateExporter'
+2026-03-03 09:09:53,226 INFO o.a.j.r.d.HtmlTemplateExporter: Will generate dashboard in folder: /Users/kuba/Desktop/BP/Backend_ski/jmeter/report
+2026-03-03 09:09:53,281 INFO o.a.j.r.d.HtmlTemplateExporter: Report will be generated in: /Users/kuba/Desktop/BP/Backend_ski/jmeter/report, creating folder structure
+2026-03-03 09:09:53,283 INFO o.a.j.r.d.TemplateVisitor: Copying folder from '/opt/homebrew/Cellar/jmeter/5.6.3/libexec/bin/report-template' to '/Users/kuba/Desktop/BP/Backend_ski/jmeter/report', got message: /Users/kuba/Desktop/BP/Backend_ski/jmeter/report, found non empty folder with following content [/Users/kuba/Desktop/BP/Backend_ski/jmeter/report/statistics.json], will be ignored
+2026-03-03 09:09:53,420 INFO o.a.j.JMeter: Dashboard generated
