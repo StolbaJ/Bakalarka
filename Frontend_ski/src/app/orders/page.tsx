@@ -1586,7 +1586,7 @@ function CreateOrderModal({
     } else if (noSkis) {
       setStep(3)
     } else {
-      setStep(4)
+      setStep(3)
     }
   }
 
@@ -1632,7 +1632,7 @@ function CreateOrderModal({
       setCustomerId(String(created.id))
       setCreatedCustomerInThisFlow(true)
       setCustomers(prev => [...prev, created].sort((a, b) => a.name.localeCompare(b.name)))
-      setStep(needAddSkisStep ? 3 : 4)
+      setStep(3)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('orders.createCustomerError'))
     } finally {
