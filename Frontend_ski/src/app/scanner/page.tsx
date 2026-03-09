@@ -5,6 +5,8 @@ import { QrCode, CheckCircle, AlertCircle, Keyboard, Plus, Eye, RefreshCw } from
 import QRScanner from '@/components/QRScanner'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import SkiDetail from '@/components/SkiDetail'
+import SkiEditForm, { SkiFormData } from '@/components/SkiEditForm'
+import DeleteConfirmModal from '@/components/DeleteConfirmModal'
 import { SkiData } from '@/components/SkiItem'
 import apiClient, { OrderDetailResponse, QrScanEntryResponse } from '@/lib/api'
 import { skiResponseToData } from '@/lib/skiUtils'
@@ -22,6 +24,9 @@ export default function ScannerPage() {
   const [showManualInput, setShowManualInput] = useState(false)
   const [selectedSki, setSelectedSki] = useState<SkiData | null>(null)
   const [orderForSki, setOrderForSki] = useState<OrderDetailResponse | null>(null)
+  const [editingSki, setEditingSki] = useState<SkiData | null>(null)
+  const [deletingSki, setDeletingSki] = useState<SkiData | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
   const scannedSetRef = useRef<Set<string>>(new Set())
 
   const fetchRecentScans = useCallback(async () => {
@@ -100,6 +105,54 @@ export default function ScannerPage() {
         notes: t('scanner.notInDb')
       })
     }
+  }
+
+  const handleEditSki = (skiId: string, numericId?: number) => {
+    const ski = selectedSki && (selectedSki.id === skiId || selectedSki.numericId === numericId) ? selectedSki : null
+    if (ski?.numericId != null) {
+      setEditingSki(ski)
+      setSelectedSki(null)
+      setOrderForSki(null)
+    }
+  }
+
+  const handleDeleteSki = (skiId: string, numericId?: number) => {
+    const ski = selectedSki && (selectedSki.id === skiId || selectedSki.numericId === numericId) ? selectedSki : null
+    if (ski) setDeletingSki(ski)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingSki?.numericId) return
+    setIsDeleting(true)
+    try {
+      await apiClient.deleteSki(deletingSki.numericId)
+      setDeletingSki(null)
+      setSelectedSki(null)
+      setOrderForSki(null)
+      await fetchRecentScans()
+    } catch {
+      // chybu lze zobrazit toastem nebo stavem
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  const handleSaveSki = async (data: SkiFormData) => {
+    if (!editingSki?.numericId) return
+    await apiClient.updateSki(editingSki.numericId, {
+      brand: data.brand,
+      model: data.model,
+      length: data.length,
+      year: data.year,
+      condition: data.condition,
+      status: data.status,
+      location: data.location,
+      notes: data.notes,
+      lastServiceDate: editingSki.lastService ?? undefined,
+      nextServiceDate: data.nextServiceDate,
+      struktura: editingSki.struktura ?? null,
+    })
+    setEditingSki(null)
   }
 
   return (
@@ -275,11 +328,38 @@ export default function ScannerPage() {
         <SkiDetail
           ski={selectedSki}
           onClose={() => { setSelectedSki(null); setOrderForSki(null) }}
-          onEdit={(skiId) => console.log('Edit ski:', skiId)}
-          onDelete={(skiId) => console.log('Delete ski:', skiId)}
+          onEdit={selectedSki.numericId != null ? handleEditSki : undefined}
+          onDelete={selectedSki.numericId != null ? handleDeleteSki : undefined}
           orderFromScan={orderForSki}
           skiNumberForOrder={selectedSki.id}
           onOrderUpdated={(o) => setOrderForSki(o)}
+        />
+      )}
+
+      {/* Edit ski modal – stejné okno jako v databázi lyží */}
+      {editingSki && (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              {t('database.editSkiTitle')}: {editingSki.id}
+            </h2>
+            <SkiEditForm
+              ski={editingSki}
+              onSubmit={handleSaveSki}
+              onCancel={() => setEditingSki(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation */}
+      {deletingSki && (
+        <DeleteConfirmModal
+          title={t('database.deleteTitle')}
+          message={t('database.deleteConfirm')}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeletingSki(null)}
+          isLoading={isDeleting}
         />
       )}
     </ProtectedRoute>
