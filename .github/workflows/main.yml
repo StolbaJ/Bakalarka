@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Build a testy backendu – musí projít před deployem na Malinu (běží na RPi)
+  # Build a testy backendu – musí projít před deployem na Malinu (běží na RPis)
   test:
     runs-on: self-hosted
     steps:
