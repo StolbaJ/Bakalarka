@@ -171,4 +171,144 @@ class AuthenticationServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already exists");
     }
+
+    @Test
+    void authenticateCustomer_noCustomer_throwsBadCredentials() {
+        Order order = new Order();
+        order.setOrderNumber("O2");
+        order.setCustomer(null);
+        when(orderRepository.findByOrderNumber("O2")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> authenticationService.authenticateCustomer("O2", "123456789"))
+                .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class)
+                .hasMessageContaining("zákazník");
+    }
+
+    @Test
+    void authenticateCustomer_wrongPhone_throwsBadCredentials() {
+        Customer customer = new Customer();
+        customer.setId(1L);
+        customer.setPhone("999999999");
+        customer.setCustomerNumber("C1");
+        Order order = new Order();
+        order.setOrderNumber("O3");
+        order.setCustomer(customer);
+        when(orderRepository.findByOrderNumber("O3")).thenReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> authenticationService.authenticateCustomer("O3", "123456789"))
+                .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class)
+                .hasMessageContaining("Telefonní");
+    }
+
+    @Test
+    void authenticateCustomer_inputWithCountryCode_matchesStoredWithoutCode() {
+        Customer customer = new Customer();
+        customer.setId(1L);
+        customer.setPhone("123456789");
+        customer.setCustomerNumber("C1");
+        Order order = new Order();
+        order.setOrderNumber("O4");
+        order.setCustomer(customer);
+        when(orderRepository.findByOrderNumber("O4")).thenReturn(Optional.of(order));
+        when(jwtService.generateToken(anyString(), anyString())).thenReturn("token");
+
+        var response = authenticationService.authenticateCustomer("O4", "420123456789");
+        assertThat(response).isNotNull();
+    }
+
+    @Test
+    void refreshToken_nullToken_throwsBadCredentials() {
+        assertThatThrownBy(() -> authenticationService.refreshToken(null))
+                .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class)
+                .hasMessageContaining("Missing");
+    }
+
+    @Test
+    void refreshToken_blankToken_throwsBadCredentials() {
+        assertThatThrownBy(() -> authenticationService.refreshToken("  "))
+                .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class);
+    }
+
+    @Test
+    void refreshToken_validUserToken_returnsNewToken() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("admin");
+        user.setPasswordHash("hash");
+        user.setRole(UserRole.ADMIN);
+        user.setFullName("Admin");
+        user.setEmail("admin@test.cz");
+        user.setActive(true);
+
+        String oldToken = "old.valid.token";
+        when(jwtService.extractUsername(oldToken)).thenReturn("admin");
+        when(jwtService.extractRole(oldToken)).thenReturn("ADMIN");
+        when(jwtService.validateToken(oldToken, "admin")).thenReturn(true);
+        when(userRepository.findByUsernameAndActiveTrue("admin")).thenReturn(Optional.of(user));
+        when(jwtService.generateToken("admin", "ADMIN")).thenReturn("new.jwt.token");
+
+        var response = authenticationService.refreshToken(oldToken);
+
+        assertThat(response.token()).isEqualTo("new.jwt.token");
+        assertThat(response.username()).isEqualTo("admin");
+        assertThat(response.role()).isEqualTo("ADMIN");
+    }
+
+    @Test
+    void refreshToken_expiredToken_throwsBadCredentials() {
+        String oldToken = "expired.token";
+        when(jwtService.extractUsername(oldToken)).thenReturn("admin");
+        when(jwtService.extractRole(oldToken)).thenReturn("ADMIN");
+        when(jwtService.validateToken(oldToken, "admin")).thenReturn(false);
+
+        assertThatThrownBy(() -> authenticationService.refreshToken(oldToken))
+                .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class)
+                .hasMessageContaining("expired");
+    }
+
+    @Test
+    void refreshToken_customerToken_returnsCustomerResponse() {
+        Customer customer = new Customer();
+        customer.setId(10L);
+        customer.setName("Jan");
+        customer.setEmail("jan@test.cz");
+        customer.setCustomerNumber("C010");
+
+        String oldToken = "old.customer.token";
+        when(jwtService.extractUsername(oldToken)).thenReturn("10");
+        when(jwtService.extractRole(oldToken)).thenReturn("CUSTOMER");
+        when(jwtService.validateToken(oldToken, "10")).thenReturn(true);
+        when(customerRepository.findById(10L)).thenReturn(Optional.of(customer));
+        when(jwtService.generateToken("10", "CUSTOMER")).thenReturn("new.customer.token");
+
+        var response = authenticationService.refreshToken(oldToken);
+
+        assertThat(response.token()).isEqualTo("new.customer.token");
+        assertThat(response.role()).isEqualTo("CUSTOMER");
+        assertThat(response.userId()).isEqualTo(10L);
+    }
+
+    @Test
+    void refreshToken_customerNotFound_throwsBadCredentials() {
+        String oldToken = "old.customer.token";
+        when(jwtService.extractUsername(oldToken)).thenReturn("99");
+        when(jwtService.extractRole(oldToken)).thenReturn("CUSTOMER");
+        when(jwtService.validateToken(oldToken, "99")).thenReturn(true);
+        when(customerRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authenticationService.refreshToken(oldToken))
+                .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class);
+    }
+
+    @Test
+    void refreshToken_userNotFound_throwsBadCredentials() {
+        String oldToken = "old.user.token";
+        when(jwtService.extractUsername(oldToken)).thenReturn("ghost");
+        when(jwtService.extractRole(oldToken)).thenReturn("ADMIN");
+        when(jwtService.validateToken(oldToken, "ghost")).thenReturn(true);
+        when(userRepository.findByUsernameAndActiveTrue("ghost")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> authenticationService.refreshToken(oldToken))
+                .isInstanceOf(org.springframework.security.authentication.BadCredentialsException.class);
+    }
 }
