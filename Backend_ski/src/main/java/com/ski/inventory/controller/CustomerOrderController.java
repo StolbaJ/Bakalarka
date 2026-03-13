@@ -80,6 +80,7 @@ public class CustomerOrderController {
                 priority,
                 status,
                 order.getPrice(),
+                order.getDiscount(),
                 order.getPohodaId(),
                 tasks
         );
@@ -119,7 +120,8 @@ public class CustomerOrderController {
                 item.getTaskDescription(),
                 Boolean.TRUE.equals(item.getCompleted()),
                 item.getCompletedAt() != null ? item.getCompletedAt().toString() : null,
-                Boolean.TRUE.equals(item.getRequiresWorkDescription())
+                Boolean.TRUE.equals(item.getRequiresWorkDescription()),
+                item.getPrice()
         );
     }
 }

@@ -19,6 +19,10 @@ export interface SkiData {
   priority?: 'low' | 'medium' | 'high'
   struktura?: string
   strukturaRecordedAt?: string | null
+  ean?: string | null
+  partNo?: string | null
+  serialNo?: string | null
+  skiUsage?: string | null
 }
 
 interface SkiItemProps {

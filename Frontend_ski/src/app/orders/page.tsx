@@ -126,7 +126,7 @@ function EditCustomerModal({
         if (!cancelled) setLoading(false)
       })
     return () => { cancelled = true }
-  }, [customerId])
+  }, [customerId, t])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -306,7 +306,14 @@ function OrdersPageContent() {
     setOrderDetails(prev => ({ ...prev, [orderId]: updatedDetail }))
     setOrders(prev => prev.map(o => 
       o.id === orderId 
-        ? { ...o, orderDone: updatedDetail.orderDone, taskCount: updatedDetail.tasks.length, priority: updatedDetail.priority ?? o.priority, status: updatedDetail.status ?? o.status } 
+        ? { 
+            ...o, 
+            orderDone: updatedDetail.orderDone, 
+            taskCount: updatedDetail.tasks.length, 
+            priority: updatedDetail.priority ?? o.priority, 
+            status: updatedDetail.status ?? o.status,
+            price: updatedDetail.price ?? o.price,
+          } 
         : o
     ))
   }
@@ -1077,9 +1084,10 @@ function TaskRow({
       const selectedOption = modificationOptions.find(o => o.name === newItemName.trim())
       const modificationOptionId = selectedOption?.id
       let updated = await apiClient.addTaskItem(orderId, task.id, newItemName.trim(), desc, instruction, modificationOptionId)
-      onOrderUpdated(orderId, updated)
       if (isZmenaStruktury && desc) {
         updated = await apiClient.updateTask(orderId, task.id, { targetStruktura: desc })
+        onOrderUpdated(orderId, updated)
+      } else {
         onOrderUpdated(orderId, updated)
       }
       await syncOrderStatusFromTaskItems(updated)
@@ -1415,9 +1423,11 @@ function TaskItemRow({
       />
       <Wrench className="w-4 h-4 text-gray-400 shrink-0 mt-2" />
       <div className="flex-1 min-w-0 space-y-1">
-        <span className={`block font-medium ${item.completed ? 'text-gray-600 line-through' : 'text-gray-900'}`}>
-          {item.taskName}
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`font-medium ${item.completed ? 'text-gray-600 line-through' : 'text-gray-900'}`}>
+            {item.taskName}
+          </span>
+        </div>
         <input
           type="text"
           value={instruction}
@@ -1528,7 +1538,7 @@ function CreateOrderModal({
     }
     load()
     return () => { cancelled = true }
-  }, [])
+  }, [t])
 
   const customerFiltered = customerSearch.trim()
     ? customers.filter(c => {
@@ -1918,10 +1928,6 @@ function CreateOrderModal({
                 <>
                   <p className="text-sm text-gray-600">{t('orders.step3Intro')}</p>
                   <div className="space-y-2 mb-4">
-                    <label className="block text-sm font-medium text-gray-700">{t('orders.orderPrice')}</label>
-                    <input type="number" step="0.01" min="0" value={price} onChange={e => setPrice(e.target.value)} placeholder={t('common.optional')} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
-                  </div>
-                  <div className="space-y-2 mb-4">
                     <label className="block text-sm font-medium text-gray-700">{t('orders.estimatedDue')}</label>
                     <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
                   </div>
@@ -1977,6 +1983,10 @@ function CreateOrderModal({
                       <option key={u.id} value={u.name} />
                     ))}
                   </datalist>
+                  <div className="mt-4 space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">{t('orders.orderPrice')}</label>
+                    <input type="number" step="0.01" min="0" value={price} onChange={e => setPrice(e.target.value)} placeholder={t('common.optional')} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
+                  </div>
                   <div className="flex gap-3 pt-2">
                     <button type="button" onClick={() => setStep(4)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium cursor-pointer">
                       {t('common.next')}
@@ -1991,10 +2001,6 @@ function CreateOrderModal({
               {step === 4 && needAddSkisStep && (
                 <>
                   <p className="text-sm text-gray-600">{t('orders.step3Intro')}</p>
-                  <div className="space-y-2 mb-4">
-                    <label className="block text-sm font-medium text-gray-700">{t('orders.orderPrice')}</label>
-                    <input type="number" step="0.01" min="0" value={price} onChange={e => setPrice(e.target.value)} placeholder={t('common.optional')} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
-                  </div>
                   <div className="space-y-2 mb-4">
                     <label className="block text-sm font-medium text-gray-700">{t('orders.estimatedDue')}</label>
                     <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
@@ -2051,6 +2057,10 @@ function CreateOrderModal({
                       <option key={u.id} value={u.name} />
                     ))}
                   </datalist>
+                  <div className="mt-4 space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">{t('orders.orderPrice')}</label>
+                    <input type="number" step="0.01" min="0" value={price} onChange={e => setPrice(e.target.value)} placeholder={t('common.optional')} className="block w-full rounded-md border-gray-300 shadow-sm text-sm" />
+                  </div>
                   <div className="flex gap-3 pt-2">
                     <button type="button" onClick={() => setStep(5)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium cursor-pointer">
                       {t('common.next')}

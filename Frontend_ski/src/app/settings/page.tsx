@@ -193,14 +193,14 @@ export default function SettingsPage() {
               </ul>
             </div>
 
-            {/* Úpravy */}
+            {/* Běžné servisní úpravy */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <Wrench className="w-5 h-5 text-amber-600" />
                 Běžné servisní úpravy
               </h2>
               <p className="text-sm text-gray-500 mb-4">
-                Nejčastější úkony (voskování, broušení…) – zobrazí se při přidávání úkonu k lyži v objednávce.
+                Nejčastější úkony (voskování, broušení…) – zobrazí se při přidávání úkonu k lyži v zakázce.
               </p>
               <p className="text-xs text-gray-500 mb-2">
                 <strong>Návod</strong> (jak to zpracovat) se zkopíruje k úkonu při vytvoření. <strong>Vyžadovat výsledek</strong> znamená, že před dokončením úkonu musí být vyplněn zakončovací popis (např. výsledky měření).
@@ -210,7 +210,7 @@ export default function SettingsPage() {
                   type="text"
                   value={newUpravaName}
                   onChange={e => setNewUpravaName(e.target.value)}
-                  placeholder="Název úpravy"
+                  placeholder="Název úkonu"
                   className="block w-full rounded-md border-gray-300 shadow-sm text-sm py-2 px-3"
                 />
                 <input
@@ -239,7 +239,7 @@ export default function SettingsPage() {
               </form>
               <ul className="space-y-2">
                 {upravy.length === 0 ? (
-                  <li className="text-gray-500 text-sm py-2">Žádné úpravy. Přidejte první.</li>
+                  <li className="text-gray-500 text-sm py-2">Žádné úkony. Přidejte první.</li>
                 ) : (
                   upravy.map(u => (
                     <li

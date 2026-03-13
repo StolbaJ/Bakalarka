@@ -6,6 +6,13 @@ import { SkiData } from './SkiItem'
 import { apiClient, SkiServiceHistoryEntry, OrderDetailResponse, ModificationOptionResponse } from '@/lib/api'
 
 const PRIORITY_LABELS: Record<string, string> = { NIZKA: 'Nízká', STREDNI: 'Střední', VYSOKA: 'Vysoká', KRITICKA: 'Kritická' }
+const SKI_USAGE_LABELS: Record<string, string> = {
+  BEZECKE_KLASIKA: 'Běžecké lyže – klasika',
+  BEZECKE_SKATE: 'Běžecké lyže – skate',
+  BEZECKE_KLASIKA_SKIN: 'Běžecké lyže – klasika se skinem',
+  SJEZDOVE: 'Sjezdové lyže',
+  SKI_ALP: 'Ski alp',
+}
 const ORDER_STATUS_LABELS: Record<string, string> = { NOVE: 'Nové', VE_ZPRACOVANI: 'Ve zpracování', POZASTAVENA: 'Pozastavená', UKONCENA: 'Dokončená', STORNOVANA: 'Stornovaná' }
 function getOrderPriorityColor(p: string) {
   switch (p) { case 'NIZKA': return 'bg-green-100 text-green-800'; case 'STREDNI': return 'bg-yellow-100 text-yellow-800'; case 'VYSOKA': return 'bg-orange-100 text-orange-800'; case 'KRITICKA': return 'bg-red-100 text-red-800'; default: return 'bg-gray-100 text-gray-800' }
@@ -136,16 +143,18 @@ const SkiDetail: React.FC<SkiDetailProps> = ({
         <!DOCTYPE html>
         <html>
           <head>
-            <title>QR kód lyže ${escapeHtml(payload)}</title>
+            <title>QR kód ${escapeHtml(payload)}</title>
             <style>
               body { font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-              .label { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+              .identifier { font-size: 20px; font-weight: 700; margin-bottom: 12px; letter-spacing: 0.05em; }
+              .brand { font-size: 13px; color: #6b7280; margin-top: 10px; letter-spacing: 0.1em; text-transform: uppercase; }
               img { display: block; }
             </style>
           </head>
           <body>
-            <p class="label">Lyže: ${escapeHtml(payload)}</p>
+            <p class="identifier">${escapeHtml(payload)}</p>
             <img src="${dataUrl}" alt="QR kód" width="256" height="256" />
+            <p class="brand">bezkyservis</p>
           </body>
         </html>
       `)
@@ -217,7 +226,25 @@ const SkiDetail: React.FC<SkiDetailProps> = ({
                 </div>
                 <div className="flex gap-2">
                   <span className="text-xs font-medium text-gray-500 w-20 shrink-0">Rok</span>
-                  <span className="text-sm text-gray-900">{ski.year || 'N/A'}</span>
+                  <span className="text-sm text-gray-900">{ski.year || '—'}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-xs font-medium text-gray-500 w-20 shrink-0">Použití</span>
+                  <span className="text-sm text-gray-900">
+                    {ski.skiUsage ? (SKI_USAGE_LABELS[ski.skiUsage] ?? ski.skiUsage) : '—'}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-xs font-medium text-gray-500 w-20 shrink-0">EAN</span>
+                  <span className="text-sm text-gray-900">{ski.ean || '—'}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-xs font-medium text-gray-500 w-20 shrink-0">Part No</span>
+                  <span className="text-sm text-gray-900">{ski.partNo || '—'}</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="text-xs font-medium text-gray-500 w-20 shrink-0">Serial No</span>
+                  <span className="text-sm text-gray-900">{ski.serialNo || '—'}</span>
                 </div>
                 {ski.customer && (
                   <div className="flex gap-2 items-center">
@@ -425,7 +452,7 @@ const SkiDetail: React.FC<SkiDetailProps> = ({
               if (!task) return null
               return (
                 <>
-                  <p className="text-xs font-medium text-gray-700 mb-1.5">Úkony na této lyži (popis lze upravit):</p>
+                  <p className="text-xs font-medium text-gray-700 mb-1.5">Servisní úkony na této lyži (popis lze upravit):</p>
                   <ul className="space-y-2">
                     {task.taskItems.map(item => {
                       const matchingOption = modificationOptions.find(o => o.name === item.taskName)

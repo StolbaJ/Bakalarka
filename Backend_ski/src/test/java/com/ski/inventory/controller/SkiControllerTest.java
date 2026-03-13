@@ -102,7 +102,7 @@ class SkiControllerTest {
     void createSki_validRequest_returns201() throws Exception {
         SkiController.CreateSkiRequest req = new SkiController.CreateSkiRequest(
                 "Brand", "Model", "170", 2023, "allround", BigDecimal.valueOf(3.5),
-                "DOBRY", "DOSTUPNY", "A1", "notes", null, null, null);
+                "DOBRY", "DOSTUPNY", "A1", "notes", null, null, null, null, null, null, null);
         Ski saved = createSki(1L, "SKI-001", "Brand", "Model");
         when(skiRepository.save(any(Ski.class))).thenReturn(saved);
 
@@ -122,7 +122,7 @@ class SkiControllerTest {
         Ski existing = createSki(1L, "SKI-001", "Old", "OldModel");
         SkiController.UpdateSkiRequest req = new SkiController.UpdateSkiRequest(
                 "NewBrand", "NewModel", "175", 2024, "race", BigDecimal.valueOf(4.0),
-                "VYORNY", "V_SERVISU", "B2", "updated", null, null, null);
+                "VYORNY", "V_SERVISU", "B2", "updated", null, null, null, null, null, null, null);
         when(skiRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(skiRepository.save(any(Ski.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -141,7 +141,7 @@ class SkiControllerTest {
     void updateSki_notFound_returns404() throws Exception {
         when(skiRepository.findById(999L)).thenReturn(Optional.empty());
         SkiController.UpdateSkiRequest req = new SkiController.UpdateSkiRequest(
-                "B", "M", "170", 2023, null, null, null, null, null, null, null, null, null);
+                "B", "M", "170", 2023, null, null, null, null, null, null, null, null, null, null, null, null, null);
 
         mockMvc.perform(put("/api/technician/skis/999")
                         .with(csrf())

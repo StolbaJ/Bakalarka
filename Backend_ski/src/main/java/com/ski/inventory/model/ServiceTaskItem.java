@@ -43,6 +43,10 @@ public class ServiceTaskItem {
     
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    /** Cena úkonu (Kč), přebírá se z ceníku, lze upravit. */
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal price;
     
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

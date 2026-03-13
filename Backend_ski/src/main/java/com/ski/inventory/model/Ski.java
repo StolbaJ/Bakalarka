@@ -71,6 +71,19 @@ public class Ski {
 
     @Column(name = "struktura_recorded_at")
     private LocalDateTime strukturaRecordedAt;
+
+    @Column(length = 100)
+    private String ean;
+
+    @Column(name = "part_no", length = 100)
+    private String partNo;
+
+    @Column(name = "serial_no", length = 100)
+    private String serialNo;
+
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "ski_usage", columnDefinition = "ski_usage")
+    private SkiUsage skiUsage;
     
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

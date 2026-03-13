@@ -125,6 +125,10 @@ export default function DatabasePage() {
           lastServiceDate: editingSki.lastService ?? undefined,
           nextServiceDate: data.nextServiceDate,
           struktura: editingSki.struktura ?? null,
+          ean: data.ean ?? null,
+          partNo: data.partNo ?? null,
+          serialNo: data.serialNo ?? null,
+          skiUsage: data.skiUsage ?? null,
         })
         setEditingSki(null)
       } else {
@@ -138,6 +142,10 @@ export default function DatabasePage() {
           location: data.location,
           notes: data.notes,
           nextServiceDate: data.nextServiceDate,
+          ean: data.ean ?? null,
+          partNo: data.partNo ?? null,
+          serialNo: data.serialNo ?? null,
+          skiUsage: data.skiUsage ?? null,
         })
         setShowAddForm(false)
       }

@@ -151,6 +151,10 @@ export default function ScannerPage() {
       lastServiceDate: editingSki.lastService ?? undefined,
       nextServiceDate: data.nextServiceDate,
       struktura: editingSki.struktura ?? null,
+      ean: data.ean ?? null,
+      partNo: data.partNo ?? null,
+      serialNo: data.serialNo ?? null,
+      skiUsage: data.skiUsage ?? null,
     })
     setEditingSki(null)
   }

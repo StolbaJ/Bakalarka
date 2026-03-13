@@ -356,7 +356,7 @@ class ApiClient {
     })
   }
 
-  async updateOrder(orderId: number, data: { notes?: string; priority?: string; status?: string; price?: number | null; customerId?: number | null; dueDate?: string | null }): Promise<OrderDetailResponse> {
+  async updateOrder(orderId: number, data: { notes?: string; priority?: string; status?: string; price?: number | null; discount?: number | null; customerId?: number | null; dueDate?: string | null }): Promise<OrderDetailResponse> {
     return this.request<OrderDetailResponse>(`/api/technician/orders/${orderId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -414,13 +414,14 @@ class ApiClient {
     })
   }
 
-  async addTaskItem(orderId: number, taskId: number, taskName: string, taskDescription?: string, taskInstruction?: string, modificationOptionId?: number): Promise<OrderDetailResponse> {
-    const body: { taskName: string; taskDescription: string | null; taskInstruction: string | null; modificationOptionId?: number } = {
+  async addTaskItem(orderId: number, taskId: number, taskName: string, taskDescription?: string, taskInstruction?: string, modificationOptionId?: number, price?: number | null): Promise<OrderDetailResponse> {
+    const body: { taskName: string; taskDescription: string | null; taskInstruction: string | null; modificationOptionId?: number; price?: number | null } = {
       taskName,
       taskDescription: taskDescription || null,
       taskInstruction: taskInstruction || null,
     }
     if (modificationOptionId != null) body.modificationOptionId = modificationOptionId
+    if (price != null) body.price = price
     return this.request<OrderDetailResponse>(`/api/technician/orders/${orderId}/tasks/${taskId}/items`, {
       method: 'POST',
       body: JSON.stringify(body),
@@ -437,12 +438,13 @@ class ApiClient {
     orderId: number,
     taskId: number,
     itemId: number,
-    data: { completed?: boolean; taskDescription?: string | null; taskInstruction?: string | null }
+    data: { completed?: boolean; taskDescription?: string | null; taskInstruction?: string | null; price?: number | null }
   ): Promise<OrderDetailResponse> {
-    const body: { completed?: boolean; taskDescription?: string | null; taskInstruction?: string | null } = {}
+    const body: { completed?: boolean; taskDescription?: string | null; taskInstruction?: string | null; price?: number | null } = {}
     if (data.completed !== undefined) body.completed = data.completed
     if (data.taskDescription !== undefined) body.taskDescription = data.taskDescription
     if (data.taskInstruction !== undefined) body.taskInstruction = data.taskInstruction
+    if (data.price !== undefined) body.price = data.price
     return this.request<OrderDetailResponse>(`/api/technician/orders/${orderId}/tasks/${taskId}/items/${itemId}`, {
       method: 'PATCH',
       body: JSON.stringify(body),
@@ -495,10 +497,17 @@ class ApiClient {
     return this.request<ModificationOptionResponse[]>('/api/technician/options/upravy')
   }
 
-  async addStrukturaOption(name: string, sortOrder?: number): Promise<StrukturaOptionResponse> {
+  async addStrukturaOption(name: string, sortOrder?: number, price?: number | null): Promise<StrukturaOptionResponse> {
     return this.request<StrukturaOptionResponse>('/api/technician/options/struktury', {
       method: 'POST',
-      body: JSON.stringify({ name, sortOrder: sortOrder ?? 0 }),
+      body: JSON.stringify({ name, sortOrder: sortOrder ?? 0, price: price ?? null }),
+    })
+  }
+
+  async updateStrukturaOption(id: number, data: { price?: number | null; clearPrice?: boolean }): Promise<StrukturaOptionResponse> {
+    return this.request<StrukturaOptionResponse>(`/api/technician/options/struktury/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     })
   }
 
@@ -506,7 +515,7 @@ class ApiClient {
     return this.request<void>(`/api/technician/options/struktury/${id}`, { method: 'DELETE' })
   }
 
-  async addModificationOption(name: string, description?: string | null, sortOrder?: number, requiresWorkDescription?: boolean): Promise<ModificationOptionResponse> {
+  async addModificationOption(name: string, description?: string | null, sortOrder?: number, requiresWorkDescription?: boolean, price?: number | null): Promise<ModificationOptionResponse> {
     return this.request<ModificationOptionResponse>('/api/technician/options/upravy', {
       method: 'POST',
       body: JSON.stringify({
@@ -514,11 +523,12 @@ class ApiClient {
         description: description ?? null,
         sortOrder: sortOrder ?? 0,
         requiresWorkDescription: requiresWorkDescription ?? false,
+        price: price ?? null,
       }),
     })
   }
 
-  async updateModificationOption(id: number, data: { requiresWorkDescription?: boolean }): Promise<ModificationOptionResponse> {
+  async updateModificationOption(id: number, data: { requiresWorkDescription?: boolean; price?: number | null; clearPrice?: boolean }): Promise<ModificationOptionResponse> {
     return this.request<ModificationOptionResponse>(`/api/technician/options/upravy/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -549,6 +559,7 @@ export interface OrderSummaryResponse {
   priority: string | null
   status: string | null
   price: number | null
+  discount: number | null
   pohodaId: number | null
 }
 
@@ -570,6 +581,7 @@ export interface OrderDetailResponse {
   priority: string | null
   status: string | null
   price: number | null
+  discount: number | null
   pohodaId: number | null
   tasks: OrderTaskResponse[]
 }
@@ -581,6 +593,7 @@ export interface CreateOrderRequest {
   status?: string
   notes?: string | null
   price?: number | null
+  discount?: number | null
   pohodaId?: number | null
   skiIds: number[]
   /** Cílová struktura pro každou lyži (stejné pořadí jako skiIds) */
@@ -625,6 +638,7 @@ export interface ServiceTaskItemResponse {
   completed: boolean
   completedAt: string | null
   requiresWorkDescription: boolean
+  price: number | null
 }
 
 export interface SkiServiceHistoryEntry {
@@ -656,6 +670,10 @@ export interface SkiResponse {
   nextServiceDate: string | null
   struktura: string | null
   strukturaRecordedAt: string | null
+  ean: string | null
+  partNo: string | null
+  serialNo: string | null
+  skiUsage: string | null
 }
 
 export interface CreateSkiRequest {
@@ -672,6 +690,10 @@ export interface CreateSkiRequest {
   lastServiceDate?: string
   nextServiceDate?: string
   struktura?: string | null
+  ean?: string | null
+  partNo?: string | null
+  serialNo?: string | null
+  skiUsage?: string | null
 }
 
 export interface UpdateSkiRequest {
@@ -688,6 +710,10 @@ export interface UpdateSkiRequest {
   lastServiceDate?: string
   nextServiceDate?: string
   struktura?: string | null
+  ean?: string | null
+  partNo?: string | null
+  serialNo?: string | null
+  skiUsage?: string | null
 }
 
 export interface UserResponse {
@@ -787,6 +813,7 @@ export interface StrukturaOptionResponse {
   id: number
   name: string
   sortOrder: number
+  price: number | null
 }
 
 export interface ModificationOptionResponse {
@@ -795,6 +822,7 @@ export interface ModificationOptionResponse {
   description: string | null
   sortOrder: number
   requiresWorkDescription: boolean
+  price: number | null
 }
 
 export const apiClient = new ApiClient()

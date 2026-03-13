@@ -50,6 +50,10 @@ public class Order {
     @Column(name = "price", precision = 10, scale = 2)
     private BigDecimal price;
 
+    /** Sleva na celé objednávce v procentech (0–100). */
+    @Column(name = "discount", precision = 5, scale = 2)
+    private BigDecimal discount = BigDecimal.ZERO;
+
     @Column(name = "pohoda_id")
     private Long pohodaId;
 

@@ -29,7 +29,7 @@ public class OptionsController {
     public ResponseEntity<List<StrukturaOptionDto>> getStruktury() {
         List<StrukturaOptionDto> list = strukturaOptionRepository.findAllByOrderBySortOrderAscNameAsc()
                 .stream()
-                .map(o -> new StrukturaOptionDto(o.getId(), o.getName(), o.getSortOrder()))
+                .map(o -> new StrukturaOptionDto(o.getId(), o.getName(), o.getSortOrder(), o.getPrice()))
                 .toList();
         return ResponseEntity.ok(list);
     }
@@ -38,7 +38,7 @@ public class OptionsController {
     public ResponseEntity<List<ModificationOptionDto>> getUpravy() {
         List<ModificationOptionDto> list = commonModificationOptionRepository.findAllByOrderBySortOrderAscNameAsc()
                 .stream()
-                .map(o -> new ModificationOptionDto(o.getId(), o.getName(), o.getDescription(), o.getSortOrder(), o.isRequiresWorkDescription()))
+                .map(o -> new ModificationOptionDto(o.getId(), o.getName(), o.getDescription(), o.getSortOrder(), o.isRequiresWorkDescription(), o.getPrice()))
                 .toList();
         return ResponseEntity.ok(list);
     }
@@ -52,8 +52,25 @@ public class OptionsController {
         StrukturaOption opt = new StrukturaOption();
         opt.setName(request.name().trim());
         opt.setSortOrder(request.sortOrder() != null ? request.sortOrder() : 0);
+        opt.setPrice(request.price());
         opt = strukturaOptionRepository.save(opt);
-        return ResponseEntity.ok(new StrukturaOptionDto(opt.getId(), opt.getName(), opt.getSortOrder()));
+        return ResponseEntity.ok(new StrukturaOptionDto(opt.getId(), opt.getName(), opt.getSortOrder(), opt.getPrice()));
+    }
+
+    @PatchMapping("/struktury/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<StrukturaOptionDto> updateStruktura(@PathVariable Long id, @RequestBody UpdateStrukturaRequest request) {
+        return strukturaOptionRepository.findById(id)
+                .map(opt -> {
+                    if (request.price() != null) {
+                        opt.setPrice(request.price());
+                    } else if (request.clearPrice() != null && request.clearPrice()) {
+                        opt.setPrice(null);
+                    }
+                    opt = strukturaOptionRepository.save(opt);
+                    return ResponseEntity.ok(new StrukturaOptionDto(opt.getId(), opt.getName(), opt.getSortOrder(), opt.getPrice()));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/struktury/{id}")
@@ -77,8 +94,9 @@ public class OptionsController {
         opt.setDescription(request.description() != null ? request.description().trim() : null);
         opt.setSortOrder(request.sortOrder() != null ? request.sortOrder() : 0);
         opt.setRequiresWorkDescription(request.requiresWorkDescription() != null && request.requiresWorkDescription());
+        opt.setPrice(request.price());
         opt = commonModificationOptionRepository.save(opt);
-        return ResponseEntity.ok(new ModificationOptionDto(opt.getId(), opt.getName(), opt.getDescription(), opt.getSortOrder(), opt.isRequiresWorkDescription()));
+        return ResponseEntity.ok(new ModificationOptionDto(opt.getId(), opt.getName(), opt.getDescription(), opt.getSortOrder(), opt.isRequiresWorkDescription(), opt.getPrice()));
     }
 
     @PatchMapping("/upravy/{id}")
@@ -89,8 +107,13 @@ public class OptionsController {
                     if (request.requiresWorkDescription() != null) {
                         opt.setRequiresWorkDescription(request.requiresWorkDescription());
                     }
+                    if (request.price() != null) {
+                        opt.setPrice(request.price());
+                    } else if (request.clearPrice() != null && request.clearPrice()) {
+                        opt.setPrice(null);
+                    }
                     opt = commonModificationOptionRepository.save(opt);
-                    return ResponseEntity.ok(new ModificationOptionDto(opt.getId(), opt.getName(), opt.getDescription(), opt.getSortOrder(), opt.isRequiresWorkDescription()));
+                    return ResponseEntity.ok(new ModificationOptionDto(opt.getId(), opt.getName(), opt.getDescription(), opt.getSortOrder(), opt.isRequiresWorkDescription(), opt.getPrice()));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -105,9 +128,10 @@ public class OptionsController {
         return ResponseEntity.noContent().build();
     }
 
-    public record StrukturaOptionDto(Long id, String name, int sortOrder) {}
-    public record ModificationOptionDto(Long id, String name, String description, int sortOrder, boolean requiresWorkDescription) {}
-    public record CreateStrukturaRequest(String name, Integer sortOrder) {}
-    public record CreateModificationRequest(String name, String description, Integer sortOrder, Boolean requiresWorkDescription) {}
-    public record UpdateModificationRequest(Boolean requiresWorkDescription) {}
+    public record StrukturaOptionDto(Long id, String name, int sortOrder, java.math.BigDecimal price) {}
+    public record ModificationOptionDto(Long id, String name, String description, int sortOrder, boolean requiresWorkDescription, java.math.BigDecimal price) {}
+    public record CreateStrukturaRequest(String name, Integer sortOrder, java.math.BigDecimal price) {}
+    public record UpdateStrukturaRequest(java.math.BigDecimal price, Boolean clearPrice) {}
+    public record CreateModificationRequest(String name, String description, Integer sortOrder, Boolean requiresWorkDescription, java.math.BigDecimal price) {}
+    public record UpdateModificationRequest(Boolean requiresWorkDescription, java.math.BigDecimal price, Boolean clearPrice) {}
 }

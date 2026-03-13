@@ -21,4 +21,7 @@ public class StrukturaOption {
 
     @Column(name = "sort_order", nullable = false)
     private int sortOrder = 0;
+
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal price;
 }

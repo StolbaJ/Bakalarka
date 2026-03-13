@@ -31,6 +31,10 @@ export function skiResponseToData(res: SkiResponse): SkiData {
     notes: res.notes ?? undefined,
     struktura: res.struktura ?? undefined,
     strukturaRecordedAt: res.strukturaRecordedAt ?? undefined,
+    ean: res.ean ?? undefined,
+    partNo: res.partNo ?? undefined,
+    serialNo: res.serialNo ?? undefined,
+    skiUsage: res.skiUsage ?? undefined,
   }
 }
 

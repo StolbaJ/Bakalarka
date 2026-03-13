@@ -28,4 +28,8 @@ public class CommonModificationOption {
     /** Pokud true, před označením úkonu jako dokončený musí být vyplněn popis práce (výsledek). */
     @Column(name = "requires_work_description", nullable = false)
     private boolean requiresWorkDescription = false;
+
+    /** Cena úkonu dle ceníku (Kč). */
+    @Column(precision = 10, scale = 2)
+    private java.math.BigDecimal price;
 }

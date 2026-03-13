@@ -17,6 +17,15 @@ const CONDITION_OPTIONS = [
   { value: 'SPATNY', label: 'Špatný' },
 ]
 
+const SKI_USAGE_OPTIONS = [
+  { value: '', label: '— Nevybráno' },
+  { value: 'BEZECKE_KLASIKA', label: 'Běžecké lyže – klasika' },
+  { value: 'BEZECKE_SKATE', label: 'Běžecké lyže – skate' },
+  { value: 'BEZECKE_KLASIKA_SKIN', label: 'Běžecké lyže – klasika se skinem' },
+  { value: 'SJEZDOVE', label: 'Sjezdové lyže' },
+  { value: 'SKI_ALP', label: 'Ski alp' },
+]
+
 const REVERSE_STATUS: Record<string, string> = {
   'Dostupný': 'DOSTUPNY',
   'V servisu': 'V_SERVISU',
@@ -49,6 +58,10 @@ export interface SkiFormData {
   location?: string
   notes?: string
   nextServiceDate?: string
+  ean?: string
+  partNo?: string
+  serialNo?: string
+  skiUsage?: string
 }
 
 const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) => {
@@ -61,6 +74,10 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
   const [location, setLocation] = useState('')
   const [notes, setNotes] = useState('')
   const [nextServiceDate, setNextServiceDate] = useState('')
+  const [ean, setEan] = useState('')
+  const [partNo, setPartNo] = useState('')
+  const [serialNo, setSerialNo] = useState('')
+  const [skiUsage, setSkiUsage] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -75,6 +92,10 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
       setLocation(ski.location ?? '')
       setNotes(ski.notes ?? '')
       setNextServiceDate(ski.nextService ?? '')
+      setEan(ski.ean ?? '')
+      setPartNo(ski.partNo ?? '')
+      setSerialNo(ski.serialNo ?? '')
+      setSkiUsage(ski.skiUsage ?? '')
     }
   }, [ski])
 
@@ -97,6 +118,10 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
         nextServiceDate: nextServiceDate || undefined,
+        ean: ean.trim() || undefined,
+        partNo: partNo.trim() || undefined,
+        serialNo: serialNo.trim() || undefined,
+        skiUsage: skiUsage || undefined,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Chyba při ukládání')
@@ -150,6 +175,48 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             onChange={(e) => setYear(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
             min={1900}
             max={2100}
+            className="w-full border border-gray-300 rounded-md px-3 py-2"
+          />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Použití</label>
+          <select
+            value={skiUsage}
+            onChange={(e) => setSkiUsage(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2"
+          >
+            {SKI_USAGE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">EAN</label>
+          <input
+            type="text"
+            value={ean}
+            onChange={(e) => setEan(e.target.value)}
+            placeholder="Čárový kód EAN"
+            className="w-full border border-gray-300 rounded-md px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Part No</label>
+          <input
+            type="text"
+            value={partNo}
+            onChange={(e) => setPartNo(e.target.value)}
+            placeholder="Číslo dílu"
+            className="w-full border border-gray-300 rounded-md px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Serial No</label>
+          <input
+            type="text"
+            value={serialNo}
+            onChange={(e) => setSerialNo(e.target.value)}
+            placeholder="Sériové číslo"
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
         </div>

@@ -60,6 +60,7 @@ public class OrderController {
         order.setStatus(request.status() != null ? OrderStatus.valueOf(request.status()) : OrderStatus.NOVE);
         order.setNotes(request.notes());
         order.setPrice(request.price() != null ? request.price() : null);
+        order.setDiscount(request.discount() != null ? request.discount() : java.math.BigDecimal.ZERO);
         order.setPohodaId(request.pohodaId());
         Order savedOrder = orderRepository.save(order);
         List<String> targetList = request.targetStruktura() != null ? request.targetStruktura() : List.of();
@@ -145,6 +146,7 @@ public class OrderController {
                     if (request.priority() != null) order.setPriority(ServiceTaskPriority.valueOf(request.priority()));
                     if (request.status() != null) order.setStatus(OrderStatus.valueOf(request.status()));
                     if (request.price() != null) order.setPrice(request.price());
+                    if (request.discount() != null) order.setDiscount(request.discount());
                     if (request.pohodaId() != null) order.setPohodaId(request.pohodaId());
                     if (request.customerId() != null) {
                         order.setCustomer(request.customerId() == 0 ? null : customerRepository.findById(request.customerId()).orElse(null));
@@ -267,6 +269,9 @@ public class OrderController {
                     if (request.taskInstruction() != null) {
                         item.setTaskInstruction(request.taskInstruction());
                     }
+                    if (request.price() != null) {
+                        item.setPrice(request.price());
+                    }
                     serviceTaskItemRepository.save(item);
                     OrderTask task = item.getTask();
                     boolean allDone = task.getTaskItems().stream().allMatch(i -> Boolean.TRUE.equals(i.getCompleted()));
@@ -309,11 +314,15 @@ public class OrderController {
                             if (instruction == null && opt.getDescription() != null && !opt.getDescription().isBlank()) {
                                 item.setTaskInstruction(opt.getDescription().trim());
                             }
+                            if (opt.getPrice() != null) {
+                                item.setPrice(opt.getPrice());
+                            }
                         });
                     }
                     if (instruction != null) item.setTaskInstruction(instruction);
                     item.setTaskDescription(request.taskDescription());
                     item.setCompleted(false);
+                    if (request.price() != null) item.setPrice(request.price());
                     serviceTaskItemRepository.save(item);
                     Order order = task.getOrder();
                     List<OrderTask> tasks = orderTaskRepository.findByOrderIdWithSkiAndItems(order.getId());
@@ -338,12 +347,12 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    public record CreateOrderRequest(Long customerId, String dueDate, String priority, String status, String notes, BigDecimal price, Long pohodaId, List<Long> skiIds, List<String> targetStruktura) {}
-    public record UpdateOrderRequest(String notes, String priority, String status, BigDecimal price, Long pohodaId, Long customerId, String dueDate) {}
+    public record CreateOrderRequest(Long customerId, String dueDate, String priority, String status, String notes, BigDecimal price, BigDecimal discount, Long pohodaId, List<Long> skiIds, List<String> targetStruktura) {}
+    public record UpdateOrderRequest(String notes, String priority, String status, BigDecimal price, BigDecimal discount, Long pohodaId, Long customerId, String dueDate) {}
     public record AddTaskToOrderRequest(Long skiId, String targetStruktura) {}
-    public record AddTaskItemRequest(String taskName, String taskDescription, String taskInstruction, Long modificationOptionId) {}
+    public record AddTaskItemRequest(String taskName, String taskDescription, String taskInstruction, Long modificationOptionId, BigDecimal price) {}
     public record UpdateTaskRequest(String status, String targetStruktura) {}
-    public record UpdateTaskItemRequest(Boolean completed, String taskDescription, String taskInstruction) {}
+    public record UpdateTaskItemRequest(Boolean completed, String taskDescription, String taskInstruction, BigDecimal price) {}
 
     private boolean matchesSearch(OrderSummaryResponse o, String search) {
         String s = search.toLowerCase();
@@ -368,6 +377,7 @@ public class OrderController {
                 priority,
                 status,
                 order.getPrice(),
+                order.getDiscount(),
                 order.getPohodaId()
         );
     }
@@ -394,6 +404,7 @@ public class OrderController {
                 priority,
                 status,
                 order.getPrice(),
+                order.getDiscount(),
                 order.getPohodaId(),
                 tasks
         );
@@ -433,7 +444,8 @@ public class OrderController {
                 item.getTaskDescription(),
                 Boolean.TRUE.equals(item.getCompleted()),
                 item.getCompletedAt() != null ? item.getCompletedAt().toString() : null,
-                Boolean.TRUE.equals(item.getRequiresWorkDescription())
+                Boolean.TRUE.equals(item.getRequiresWorkDescription()),
+                item.getPrice()
         );
     }
 
@@ -448,6 +460,7 @@ public class OrderController {
             String priority,
             String status,
             java.math.BigDecimal price,
+            java.math.BigDecimal discount,
             Long pohodaId
     ) {}
 
@@ -463,6 +476,7 @@ public class OrderController {
             String priority,
             String status,
             java.math.BigDecimal price,
+            java.math.BigDecimal discount,
             Long pohodaId,
             List<OrderTaskResponse> tasks
     ) {}
@@ -487,7 +501,8 @@ public class OrderController {
             String taskDescription,
             boolean completed,
             String completedAt,
-            boolean requiresWorkDescription
+            boolean requiresWorkDescription,
+            java.math.BigDecimal price
     ) {}
 
     public record PageResponse<T>(List<T> content, long totalElements, int totalPages, int size, int number, boolean first, boolean last) {}
