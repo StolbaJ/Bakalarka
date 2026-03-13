@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,6 +115,29 @@ class JwtAuthenticationFilterTest {
 
         verify(filterChain).doFilter(request, response);
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    }
+
+    @Test
+    void doFilterInternal_alreadyAuthenticated_skipsTokenProcessing() throws Exception {
+        // Pre-set an existing authentication in SecurityContext
+        UsernamePasswordAuthenticationToken existingAuth = new UsernamePasswordAuthenticationToken(
+                "existingUser", null,
+                java.util.List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        SecurityContextHolder.getContext().setAuthentication(existingAuth);
+
+        String token = "some.jwt.token";
+        when(request.getHeader("Authorization")).thenReturn("Bearer " + token);
+        when(jwtService.extractUsername(token)).thenReturn("newUser");
+        when(jwtService.extractRole(token)).thenReturn("ADMIN");
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        // The existing authentication should be preserved (not overwritten)
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName())
+                .isEqualTo("existingUser");
+        // validateToken should NOT be called since auth is already set
+        verify(jwtService, never()).validateToken(anyString(), anyString());
     }
 
     @Test
