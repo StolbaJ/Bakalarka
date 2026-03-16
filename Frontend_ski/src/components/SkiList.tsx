@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Search, Grid, List, MoreHorizontal } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 import SkiItem, { SkiData } from './SkiItem'
 
 interface SkiListProps {
@@ -29,6 +30,7 @@ const SkiList: React.FC<SkiListProps> = ({
   defaultView = 'grid',
   className = ''
 }) => {
+  const { t } = useLanguage()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [conditionFilter, setConditionFilter] = useState('all')
@@ -56,10 +58,10 @@ const SkiList: React.FC<SkiListProps> = ({
     <div className={`space-y-4 ${className}`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
+        <div className="text-center w-full">
           <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
           <p className="text-gray-600">
-            {filteredSkis.length} z {skis.length} lyží
+            {filteredSkis.length} {t('database.of')} {skis.length} {t('statistics.skisUnit')}
           </p>
         </div>
 
@@ -68,14 +70,14 @@ const SkiList: React.FC<SkiListProps> = ({
           <button
             onClick={() => setViewMode('grid')}
             className={`p-2 rounded-md ${viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-            title="Mřížka"
+            title={t('skiList.grid')}
           >
             <Grid className="w-5 h-5" />
           </button>
           <button
             onClick={() => setViewMode('list')}
             className={`p-2 rounded-md ${viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-            title="Seznam"
+            title={t('skiList.list')}
           >
             <List className="w-5 h-5" />
           </button>

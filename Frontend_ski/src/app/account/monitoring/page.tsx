@@ -13,6 +13,7 @@ import {
   RefreshCw,
   AlertTriangle,
 } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import apiClient, {
   MonitoringOverviewResponse,
@@ -49,6 +50,7 @@ function formatErrorTime(ts: number): string {
 }
 
 export default function AccountMonitoringPage() {
+  const { t } = useLanguage()
   const [overview, setOverview] = useState<MonitoringOverviewResponse | null>(null)
   const [lastResponseTimeMs, setLastResponseTimeMs] = useState<number | null>(null)
   const [lastCheckAt, setLastCheckAt] = useState<number | null>(null)
@@ -67,12 +69,12 @@ export default function AccountMonitoringPage() {
       setOfflineSince(null)
       setError(null)
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Backend nedostupný')
+      setError(e instanceof Error ? e.message : t('monitoring.backendUnavailable'))
       if (offlineSince === null) setOfflineSince(Date.now())
     } finally {
       setLoading(false)
     }
-  }, [offlineSince])
+  }, [offlineSince, t])
 
   useEffect(() => {
     fetchOverview()
@@ -93,11 +95,10 @@ export default function AccountMonitoringPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1 flex items-center gap-2">
               <Activity className="w-7 h-7 text-blue-600" />
-              Monitoring backendu
+              {t('monitoring.title')}
             </h1>
             <p className="text-gray-600 text-sm">
-              Zdraví služby, metriky, disk, JVM a chyby 5xx. Obnovuje se každých{' '}
-              {POLL_INTERVAL_MS / 1000} s.
+              {t('monitoring.desc')} {POLL_INTERVAL_MS / 1000} {t('monitoring.seconds')}.
             </p>
           </div>
           <button
@@ -109,7 +110,7 @@ export default function AccountMonitoringPage() {
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
           >
             <RefreshCw className="w-4 h-4" />
-            Obnovit
+            {t('monitoring.refresh')}
           </button>
         </div>
 
@@ -117,17 +118,17 @@ export default function AccountMonitoringPage() {
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
             <AlertCircle className="w-8 h-8 text-red-600 shrink-0" />
             <div>
-              <p className="font-semibold text-red-800">Backend nedostupný</p>
+              <p className="font-semibold text-red-800">{t('monitoring.backendUnavailable')}</p>
               <p className="text-red-700 text-sm">{error}</p>
               {offlineDuration != null && (
-                <p className="text-red-600 text-sm mt-1">Výpadek trvá cca {offlineDuration} s.</p>
+                <p className="text-red-600 text-sm mt-1">{t('monitoring.outageDuration')} {offlineDuration} {t('monitoring.seconds')}.</p>
               )}
             </div>
           </div>
         )}
 
         {loading && !overview && (
-          <div className="text-center py-12 text-gray-500">Načítám monitoring…</div>
+          <div className="text-center py-12 text-gray-500">{t('monitoring.loading')}</div>
         )}
 
         {!loading && overview && (
@@ -144,28 +145,28 @@ export default function AccountMonitoringPage() {
                   <AlertCircle className="w-12 h-12 text-amber-600 shrink-0" />
                 )}
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Stav backendu</p>
+                  <p className="text-sm font-medium text-gray-600">{t('monitoring.backendStatus')}</p>
                   <p className={`text-2xl font-bold ${isUp ? 'text-emerald-700' : 'text-amber-700'}`}>
-                    {overview.status === 'UP' ? 'Běží' : overview.status}
+                    {overview.status === 'UP' ? t('monitoring.running') : overview.status}
                   </p>
                 </div>
               </div>
               <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4">
                 <Clock className="w-12 h-12 text-blue-600 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Uptime</p>
+                  <p className="text-sm font-medium text-gray-600">{t('monitoring.uptime')}</p>
                   <p className="text-xl font-bold text-gray-900">{overview.uptimeFormatted}</p>
                 </div>
               </div>
               <div className="bg-white rounded-xl shadow-md p-6 flex items-center gap-4">
                 <Server className="w-12 h-12 text-gray-600 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Poslední kontrola</p>
+                  <p className="text-sm font-medium text-gray-600">{t('monitoring.lastCheck')}</p>
                   <p className="text-xl font-bold text-gray-900">
                     {lastCheckAt != null ? formatTime(lastCheckAt) : '–'}
                   </p>
                   {lastResponseTimeMs != null && (
-                    <p className="text-xs text-gray-500">odezva {lastResponseTimeMs} ms</p>
+                    <p className="text-xs text-gray-500">{t('monitoring.response')} {lastResponseTimeMs} {t('monitoring.ms')}</p>
                   )}
                 </div>
               </div>
@@ -173,25 +174,25 @@ export default function AccountMonitoringPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white rounded-xl shadow-md p-6">
-                <p className="text-sm font-medium text-gray-600 mb-1">Požadavky za sekundu</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('monitoring.requestsPerSecond')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {overview.requestRatePerSecond.toFixed(2)}
                 </p>
               </div>
               <div className="bg-white rounded-xl shadow-md p-6">
-                <p className="text-sm font-medium text-gray-600 mb-1">Průměrná doba odezvy</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('monitoring.avgResponseTime')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {overview.responseTimeAvgMs.toFixed(0)} ms
                 </p>
               </div>
               <div className="bg-white rounded-xl shadow-md p-6">
-                <p className="text-sm font-medium text-gray-600 mb-1">Max. doba odezvy</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('monitoring.maxResponseTime')}</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {overview.responseTimeMaxMs.toFixed(0)} ms
                 </p>
               </div>
               <div className="bg-white rounded-xl shadow-md p-6">
-                <p className="text-sm font-medium text-gray-600 mb-1">Podíl chyb (5xx)</p>
+                <p className="text-sm font-medium text-gray-600 mb-1">{t('monitoring.errorRate5xx')}</p>
                 <p
                   className={`text-2xl font-bold ${
                     overview.errorRatePercent > 1 ? 'text-amber-600' : 'text-gray-900'
@@ -205,23 +206,23 @@ export default function AccountMonitoringPage() {
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center gap-2 mb-3">
                 <HardDrive className="w-5 h-5 text-teal-600" />
-                <h3 className="font-semibold text-gray-900">Disk</h3>
+                <h3 className="font-semibold text-gray-900">{t('monitoring.disk')}</h3>
               </div>
-              <DiskBar disk={overview.disk} />
+              <DiskBar disk={overview.disk} t={t} />
             </div>
 
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center gap-2 mb-3">
                 <Database className="w-5 h-5 text-indigo-600" />
-                <h3 className="font-semibold text-gray-900">Databáze</h3>
+                <h3 className="font-semibold text-gray-900">{t('monitoring.database')}</h3>
               </div>
-              <DatabaseStatus database={overview.database} />
+              <DatabaseStatus database={overview.database} t={t} />
             </div>
 
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center gap-2 mb-3">
                 <Cpu className="w-5 h-5 text-violet-600" />
-                <h3 className="font-semibold text-gray-900">Paměť (JVM)</h3>
+                <h3 className="font-semibold text-gray-900">{t('monitoring.memoryJvm')}</h3>
               </div>
               <JvmMemory memory={overview.memory} />
             </div>
@@ -229,9 +230,9 @@ export default function AccountMonitoringPage() {
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center gap-2 mb-3">
                 <AlertTriangle className="w-5 h-5 text-red-600" />
-                <h3 className="font-semibold text-gray-900">Poslední chyby 5xx</h3>
+                <h3 className="font-semibold text-gray-900">{t('monitoring.recentErrors5xx')}</h3>
               </div>
-              <RecentErrorsList errors={recentErrors} />
+              <RecentErrorsList errors={recentErrors} t={t} />
             </div>
           </>
         )}
@@ -240,7 +241,7 @@ export default function AccountMonitoringPage() {
   )
 }
 
-function DiskBar({ disk }: { disk: Record<string, unknown> }) {
+function DiskBar({ disk, t }: { disk: Record<string, unknown>; t: (key: string) => string }) {
   const details = disk.details as Record<string, unknown> | undefined
   const total = typeof details?.total === 'number' ? details.total : 0
   const free = typeof details?.free === 'number' ? details.free : 0
@@ -249,13 +250,13 @@ function DiskBar({ disk }: { disk: Record<string, unknown> }) {
   const percent = total > 0 ? Math.round((used / total) * 100) : 0
 
   if (!total && !status) {
-    return <p className="text-gray-500 text-sm">Údaje nejsou k dispozici</p>
+    return <p className="text-gray-500 text-sm">{t('monitoring.dataNotAvailable')}</p>
   }
 
   return (
     <div className="space-y-2">
       <div className="flex justify-between text-sm text-gray-600">
-        <span>Využito {total > 0 ? formatBytes(used) : '–'} z {total > 0 ? formatBytes(total) : '–'}</span>
+        <span>{t('monitoring.used')} {total > 0 ? formatBytes(used) : '–'} {t('monitoring.of')} {total > 0 ? formatBytes(total) : '–'}</span>
         {status && (
           <span className={status === 'UP' ? 'text-emerald-600' : 'text-amber-600'}>{status}</span>
         )}
@@ -272,23 +273,23 @@ function DiskBar({ disk }: { disk: Record<string, unknown> }) {
   )
 }
 
-function DatabaseStatus({ database }: { database: Record<string, unknown> }) {
+function DatabaseStatus({ database, t }: { database: Record<string, unknown>; t: (key: string) => string }) {
   const status = database.status as string | undefined
   const details = database.details as Record<string, unknown> | undefined
   const dbName = details?.database as string | undefined
   const validationQuery = details?.validationQuery as string | undefined
 
   if (!status && !dbName) {
-    return <p className="text-gray-500 text-sm">Údaje nejsou k dispozici</p>
+    return <p className="text-gray-500 text-sm">{t('monitoring.dataNotAvailable')}</p>
   }
 
   return (
     <div className="space-y-1 text-sm">
       <p>
-        Stav: <strong className={status === 'UP' ? 'text-emerald-600' : 'text-amber-600'}>{status ?? 'N/A'}</strong>
+        {t('monitoring.status')}: <strong className={status === 'UP' ? 'text-emerald-600' : 'text-amber-600'}>{status ?? 'N/A'}</strong>
       </p>
-      {dbName != null && <p>Databáze: {String(dbName)}</p>}
-      {validationQuery != null && <p className="text-gray-600">Validace: {String(validationQuery)}</p>}
+      {dbName != null && <p>{t('monitoring.databaseLabel')} {String(dbName)}</p>}
+      {validationQuery != null && <p className="text-gray-600">{t('monitoring.validation')}: {String(validationQuery)}</p>}
     </div>
   )
 }
@@ -328,10 +329,10 @@ function JvmMemory({ memory }: { memory: Record<string, unknown> }) {
   )
 }
 
-function RecentErrorsList({ errors }: { errors: RecordedErrorResponse[] }) {
+function RecentErrorsList({ errors, t }: { errors: RecordedErrorResponse[]; t: (key: string) => string }) {
   if (errors.length === 0) {
     return (
-      <p className="text-gray-500 text-sm">Žádné chyby 5xx v záznamu. Ukládáme posledních 20 výskytů.</p>
+      <p className="text-gray-500 text-sm">{t('monitoring.noErrors5xx')}</p>
     )
   }
 

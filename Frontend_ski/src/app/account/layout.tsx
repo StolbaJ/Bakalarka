@@ -3,18 +3,20 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLanguage } from '@/contexts/LanguageContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { User, Key, SlidersHorizontal, Activity } from 'lucide-react'
 
-const navItems: { href: string; label: string; icon: typeof User; roles?: ('ADMIN' | 'TECHNICIAN' | 'CUSTOMER')[] }[] = [
-  { href: '/account/profile', label: 'Profil', icon: User },
-  { href: '/account/password', label: 'Změna hesla', icon: Key, roles: ['ADMIN', 'TECHNICIAN'] },
-  { href: '/account/dalsi', label: 'Další nastavení', icon: SlidersHorizontal },
-  { href: '/account/monitoring', label: 'Monitoring', icon: Activity, roles: ['ADMIN'] },
+const navItems: { href: string; labelKey: string; icon: typeof User; roles?: ('ADMIN' | 'TECHNICIAN' | 'CUSTOMER')[] }[] = [
+  { href: '/account/profile', labelKey: 'account.profile', icon: User },
+  { href: '/account/password', labelKey: 'account.changePassword', icon: Key, roles: ['ADMIN', 'TECHNICIAN'] },
+  { href: '/account/dalsi', labelKey: 'account.otherSettings', icon: SlidersHorizontal },
+  { href: '/account/monitoring', labelKey: 'account.monitoring', icon: Activity, roles: ['ADMIN'] },
 ]
 
 function AccountLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { t } = useLanguage()
   const { user } = useAuth()
 
   const visibleItems = navItems.filter(
@@ -26,8 +28,10 @@ function AccountLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Levé menu – pevné, bez scrollu */}
       <aside className="w-56 shrink-0 flex flex-col border-r border-gray-200 bg-gray-50/80 rounded-l-lg overflow-hidden">
         <div className="p-4 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-900">Nastavení účtu</h2>
-          <p className="text-xs text-gray-500 mt-0.5">{user?.fullName || user?.username}</p>
+          <h2 className="font-semibold text-gray-900">{t('account.settingsTitle')}</h2>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {user?.role === 'ADMIN' ? t('users.roleAdmin') : user?.role === 'TECHNICIAN' ? t('users.roleTechnician') : (user?.fullName || user?.username)}
+          </p>
         </div>
         <nav className="flex flex-col p-2">
           {visibleItems.map((item) => {
@@ -44,7 +48,7 @@ function AccountLayoutContent({ children }: { children: React.ReactNode }) {
                 }`}
               >
                 <Icon className="w-5 h-5 shrink-0" />
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             )
           })}

@@ -197,7 +197,7 @@ const Navigation = () => {
                     <User className="w-4 h-4 text-green-500" />
                   )}
                   <span className="text-sm font-medium text-gray-700">
-                    {user.fullName || user.username}
+                    {user.role === 'ADMIN' ? t('users.roleAdmin') : user.role === 'TECHNICIAN' ? t('users.roleTechnician') : (user.fullName || user.username)}
                   </span>
                   <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                 </button>

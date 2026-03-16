@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Key, Shield, UserX, UserCheck, History } from 'lucide-react'
+import { useLanguage } from '@/contexts/LanguageContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import ConfirmModal from '@/components/ConfirmModal'
 import { apiClient, UserResponse, CreateUserRequest, AuditLogPage } from '@/lib/api'
@@ -14,6 +15,7 @@ type ActionModal =
   | null
 
 export default function UsersPage() {
+  const { t } = useLanguage()
   const [users, setUsers] = useState<UserResponse[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -74,7 +76,7 @@ export default function UsersPage() {
     e.preventDefault()
     setFormError('')
     if (!formData.username.trim()) {
-      setFormError('Uživatelské jméno je povinné.')
+      setFormError(t('users.usernameRequired'))
       return
     }
     if (!generatePassword) {
@@ -88,7 +90,7 @@ export default function UsersPage() {
       }
     } else {
       if (!formData.email?.trim()) {
-        setFormError('E-mail je povinný pro odeslání vygenerovaného hesla.')
+        setFormError(t('users.emailRequiredForPassword'))
         return
       }
     }
@@ -175,9 +177,9 @@ export default function UsersPage() {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'ADMIN':
-        return 'Administrátor'
+        return t('users.roleAdmin')
       case 'TECHNICIAN':
-        return 'Technik'
+        return t('users.roleTechnician')
       default:
         return role
     }
@@ -186,15 +188,15 @@ export default function UsersPage() {
   const getActionLabel = (action: string) => {
     switch (action) {
       case 'CREATE':
-        return 'Vytvoření účtu'
+        return t('users.actionCreate')
       case 'UPDATE_ROLE':
-        return 'Změna role'
+        return t('users.actionUpdateRole')
       case 'RESET_PASSWORD':
-        return 'Reset hesla'
+        return t('users.resetPassword')
       case 'DEACTIVATE':
-        return 'Deaktivace'
+        return t('users.actionDeactivate')
       case 'REACTIVATE':
-        return 'Reaktivace'
+        return t('users.actionReactivate')
       default:
         return action
     }
@@ -203,10 +205,10 @@ export default function UsersPage() {
   return (
     <ProtectedRoute requiredRole="ADMIN">
       <div className="space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="text-center sm:text-left">
-            <h1 className="text-3xl font-bold text-gray-900 mb-1">Správa uživatelů</h1>
-            <p className="text-gray-600">Vytváření a správa účtů pro administrátory a techniky</p>
+        <div className="flex flex-col gap-4">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">{t('users.title')}</h1>
+            <p className="text-gray-600">{t('users.subtitle')}</p>
           </div>
           <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
             <button
@@ -217,7 +219,7 @@ export default function UsersPage() {
               className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
               <History className="w-4 h-4" />
-              <span>Audit log</span>
+              <span>{t('users.auditLog')}</span>
             </button>
             <button
               onClick={() => {
@@ -229,7 +231,7 @@ export default function UsersPage() {
               className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
-              <span>Přidat uživatele</span>
+              <span>{t('users.addUser')}</span>
             </button>
           </div>
         </div>
@@ -240,7 +242,7 @@ export default function UsersPage() {
 
         {showForm && (
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Nový uživatel</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('users.newUser')}</h2>
             <form onSubmit={handleCreateUser} className="space-y-4 max-w-md">
               {formError && (
                 <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">{formError}</div>
@@ -254,11 +256,11 @@ export default function UsersPage() {
                   className="rounded border-gray-300"
                 />
                 <label htmlFor="generatePassword" className="text-sm font-medium text-gray-700">
-                  Vygenerovat heslo a poslat emailem
+                  {t('users.generatePasswordLabel')}
                 </label>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Uživatelské jméno *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('users.usernameLabel')}</label>
                 <input
                   type="text"
                   value={formData.username}
@@ -269,7 +271,7 @@ export default function UsersPage() {
               </div>
               {!generatePassword && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Heslo *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('users.passwordLabel')}</label>
                   <input
                     type="password"
                     value={formData.password ?? ''}
@@ -281,18 +283,18 @@ export default function UsersPage() {
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('users.roleLabel')}</label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as 'ADMIN' | 'TECHNICIAN' })}
                   className="w-full border border-gray-300 rounded-md px-3 py-2"
                 >
-                  <option value="ADMIN">Administrátor</option>
-                  <option value="TECHNICIAN">Technik</option>
+                  <option value="ADMIN">{t('users.roleAdmin')}</option>
+                  <option value="TECHNICIAN">{t('users.roleTechnician')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Jméno</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('users.nameLabel')}</label>
                 <input
                   type="text"
                   value={formData.fullName ?? ''}
@@ -302,7 +304,7 @@ export default function UsersPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  E-mail {generatePassword && '*'}
+                  {t('users.email')} {generatePassword && '*'}
                 </label>
                 <input
                   type="email"
@@ -323,14 +325,14 @@ export default function UsersPage() {
                   onClick={() => setShowForm(false)}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
-                  Zrušit
+{t('common.cancel')}
                 </button>
-                <button
+              <button
                   type="submit"
                   disabled={isSubmitting}
                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Vytvářím...' : 'Vytvořit'}
+                  {isSubmitting ? t('users.creating') : t('users.create')}
                 </button>
               </div>
             </form>
@@ -341,20 +343,20 @@ export default function UsersPage() {
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <h2 className="text-xl font-semibold text-gray-900 p-4 border-b flex items-center gap-2">
               <History className="w-5 h-5" />
-              Audit log změn účtů
+              {t('users.auditLogTitle')}
             </h2>
             {auditLoading ? (
-              <div className="p-8 text-center text-gray-500">Načítám...</div>
+              <div className="p-8 text-center text-gray-500">{t('users.loading')}</div>
             ) : auditLog && auditLog.content.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Datum</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Akce</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uživatel</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provedl</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Detaily</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.date')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.actions')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.user')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.performedBy')}</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.details')}</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -377,28 +379,28 @@ export default function UsersPage() {
                 </table>
               </div>
             ) : (
-              <div className="p-8 text-center text-gray-500">Žádné záznamy</div>
+              <div className="p-8 text-center text-gray-500">{t('users.noRecords')}</div>
             )}
           </div>
         )}
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <h2 className="text-xl font-semibold text-gray-900 p-4 border-b">Seznam uživatelů</h2>
+<h2 className="text-xl font-semibold text-gray-900 p-4 border-b">{t('users.userList')}</h2>
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">Načítám uživatele...</div>
+            <div className="p-8 text-center text-gray-500">{t('users.loadingUsers')}</div>
           ) : users.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">Žádní uživatelé</div>
+            <div className="p-8 text-center text-gray-500">{t('users.noUsers')}</div>
           ) : (
-            <div className="overflow-x-auto">
+              <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uživatel</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jméno</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">E-mail</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aktivní</th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Akce</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.user')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.role')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.nameLabel')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.email')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.active')}</th>
+                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">{t('users.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -408,7 +410,7 @@ export default function UsersPage() {
                       <td className="px-4 py-3 text-sm text-gray-600">{getRoleLabel(user.role)}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{user.fullName || '-'}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{user.email || '-'}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{user.active ? 'Ano' : 'Ne'}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600">{user.active ? t('users.yes') : t('users.no')}</td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
                           {user.active ? (
@@ -416,7 +418,7 @@ export default function UsersPage() {
                               <button
                                 onClick={() => setActionModal({ type: 'role', user })}
                                 className="p-2 text-blue-600 hover:bg-blue-50 rounded-md"
-                                title="Změnit roli"
+                                title={t('users.changeRole')}
                               >
                                 <Shield className="w-4 h-4" />
                               </button>
@@ -426,14 +428,14 @@ export default function UsersPage() {
                                   setResetPasswordResult(null)
                                 }}
                                 className="p-2 text-amber-600 hover:bg-amber-50 rounded-md"
-                                title="Resetovat heslo"
+                                title={t('users.resetPasswordBtn')}
                               >
                                 <Key className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => setActionModal({ type: 'deactivate', user })}
                                 className="p-2 text-red-600 hover:bg-red-50 rounded-md"
-                                title="Deaktivovat"
+                                title={t('users.deactivate')}
                               >
                                 <UserX className="w-4 h-4" />
                               </button>
@@ -442,7 +444,7 @@ export default function UsersPage() {
                             <button
                               onClick={() => setActionModal({ type: 'reactivate', user })}
                               className="p-2 text-green-600 hover:bg-green-50 rounded-md"
-                              title="Reaktivovat"
+                              title={t('users.reactivate')}
                             >
                               <UserCheck className="w-4 h-4" />
                             </button>
@@ -461,16 +463,16 @@ export default function UsersPage() {
       {actionModal?.type === 'role' && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Změnit roli: {actionModal.user.username}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('users.changeRoleTitle')} {actionModal.user.username}</h3>
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Nová role</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('users.newRole')}</label>
               <select
                 id="role-select"
                 defaultValue={actionModal.user.role}
                 className="w-full border border-gray-300 rounded-md px-3 py-2"
               >
-                <option value="ADMIN">Administrátor</option>
-                <option value="TECHNICIAN">Technik</option>
+                <option value="ADMIN">{t('users.roleAdmin')}</option>
+                <option value="TECHNICIAN">{t('users.roleTechnician')}</option>
               </select>
             </div>
             <div className="flex justify-end gap-2">
@@ -479,14 +481,14 @@ export default function UsersPage() {
                 disabled={actionLoading}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
               >
-                Zrušit
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleUpdateRole}
                 disabled={actionLoading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {actionLoading ? 'Ukládám...' : 'Uložit'}
+                {actionLoading ? t('users.saving') : t('common.save')}
               </button>
             </div>
           </div>
@@ -496,21 +498,21 @@ export default function UsersPage() {
       {actionModal?.type === 'reset' && (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Reset hesla: {actionModal.user.username}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('users.resetPasswordTitle')} {actionModal.user.username}</h3>
             {resetPasswordResult ? (
               <>
                 <p className="text-gray-600 mb-4">
-                  Nové heslo bylo vygenerováno a odesláno na e-mail uživatele.
+                  {t('users.resetPasswordGenerated')}
                 </p>
                 {resetPasswordResult.password && (
                   <>
                     <div className="bg-gray-100 p-4 rounded-md mb-4 font-mono text-sm break-all">
                       {resetPasswordResult.password}
                     </div>
-                    <p className="text-sm text-gray-500 mb-4">
-                      Uložte si heslo pro případ, že e-mail nedorazí. Po zavření ho již neuvidíte.
-                    </p>
-                  </>
+<p className="text-sm text-gray-500 mb-4">
+                    {t('users.savePasswordHint')}
+                  </p>
+                </>
                 )}
                 <button
                   onClick={() => {
@@ -519,14 +521,13 @@ export default function UsersPage() {
                   }}
                   className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                 >
-                  Zavřít
+                  {t('users.close')}
                 </button>
               </>
             ) : (
               <>
                 <p className="text-gray-600 mb-6">
-                  Vygeneruje nové heslo a pošle ho na e-mail {actionModal.user.email || 'uživatele'}.
-                  Uživatel musí mít nastavený e-mail.
+                  {t('users.resetPasswordConfirm')}
                 </p>
                 <div className="flex justify-end gap-2">
                   <button
@@ -537,18 +538,18 @@ export default function UsersPage() {
                     disabled={actionLoading}
                     className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                   >
-                    Zrušit
+                    {t('common.cancel')}
                   </button>
                   <button
                     onClick={handleResetPassword}
                     disabled={actionLoading || !actionModal.user.email}
                     className="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50"
                   >
-                    {actionLoading ? 'Resetuji...' : 'Resetovat heslo'}
+                    {actionLoading ? t('users.resetting') : t('users.resetPasswordBtn')}
                   </button>
                 </div>
                 {!actionModal.user.email && (
-                  <p className="text-sm text-red-600 mt-2">Uživatel nemá nastavený e-mail.</p>
+                  <p className="text-sm text-red-600 mt-2">{t('users.userHasNoEmail')}</p>
                 )}
               </>
             )}
@@ -558,9 +559,9 @@ export default function UsersPage() {
 
       {actionModal?.type === 'deactivate' && (
         <ConfirmModal
-          title="Deaktivovat uživatele"
-          message={`Opravdu chcete deaktivovat uživatele ${actionModal.user.username}? Nebude se moci přihlásit.`}
-          confirmText="Deaktivovat"
+          title={t('users.deactivateUser')}
+          message={`${t('users.deactivateConfirm')} ${actionModal.user.username}`}
+          confirmText={t('users.deactivate')}
           confirmVariant="danger"
           onConfirm={handleDeactivate}
           onCancel={() => setActionModal(null)}
@@ -570,9 +571,9 @@ export default function UsersPage() {
 
       {actionModal?.type === 'reactivate' && (
         <ConfirmModal
-          title="Reaktivovat uživatele"
-          message={`Opravdu chcete reaktivovat uživatele ${actionModal.user.username}?`}
-          confirmText="Reaktivovat"
+          title={t('users.reactivateUser')}
+          message={`${t('users.reactivateConfirm')} ${actionModal.user.username}?`}
+          confirmText={t('users.reactivate')}
           onConfirm={handleReactivate}
           onCancel={() => setActionModal(null)}
           isLoading={actionLoading}
