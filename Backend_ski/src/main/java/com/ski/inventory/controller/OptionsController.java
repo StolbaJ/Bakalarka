@@ -44,7 +44,7 @@ public class OptionsController {
     }
 
     @PostMapping("/struktury")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public ResponseEntity<StrukturaOptionDto> addStruktura(@RequestBody CreateStrukturaRequest request) {
         if (request.name() == null || request.name().isBlank()) {
             return ResponseEntity.badRequest().build();
@@ -84,7 +84,7 @@ public class OptionsController {
     }
 
     @PostMapping("/upravy")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TECHNICIAN')")
     public ResponseEntity<ModificationOptionDto> addUprava(@RequestBody CreateModificationRequest request) {
         if (request.name() == null || request.name().isBlank()) {
             return ResponseEntity.badRequest().build();
