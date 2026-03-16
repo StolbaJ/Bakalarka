@@ -125,6 +125,7 @@ export default function DatabasePage() {
           lastServiceDate: editingSki.lastService ?? undefined,
           nextServiceDate: data.nextServiceDate,
           struktura: editingSki.struktura ?? null,
+          structureChangeCount: data.structureChangeCount,
           ean: data.ean ?? null,
           partNo: data.partNo ?? null,
           serialNo: data.serialNo ?? null,
@@ -142,6 +143,7 @@ export default function DatabasePage() {
           location: data.location,
           notes: data.notes,
           nextServiceDate: data.nextServiceDate,
+          structureChangeCount: data.structureChangeCount,
           ean: data.ean ?? null,
           partNo: data.partNo ?? null,
           serialNo: data.serialNo ?? null,
@@ -157,10 +159,10 @@ export default function DatabasePage() {
 
   return (
     <ProtectedRoute requiredRole="ADMIN_OR_TECHNICIAN">
-      <div className="space-y-8">
+      <div className="space-y-5">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('database.title')}</h1>
-          <p className="text-gray-600">{t('database.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('database.title')}</h1>
+          <p className="text-gray-600 text-sm">{t('database.subtitle')}</p>
         </div>
 
         {error && (

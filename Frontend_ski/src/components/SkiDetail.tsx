@@ -270,6 +270,10 @@ const SkiDetail: React.FC<SkiDetailProps> = ({
                     <p className="text-xs text-gray-500 mt-0.5">Zapsáno: {new Date(ski.strukturaRecordedAt).toLocaleDateString('cs-CZ')}</p>
                   )}
                 </div>
+                <div>
+                  <div className="text-xs font-medium text-gray-500 mb-0.5">Počet změn struktury (broušení)</div>
+                  <p className="text-sm text-gray-900">{ski.structureChangeCount ?? 0}</p>
+                </div>
                 {/* Broušení hran – poslední z historie */}
                 {(() => {
                   const last = serviceHistory

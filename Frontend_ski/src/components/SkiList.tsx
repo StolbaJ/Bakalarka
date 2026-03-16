@@ -53,9 +53,9 @@ const SkiList: React.FC<SkiListProps> = ({
   const conditions = [...new Set(skis.map(ski => ski.condition))]
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
           <p className="text-gray-600">
@@ -82,63 +82,58 @@ const SkiList: React.FC<SkiListProps> = ({
         </div>
       </div>
 
-      {/* Search and filters */}
+      {/* Search and filters - stejná výška řádku */}
       {(showSearch || showFilters) && (
         <div className="bg-white p-4 rounded-lg shadow-sm border">
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-3">
             {/* Search */}
             {showSearch && (
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <div className="flex-1 min-w-0">
+                <div className="relative h-10">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Hledat lyže..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full h-full pl-10 pr-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
             )}
 
-            {/* Filters */}
+            {/* Filters - stejná výška jako vyhledávání */}
             {showFilters && (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="all">Všechny stavy</option>
-                    {statuses.map(status => (
-                      <option key={status} value={status.toLowerCase()}>{status}</option>
-                    ))}
-                  </select>
-                </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[140px]"
+                >
+                  <option value="all">Všechny stavy</option>
+                  {statuses.map(status => (
+                    <option key={status} value={status.toLowerCase()}>{status}</option>
+                  ))}
+                </select>
 
-                <div>
-                  <select
-                    value={conditionFilter}
-                    onChange={(e) => setConditionFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="all">Všechny kondice</option>
-                    {conditions.map(condition => (
-                      <option key={condition} value={condition.toLowerCase()}>{condition}</option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={conditionFilter}
+                  onChange={(e) => setConditionFilter(e.target.value)}
+                  className="h-10 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[140px]"
+                >
+                  <option value="all">Všechny kondice</option>
+                  {conditions.map(condition => (
+                    <option key={condition} value={condition.toLowerCase()}>{condition}</option>
+                  ))}
+                </select>
 
-                {/* Clear filters */}
                 <button
                   onClick={() => {
                     setSearchTerm('')
                     setStatusFilter('all')
                     setConditionFilter('all')
                   }}
-                  className="px-3 py-2 text-gray-600 hover:text-gray-800 text-sm font-medium"
+                  className="h-10 px-3 text-gray-600 hover:text-gray-800 text-sm font-medium rounded-md border border-gray-300 hover:bg-gray-50"
                 >
                   Vymazat filtry
                 </button>
@@ -162,7 +157,7 @@ const SkiList: React.FC<SkiListProps> = ({
       ) : (
         <div className={
           viewMode === 'grid' 
-            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
+            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4'
             : 'space-y-4'
         }>
           {filteredSkis.map(ski => (

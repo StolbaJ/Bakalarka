@@ -670,6 +670,7 @@ export interface SkiResponse {
   nextServiceDate: string | null
   struktura: string | null
   strukturaRecordedAt: string | null
+  structureChangeCount: number
   ean: string | null
   partNo: string | null
   serialNo: string | null
@@ -690,6 +691,7 @@ export interface CreateSkiRequest {
   lastServiceDate?: string
   nextServiceDate?: string
   struktura?: string | null
+  structureChangeCount?: number
   ean?: string | null
   partNo?: string | null
   serialNo?: string | null
@@ -710,6 +712,7 @@ export interface UpdateSkiRequest {
   lastServiceDate?: string
   nextServiceDate?: string
   struktura?: string | null
+  structureChangeCount?: number
   ean?: string | null
   partNo?: string | null
   serialNo?: string | null

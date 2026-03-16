@@ -19,6 +19,7 @@ export interface SkiData {
   priority?: 'low' | 'medium' | 'high'
   struktura?: string
   strukturaRecordedAt?: string | null
+  structureChangeCount?: number
   ean?: string | null
   partNo?: string | null
   serialNo?: string | null
@@ -89,13 +90,15 @@ const SkiItem: React.FC<SkiItemProps> = ({
     }
   }
 
+  const displayName = `${ski.brand} ${ski.model}${ski.length ? ` ${ski.length}` : ''}`.trim()
+
   if (variant === 'compact') {
     return (
       <div className={`flex items-center justify-between p-3 bg-white rounded-lg shadow-sm border ${className}`}>
         <div className="flex items-center space-x-3">
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900">{ski.id}</h4>
-            <p className="text-sm text-gray-600">{ski.brand} {ski.model}</p>
+            <h4 className="text-lg font-semibold text-gray-900 uppercase tracking-tight">{displayName}</h4>
+            <p className="text-xs text-gray-500 mt-0.5">{ski.id}</p>
           </div>
           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ski.status)}`}>
             {ski.status}
@@ -143,8 +146,8 @@ const SkiItem: React.FC<SkiItemProps> = ({
           <div className="flex-1">
             <div className="flex items-center space-x-4">
               <div>
-                <h4 className="font-semibold text-gray-900">{ski.id}</h4>
-                <p className="text-sm text-gray-600">{ski.brand} {ski.model} - {ski.length}</p>
+                <h4 className="text-lg font-semibold text-gray-900 uppercase tracking-tight">{displayName}</h4>
+                <p className="text-xs text-gray-500 mt-0.5">{ski.id}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ski.status)}`}>
@@ -212,76 +215,80 @@ const SkiItem: React.FC<SkiItemProps> = ({
     )
   }
 
-  // Default card variant
+  // Default card variant - kompaktnější
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">{ski.id}</h3>
-          <p className="text-gray-600">{ski.brand} {ski.model}</p>
+    <div className={`bg-white rounded-lg shadow-md p-4 ${className}`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="min-w-0">
+          <h3 className="text-base font-bold text-gray-900 uppercase tracking-tight truncate">{displayName}</h3>
+          <p className="text-xs text-gray-500 mt-0.5">{ski.id}</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(ski.status)}`}>
+        <div className="flex items-center space-x-1.5 shrink-0 ml-2">
+          <span className={`px-1.5 py-0.5 text-xs font-semibold rounded-full ${getStatusColor(ski.status)}`}>
             {ski.status}
           </span>
-          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getConditionColor(ski.condition)}`}>
+          <span className={`px-1.5 py-0.5 text-xs font-semibold rounded-full ${getConditionColor(ski.condition)}`}>
             {ski.condition}
           </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
         <div>
-          <p className="text-sm font-medium text-gray-700">Délka</p>
+          <p className="text-xs font-medium text-gray-600">Délka</p>
           <p className="text-gray-900">{ski.length}</p>
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700">Rok</p>
+          <p className="text-xs font-medium text-gray-600">Rok</p>
           <p className="text-gray-900">{ski.year || 'N/A'}</p>
+        </div>
+        <div>
+          <p className="text-xs font-medium text-gray-600">Změny struktury</p>
+          <p className="text-gray-900">{ski.structureChangeCount ?? 0}</p>
         </div>
         {ski.location && (
           <div className="col-span-2">
-            <p className="text-sm font-medium text-gray-700">Umístění</p>
-            <p className="text-gray-900">{ski.location}</p>
+            <p className="text-xs font-medium text-gray-600">Umístění</p>
+            <p className="text-gray-900 truncate">{ski.location}</p>
           </div>
         )}
       </div>
 
       {ski.customer && (
-        <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700">Zákazník</p>
-          <p className="text-gray-900">{ski.customer}</p>
+        <div className="mb-2">
+          <p className="text-xs font-medium text-gray-600">Zákazník</p>
+          <p className="text-gray-900 text-sm">{ski.customer}</p>
         </div>
       )}
 
       {ski.priority && (
-        <div className="mb-4">
-          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getPriorityColor(ski.priority)}`}>
+        <div className="mb-2">
+          <span className={`px-1.5 py-0.5 text-xs font-semibold rounded-full ${getPriorityColor(ski.priority)}`}>
             Priorita: {ski.priority === 'high' ? 'Vysoká' : ski.priority === 'medium' ? 'Střední' : 'Nízká'}
           </span>
         </div>
       )}
 
       {ski.nextService && (
-        <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700">Další servis</p>
-          <p className="text-gray-900">{ski.nextService}</p>
+        <div className="mb-2">
+          <p className="text-xs font-medium text-gray-600">Další servis</p>
+          <p className="text-gray-900 text-sm">{ski.nextService}</p>
         </div>
       )}
 
       {ski.notes && (
-        <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700">Poznámky</p>
-          <p className="text-gray-900 text-sm">{ski.notes}</p>
+        <div className="mb-3">
+          <p className="text-xs font-medium text-gray-600">Poznámky</p>
+          <p className="text-gray-900 text-xs line-clamp-2">{ski.notes}</p>
         </div>
       )}
 
       {showActions && (
-        <div className="flex justify-end space-x-2">
+        <div className="flex justify-end space-x-1 pt-1">
           {onView && (
             <button
               onClick={() => onView(ski.id)}
-              className="px-3 py-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="px-2 py-1 text-blue-600 hover:text-blue-800 text-xs font-medium"
             >
               Zobrazit
             </button>
@@ -289,7 +296,7 @@ const SkiItem: React.FC<SkiItemProps> = ({
           {onEdit && (
             <button
               onClick={() => onEdit(ski.id, ski.numericId)}
-              className="px-3 py-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="px-2 py-1 text-blue-600 hover:text-blue-800 text-xs font-medium"
             >
               Upravit
             </button>
@@ -297,7 +304,7 @@ const SkiItem: React.FC<SkiItemProps> = ({
           {onDelete && (
             <button
               onClick={() => onDelete(ski.id, ski.numericId)}
-              className="px-3 py-1 text-red-600 hover:text-red-800 text-sm font-medium"
+              className="px-2 py-1 text-red-600 hover:text-red-800 text-xs font-medium"
             >
               Smazat
             </button>

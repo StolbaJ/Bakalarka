@@ -224,6 +224,7 @@ public class OrderController {
             if (task.getTargetStruktura().equals(current)) continue;
             task.getSki().setStruktura(task.getTargetStruktura());
             task.getSki().setStrukturaRecordedAt(java.time.LocalDateTime.now());
+            task.getSki().setStructureChangeCount((task.getSki().getStructureChangeCount() != null ? task.getSki().getStructureChangeCount() : 0) + 1);
             skiRepository.save(task.getSki());
         }
         // Notifikace zákazníka, že objednávka je připravena k vyzvednutí

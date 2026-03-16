@@ -31,6 +31,7 @@ export function skiResponseToData(res: SkiResponse): SkiData {
     notes: res.notes ?? undefined,
     struktura: res.struktura ?? undefined,
     strukturaRecordedAt: res.strukturaRecordedAt ?? undefined,
+    structureChangeCount: res.structureChangeCount ?? 0,
     ean: res.ean ?? undefined,
     partNo: res.partNo ?? undefined,
     serialNo: res.serialNo ?? undefined,
@@ -53,6 +54,7 @@ export function dataToCreateSkiRequest(data: Partial<SkiData>) {
     lastServiceDate: data.lastService ?? undefined,
     nextServiceDate: data.nextService ?? undefined,
     struktura: data.struktura ?? null,
+    structureChangeCount: data.structureChangeCount,
   }
 }
 

@@ -135,6 +135,7 @@ public class SkiController {
         if (request.struktura() != null && !request.struktura().isBlank()) {
             ski.setStrukturaRecordedAt(java.time.LocalDateTime.now());
         }
+        ski.setStructureChangeCount(request.structureChangeCount() != null ? request.structureChangeCount() : 0);
         ski.setEan(request.ean());
         ski.setPartNo(request.partNo());
         ski.setSerialNo(request.serialNo());
@@ -167,6 +168,9 @@ public class SkiController {
                         ski.setStrukturaRecordedAt(java.time.LocalDateTime.now());
                     } else {
                         ski.setStrukturaRecordedAt(null);
+                    }
+                    if (request.structureChangeCount() != null) {
+                        ski.setStructureChangeCount(request.structureChangeCount());
                     }
                     ski.setEan(request.ean());
                     ski.setPartNo(request.partNo());
@@ -208,6 +212,7 @@ public class SkiController {
                 ski.getNextServiceDate() != null ? ski.getNextServiceDate().toString() : null,
                 ski.getStruktura(),
                 ski.getStrukturaRecordedAt() != null ? ski.getStrukturaRecordedAt().toString() : null,
+                ski.getStructureChangeCount() != null ? ski.getStructureChangeCount() : 0,
                 ski.getEan(),
                 ski.getPartNo(),
                 ski.getSerialNo(),
@@ -232,6 +237,7 @@ public class SkiController {
             String nextServiceDate,
             String struktura,
             String strukturaRecordedAt,
+            Integer structureChangeCount,
             String ean,
             String partNo,
             String serialNo,
@@ -252,6 +258,7 @@ public class SkiController {
             java.time.LocalDate lastServiceDate,
             java.time.LocalDate nextServiceDate,
             String struktura,
+            Integer structureChangeCount,
             String ean,
             String partNo,
             String serialNo,
@@ -272,6 +279,7 @@ public class SkiController {
             java.time.LocalDate lastServiceDate,
             java.time.LocalDate nextServiceDate,
             String struktura,
+            Integer structureChangeCount,
             String ean,
             String partNo,
             String serialNo,

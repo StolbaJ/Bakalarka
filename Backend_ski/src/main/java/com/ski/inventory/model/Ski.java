@@ -72,6 +72,9 @@ public class Ski {
     @Column(name = "struktura_recorded_at")
     private LocalDateTime strukturaRecordedAt;
 
+    @Column(name = "structure_change_count", nullable = false)
+    private Integer structureChangeCount = 0;
+
     @Column(length = 100)
     private String ean;
 

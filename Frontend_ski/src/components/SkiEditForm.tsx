@@ -58,6 +58,7 @@ export interface SkiFormData {
   location?: string
   notes?: string
   nextServiceDate?: string
+  structureChangeCount?: number
   ean?: string
   partNo?: string
   serialNo?: string
@@ -78,6 +79,7 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
   const [partNo, setPartNo] = useState('')
   const [serialNo, setSerialNo] = useState('')
   const [skiUsage, setSkiUsage] = useState('')
+  const [structureChangeCount, setStructureChangeCount] = useState<number | ''>('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -96,6 +98,7 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
       setPartNo(ski.partNo ?? '')
       setSerialNo(ski.serialNo ?? '')
       setSkiUsage(ski.skiUsage ?? '')
+      setStructureChangeCount(ski.structureChangeCount ?? '')
     }
   }, [ski])
 
@@ -118,6 +121,7 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
         location: location.trim() || undefined,
         notes: notes.trim() || undefined,
         nextServiceDate: nextServiceDate || undefined,
+        structureChangeCount: structureChangeCount !== '' ? Number(structureChangeCount) : undefined,
         ean: ean.trim() || undefined,
         partNo: partNo.trim() || undefined,
         serialNo: serialNo.trim() || undefined,
@@ -175,6 +179,17 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             onChange={(e) => setYear(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
             min={1900}
             max={2100}
+            className="w-full border border-gray-300 rounded-md px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Počet změn struktury (broušení)</label>
+          <input
+            type="number"
+            value={structureChangeCount}
+            onChange={(e) => setStructureChangeCount(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+            min={0}
+            placeholder="0"
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
         </div>

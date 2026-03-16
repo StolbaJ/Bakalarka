@@ -219,7 +219,9 @@ function OrdersPageContent() {
   const [totalElements, setTotalElements] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [showDone, setShowDone] = useState(true)
+  const [sortBy, setSortBy] = useState<'priority' | 'orderNumber'>('priority')
   const [loading, setLoading] = useState(true)
+  const [modificationFilter, setModificationFilter] = useState<string>('')
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null)
   const expandFromUrl = useRef(false)
   const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null)
@@ -280,6 +282,22 @@ function OrdersPageContent() {
     }
   }, [expandedOrderId, orderDetails])
 
+  useEffect(() => {
+    if (!modificationFilter) return
+    const missingOrderIds = orders
+      .filter(o => showDone || !o.orderDone)
+      .filter(o => !orderDetails[o.id])
+      .map(o => o.id)
+    if (missingOrderIds.length === 0) return
+    missingOrderIds.forEach(id => {
+      apiClient.getOrder(id)
+        .then(detail => {
+          setOrderDetails(prev => (prev[id] ? prev : { ...prev, [id]: detail }))
+        })
+        .catch(console.error)
+    })
+  }, [modificationFilter, orders, orderDetails, showDone])
+
   const handleToggleOrder = async (orderId: number) => {
     if (expandedOrderId === orderId) {
       setExpandedOrderId(null)
@@ -335,8 +353,21 @@ function OrdersPageContent() {
 
   const filteredOrders = orders
     .filter(o => showDone || !o.orderDone)
+    .filter(o => {
+      if (!modificationFilter) return true
+      const detail = orderDetails[o.id]
+      if (!detail) return false
+      return detail.tasks.some(task =>
+        task.taskItems.some(item =>
+          item.taskName === modificationFilter && (!item.completed || showDone)
+        )
+      )
+    })
     .sort((a, b) => {
       if (a.orderDone !== b.orderDone) return a.orderDone ? 1 : -1
+      if (sortBy === 'orderNumber') {
+        return (a.orderNumber || '').localeCompare(b.orderNumber || '', undefined, { numeric: true })
+      }
       const pa = PRIORITY_ORDER[a.priority || 'STREDNI'] ?? 2
       const pb = PRIORITY_ORDER[b.priority || 'STREDNI'] ?? 2
       return pa - pb
@@ -397,15 +428,58 @@ function OrdersPageContent() {
               className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={showDone}
-              onChange={e => setShowDone(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-            />
-            <span className="text-sm text-gray-700">{t('orders.showDone')}</span>
-          </label>
+          <div className="flex flex-wrap items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={showDone}
+                onChange={e => setShowDone(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              />
+              <span className="text-sm text-gray-700">{t('orders.showDone')}</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-gray-700">
+                {t('orders.modificationFilterLabel')}
+              </label>
+              <select
+                value={modificationFilter}
+                onChange={e => { setModificationFilter(e.target.value); setPage(0) }}
+                className="min-w-[200px] rounded-md border-gray-300 shadow-sm text-sm cursor-pointer"
+              >
+                <option value="">{t('orders.modificationFilterAll')}</option>
+                {modificationOptions.map(option => (
+                  <option key={option.id} value={option.name}>
+                    {option.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-1 border border-gray-300 rounded-md p-0.5 bg-gray-100">
+              <button
+                type="button"
+                onClick={() => setSortBy('priority')}
+                className={`px-3 py-1.5 text-sm font-medium rounded cursor-pointer transition-colors ${
+                  sortBy === 'priority'
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {t('orders.sortByPriority')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSortBy('orderNumber')}
+                className={`px-3 py-1.5 text-sm font-medium rounded cursor-pointer transition-colors ${
+                  sortBy === 'orderNumber'
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                {t('orders.sortByOrderNumber')}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Seznam objednávek */}
@@ -429,6 +503,7 @@ function OrdersPageContent() {
                     detail={orderDetails[order.id]}
                     isExpanded={expandedOrderId === order.id}
                     expandedTaskId={expandedTaskId}
+                    modificationFilter={modificationFilter}
                     onToggleOrder={() => handleToggleOrder(order.id)}
                     onToggleTask={handleToggleTask}
                     onOrderUpdated={handleOrderUpdated}
@@ -490,6 +565,7 @@ function OrderRow({
   detail,
   isExpanded,
   expandedTaskId,
+  modificationFilter,
   onToggleOrder,
   onToggleTask,
   onOrderUpdated,
@@ -503,6 +579,7 @@ function OrderRow({
   detail?: OrderDetailResponse | null
   isExpanded: boolean
   expandedTaskId: number | null
+  modificationFilter: string
   onToggleOrder: () => void
   onToggleTask: (taskId: number) => void
   onOrderUpdated: (orderId: number, detail: OrderDetailResponse) => void
@@ -552,6 +629,7 @@ function OrderRow({
           detail={detail}
           onOrderUpdated={onOrderUpdated}
           expandedTaskId={expandedTaskId}
+          modificationFilter={modificationFilter}
           onToggleTask={onToggleTask}
           onOpenSkiDetail={onOpenSkiDetail}
           loadingSkiDetail={loadingSkiDetail}
@@ -573,6 +651,7 @@ function OrderDetailEdit({
   detail,
   onOrderUpdated,
   expandedTaskId,
+  modificationFilter,
   onToggleTask,
   onOpenSkiDetail,
   loadingSkiDetail,
@@ -583,6 +662,7 @@ function OrderDetailEdit({
   detail: OrderDetailResponse
   onOrderUpdated: (orderId: number, detail: OrderDetailResponse) => void
   expandedTaskId: number | null
+  modificationFilter: string
   onToggleTask: (taskId: number) => void
   onOpenSkiDetail: (skiId: number, orderDetail?: OrderDetailResponse, skiNumber?: string) => void
   loadingSkiDetail: boolean
@@ -856,6 +936,7 @@ function OrderDetailEdit({
                 detail={detail}
                 task={task}
                 isExpanded={expandedTaskId === task.id}
+                modificationFilter={modificationFilter}
                 onToggle={() => onToggleTask(task.id)}
                 onOrderUpdated={onOrderUpdated}
                 onOpenSkiDetail={onOpenSkiDetail}
@@ -972,6 +1053,7 @@ function OrderDetailEdit({
               detail={detail}
               task={task}
               isExpanded={expandedTaskId === task.id}
+              modificationFilter={modificationFilter}
               onToggle={() => onToggleTask(task.id)}
               onOrderUpdated={onOrderUpdated}
               onOpenSkiDetail={onOpenSkiDetail}
@@ -994,11 +1076,12 @@ function TaskRow({
   detail,
   task,
   isExpanded,
+  modificationFilter,
   onToggle,
   onOrderUpdated,
   onOpenSkiDetail,
   loadingSkiDetail,
-  strukturyOptions,
+  strukturyOptions: _strukturyOptions,
   modificationOptions,
   t,
 }: {
@@ -1006,6 +1089,7 @@ function TaskRow({
   detail: OrderDetailResponse
   task: OrderTaskResponse
   isExpanded: boolean
+  modificationFilter: string
   onToggle: () => void
   onOrderUpdated: (orderId: number, detail: OrderDetailResponse) => void
   onOpenSkiDetail: (skiId: number, orderDetail?: OrderDetailResponse, skiNumber?: string) => void
@@ -1138,8 +1222,16 @@ function TaskRow({
     }
   }
 
+  const hasFilteredItem = modificationFilter
+    ? task.taskItems.some(item => item.taskName === modificationFilter)
+    : false
+
+  const taskContainerClass = hasFilteredItem
+    ? 'border-2 border-amber-400 bg-amber-50'
+    : 'border border-gray-200 bg-white'
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className={`rounded-lg overflow-hidden ${taskContainerClass}`}>
       <div className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50">
         <button
           onClick={onToggle}
@@ -1238,6 +1330,7 @@ function TaskRow({
                 item={item}
                 orderId={orderId}
                 taskId={task.id}
+                modificationFilter={modificationFilter}
                 modificationOptions={modificationOptions}
                 onToggleCompleted={(completed, currentTaskDescription) => handleItemCompleted(item.id, completed, currentTaskDescription)}
                 onDelete={() => handleDeleteItem(item.id)}
@@ -1320,6 +1413,7 @@ const NOTE_SAVE_DELAY_MS = 600
 function TaskItemRow({
   item,
   modificationOptions,
+  modificationFilter,
   onToggleCompleted,
   onDelete,
   onSaveNote,
@@ -1330,6 +1424,7 @@ function TaskItemRow({
   orderId: number
   taskId: number
   modificationOptions: ModificationOptionResponse[]
+  modificationFilter?: string
   onToggleCompleted: (completed: boolean, currentTaskDescription?: string | null) => void
   onDelete: () => void
   onSaveNote: (itemId: number, taskDescription: string | null) => Promise<void>
@@ -1413,8 +1508,14 @@ function TaskItemRow({
     onToggleCompleted(completed, completed ? (note.trim() || null) : undefined)
   }
 
+  const isHighlighted = modificationFilter && item.taskName === modificationFilter
+
   return (
-    <li className="flex flex-wrap items-start gap-2 text-sm group py-1">
+    <li
+      className={`flex flex-wrap items-start gap-2 text-sm group py-1 rounded ${
+        isHighlighted ? 'bg-amber-50 ring-1 ring-amber-300' : ''
+      }`}
+    >
       <input
         type="checkbox"
         checked={item.completed}
@@ -1706,8 +1807,9 @@ function CreateOrderModal({
         location: data.location,
         notes: data.notes,
         nextServiceDate: data.nextServiceDate,
+        structureChangeCount: data.structureChangeCount,
       })
-      const newSki = { id: created.id, skiNumber: created.skiNumber, brand: created.brand, model: created.model, length: created.length, struktura: created.struktura ?? null }
+      const newSki = { id: created.id, skiNumber: created.skiNumber, brand: created.brand, model: created.model, length: created.length, struktura: created.struktura ?? null, structureChangeCount: created.structureChangeCount ?? 0 }
       setSkis(prev => [...prev, newSki].sort((a, b) => a.id - b.id))
       setSelectedSkiIds(prev => [...prev, created.id])
       setItemsPerSki(prev => ({ ...prev, [created.id]: [] }))
@@ -1738,6 +1840,11 @@ function CreateOrderModal({
     setSaving(true)
     setError(null)
     try {
+      const targetStrukturaForPayload = selectedSkiIds.map(sid => {
+        const zmenaItem = (itemsPerSki[sid] || []).find(it => it.taskName.trim() === ZMENA_STRUKTURY_NAZEV)
+        const fromZmena = zmenaItem?.taskInstruction?.trim()
+        return fromZmena || (targetStrukturaPerSki[sid] ?? null)
+      })
       const payload: CreateOrderRequest = {
         customerId: customerId === '' ? null : parseInt(customerId, 10),
         dueDate: dueDate || null,
@@ -1745,7 +1852,7 @@ function CreateOrderModal({
         notes: notes || null,
         price: price === '' ? null : parseFloat(price),
         skiIds: selectedSkiIds,
-        targetStruktura: selectedSkiIds.map(sid => targetStrukturaPerSki[sid] ?? null),
+        targetStruktura: targetStrukturaForPayload,
       }
       const created = await apiClient.createOrder(payload)
       for (const task of created.tasks) {
@@ -1755,7 +1862,10 @@ function CreateOrderModal({
         for (const it of items) {
           if (!it.taskName.trim()) continue
           const modificationOptionId = modificationOptions.find(o => o.name === it.taskName.trim())?.id
-          await apiClient.addTaskItem(created.id, task.id, it.taskName.trim(), it.taskDescription.trim() || undefined, it.taskInstruction.trim() || undefined, modificationOptionId)
+          const isZmena = it.taskName.trim() === ZMENA_STRUKTURY_NAZEV
+          const desc = isZmena ? (it.taskInstruction.trim() || undefined) : (it.taskDescription.trim() || undefined)
+          const instruction = isZmena ? (it.taskInstruction.trim() || undefined) : (it.taskInstruction.trim() || undefined)
+          await apiClient.addTaskItem(created.id, task.id, it.taskName.trim(), desc, instruction, modificationOptionId)
         }
       }
       const refreshed = await apiClient.getOrder(created.id)
@@ -1935,43 +2045,48 @@ function CreateOrderModal({
                     {selectedSkis.map(ski => (
                       <div key={ski.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                         <p className="font-medium text-gray-900 text-sm mb-2">ID {ski.id} — {ski.skiNumber} {ski.brand} {ski.model} {ski.length}</p>
-                        <div className="mb-3">
-                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('orders.targetStructureSki')}</label>
-                          <input
-                            type="text"
-                            list={`struktury-create-${ski.id}`}
-                            value={targetStrukturaPerSki[ski.id] ?? ''}
-                            onChange={e => setTargetStrukturaPerSki(prev => ({ ...prev, [ski.id]: e.target.value }))}
-                            placeholder={ski.struktura ?? t('orders.targetStructurePlaceholder')}
-                            className="block w-full rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
-                          />
-                          <datalist id={`struktury-create-${ski.id}`}>
-                            {strukturyOptions.map(s => (
-                              <option key={s.id} value={s.name} />
-                            ))}
-                          </datalist>
-                          {ski.struktura != null && ski.struktura !== '' && (
-                            <p className="text-xs text-gray-500 mt-0.5">{t('orders.currentOnSki')} {ski.struktura}</p>
-                          )}
-                        </div>
                         <p className="text-xs text-gray-600 mb-2">{t('orders.tasksOnSki')}</p>
-                        {(itemsPerSki[ski.id] || []).map((item, idx) => (
-                          <div key={idx} className="space-y-1 mb-3 p-2 bg-white rounded border border-gray-200">
-                            <div className="flex gap-2 items-center">
-                              <input
-                                type="text"
-                                list="upravy-create-list"
-                                value={item.taskName}
-                                onChange={e => updateItemAtSki(ski.id, idx, 'taskName', e.target.value)}
-                                placeholder={t('orders.taskNamePlaceholder')}
-                                className="min-w-0 flex-1 rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
-                              />
-                              <button type="button" onClick={() => removeItemFromSki(ski.id, idx)} className="shrink-0 px-2 py-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 text-sm rounded cursor-pointer">{t('common.delete')}</button>
+                        {(itemsPerSki[ski.id] || []).map((item, idx) => {
+                          const isZmenaStruktury = item.taskName.trim() === ZMENA_STRUKTURY_NAZEV
+                          return (
+                            <div key={idx} className="space-y-1 mb-3 p-2 bg-white rounded border border-gray-200">
+                              <div className="flex gap-2 items-center">
+                                <input
+                                  type="text"
+                                  list="upravy-create-list"
+                                  value={item.taskName}
+                                  onChange={e => updateItemAtSki(ski.id, idx, 'taskName', e.target.value)}
+                                  placeholder={t('orders.taskNamePlaceholder')}
+                                  className="min-w-0 flex-1 rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
+                                />
+                                <button type="button" onClick={() => removeItemFromSki(ski.id, idx)} className="shrink-0 px-2 py-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 text-sm rounded cursor-pointer">{t('common.delete')}</button>
+                              </div>
+                              {isZmenaStruktury ? (
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('orders.structureLabel')}</label>
+                                  <select
+                                    value={item.taskInstruction}
+                                    onChange={e => updateItemAtSki(ski.id, idx, 'taskInstruction', e.target.value)}
+                                    className="w-full rounded-md border border-gray-300 shadow-sm text-sm py-1.5 px-2"
+                                  >
+                                    <option value="">{t('orders.selectStructure')}</option>
+                                    {strukturyOptions.map(s => (
+                                      <option key={s.id} value={s.name}>{s.name}</option>
+                                    ))}
+                                  </select>
+                                  {ski.struktura != null && ski.struktura !== '' && (
+                                    <p className="text-xs text-gray-500 mt-0.5">{t('orders.currentOnSki')} {ski.struktura}</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <>
+                                  <input type="text" value={item.taskInstruction} onChange={e => updateItemAtSki(ski.id, idx, 'taskInstruction', e.target.value)} placeholder={t('orders.howToProcessShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
+                                  <input type="text" value={item.taskDescription} onChange={e => updateItemAtSki(ski.id, idx, 'taskDescription', e.target.value)} placeholder={t('orders.resultOptionalShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
+                                </>
+                              )}
                             </div>
-                            <input type="text" value={item.taskInstruction} onChange={e => updateItemAtSki(ski.id, idx, 'taskInstruction', e.target.value)} placeholder={t('orders.howToProcessShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
-                            <input type="text" value={item.taskDescription} onChange={e => updateItemAtSki(ski.id, idx, 'taskDescription', e.target.value)} placeholder={t('orders.resultOptionalShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
-                          </div>
-                        ))}
+                          )
+                        })}
                         <button type="button" onClick={() => addItemToSki(ski.id)} className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer">
                           {t('orders.addTask')}
                         </button>
@@ -1979,6 +2094,7 @@ function CreateOrderModal({
                     ))}
                   </div>
                   <datalist id="upravy-create-list">
+                    <option value={ZMENA_STRUKTURY_NAZEV} />
                     {modificationOptions.map(u => (
                       <option key={u.id} value={u.name} />
                     ))}
@@ -2009,43 +2125,48 @@ function CreateOrderModal({
                     {selectedSkis.map(ski => (
                       <div key={ski.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
                         <p className="font-medium text-gray-900 text-sm mb-2">ID {ski.id} — {ski.skiNumber} {ski.brand} {ski.model} {ski.length}</p>
-                        <div className="mb-3">
-                          <label className="block text-xs font-medium text-gray-700 mb-1">{t('orders.targetStructureSki')}</label>
-                          <input
-                            type="text"
-                            list={`struktury-create-4-${ski.id}`}
-                            value={targetStrukturaPerSki[ski.id] ?? ''}
-                            onChange={e => setTargetStrukturaPerSki(prev => ({ ...prev, [ski.id]: e.target.value }))}
-                            placeholder={ski.struktura ?? t('orders.targetStructurePlaceholder')}
-                            className="block w-full rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
-                          />
-                          <datalist id={`struktury-create-4-${ski.id}`}>
-                            {strukturyOptions.map(s => (
-                              <option key={s.id} value={s.name} />
-                            ))}
-                          </datalist>
-                          {ski.struktura != null && ski.struktura !== '' && (
-                            <p className="text-xs text-gray-500 mt-0.5">{t('orders.currentOnSki')} {ski.struktura}</p>
-                          )}
-                        </div>
                         <p className="text-xs text-gray-600 mb-2">{t('orders.tasksOnSki')}</p>
-                        {(itemsPerSki[ski.id] || []).map((item, idx) => (
-                          <div key={idx} className="space-y-1 mb-3 p-2 bg-white rounded border border-gray-200">
-                            <div className="flex gap-2 items-center">
-                              <input
-                                type="text"
-                                list="upravy-create-list-4"
-                                value={item.taskName}
-                                onChange={e => updateItemAtSki(ski.id, idx, 'taskName', e.target.value)}
-                                placeholder={t('orders.taskNamePlaceholder')}
-                                className="min-w-0 flex-1 rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
-                              />
-                              <button type="button" onClick={() => removeItemFromSki(ski.id, idx)} className="shrink-0 px-2 py-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 text-sm rounded cursor-pointer">{t('common.delete')}</button>
+                        {(itemsPerSki[ski.id] || []).map((item, idx) => {
+                          const isZmenaStruktury4 = item.taskName.trim() === ZMENA_STRUKTURY_NAZEV
+                          return (
+                            <div key={idx} className="space-y-1 mb-3 p-2 bg-white rounded border border-gray-200">
+                              <div className="flex gap-2 items-center">
+                                <input
+                                  type="text"
+                                  list="upravy-create-list-4"
+                                  value={item.taskName}
+                                  onChange={e => updateItemAtSki(ski.id, idx, 'taskName', e.target.value)}
+                                  placeholder={t('orders.taskNamePlaceholder')}
+                                  className="min-w-0 flex-1 rounded-md border-gray-300 shadow-sm text-sm py-1.5 px-2"
+                                />
+                                <button type="button" onClick={() => removeItemFromSki(ski.id, idx)} className="shrink-0 px-2 py-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 text-sm rounded cursor-pointer">{t('common.delete')}</button>
+                              </div>
+                              {isZmenaStruktury4 ? (
+                                <div>
+                                  <label className="block text-xs font-medium text-gray-600 mb-0.5">{t('orders.structureLabel')}</label>
+                                  <select
+                                    value={item.taskInstruction}
+                                    onChange={e => updateItemAtSki(ski.id, idx, 'taskInstruction', e.target.value)}
+                                    className="w-full rounded-md border border-gray-300 shadow-sm text-sm py-1.5 px-2"
+                                  >
+                                    <option value="">{t('orders.selectStructure')}</option>
+                                    {strukturyOptions.map(s => (
+                                      <option key={s.id} value={s.name}>{s.name}</option>
+                                    ))}
+                                  </select>
+                                  {ski.struktura != null && ski.struktura !== '' && (
+                                    <p className="text-xs text-gray-500 mt-0.5">{t('orders.currentOnSki')} {ski.struktura}</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <>
+                                  <input type="text" value={item.taskInstruction} onChange={e => updateItemAtSki(ski.id, idx, 'taskInstruction', e.target.value)} placeholder={t('orders.howToProcessShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
+                                  <input type="text" value={item.taskDescription} onChange={e => updateItemAtSki(ski.id, idx, 'taskDescription', e.target.value)} placeholder={t('orders.resultOptionalShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
+                                </>
+                              )}
                             </div>
-                            <input type="text" value={item.taskInstruction} onChange={e => updateItemAtSki(ski.id, idx, 'taskInstruction', e.target.value)} placeholder={t('orders.howToProcessShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
-                            <input type="text" value={item.taskDescription} onChange={e => updateItemAtSki(ski.id, idx, 'taskDescription', e.target.value)} placeholder={t('orders.resultOptionalShort')} className="w-full rounded-md border-gray-300 shadow-sm text-sm py-1 px-2" />
-                          </div>
-                        ))}
+                          )
+                        })}
                         <button type="button" onClick={() => addItemToSki(ski.id)} className="text-sm text-blue-600 hover:text-blue-800 cursor-pointer">
                           {t('orders.addTask')}
                         </button>
@@ -2053,6 +2174,7 @@ function CreateOrderModal({
                     ))}
                   </div>
                   <datalist id="upravy-create-list-4">
+                    <option value={ZMENA_STRUKTURY_NAZEV} />
                     {modificationOptions.map(u => (
                       <option key={u.id} value={u.name} />
                     ))}
