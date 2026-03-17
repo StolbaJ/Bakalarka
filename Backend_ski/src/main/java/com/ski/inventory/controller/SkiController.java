@@ -142,6 +142,7 @@ public class SkiController {
         if (request.skiUsage() != null && !request.skiUsage().isBlank()) {
             try { ski.setSkiUsage(SkiUsage.valueOf(request.skiUsage())); } catch (IllegalArgumentException ignored) {}
         }
+        ski.setFromImportedOrder(Boolean.TRUE.equals(request.isFromImportedOrder()));
 
         Ski saved = skiRepository.save(ski);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(saved));
@@ -180,6 +181,9 @@ public class SkiController {
                     } else {
                         ski.setSkiUsage(null);
                     }
+                    if (request.isFromImportedOrder() != null) {
+                        ski.setFromImportedOrder(Boolean.TRUE.equals(request.isFromImportedOrder()));
+                    }
                     return ResponseEntity.ok(toResponse(skiRepository.save(ski)));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -216,7 +220,8 @@ public class SkiController {
                 ski.getEan(),
                 ski.getPartNo(),
                 ski.getSerialNo(),
-                ski.getSkiUsage() != null ? ski.getSkiUsage().name() : null
+                ski.getSkiUsage() != null ? ski.getSkiUsage().name() : null,
+                ski.isFromImportedOrder()
         );
     }
 
@@ -241,7 +246,8 @@ public class SkiController {
             String ean,
             String partNo,
             String serialNo,
-            String skiUsage
+            String skiUsage,
+            boolean isFromImportedOrder
     ) {}
 
     public record CreateSkiRequest(
@@ -262,7 +268,8 @@ public class SkiController {
             String ean,
             String partNo,
             String serialNo,
-            String skiUsage
+            String skiUsage,
+            Boolean isFromImportedOrder
     ) {}
 
     public record UpdateSkiRequest(
@@ -283,7 +290,8 @@ public class SkiController {
             String ean,
             String partNo,
             String serialNo,
-            String skiUsage
+            String skiUsage,
+            Boolean isFromImportedOrder
     ) {}
 
     public record PageResponse<T>(List<T> content, long totalElements, int totalPages, int size, int number, boolean first, boolean last) {}

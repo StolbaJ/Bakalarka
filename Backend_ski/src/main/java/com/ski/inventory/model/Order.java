@@ -72,6 +72,10 @@ public class Order {
     @Column(name = "order_created_email_sent", nullable = false)
     private boolean orderCreatedEmailSent = false;
 
+    /** Byla objednávka založena v servisním GUI (ne z e‑shopu)? */
+    @Column(name = "is_created_in_servis_gui", nullable = false)
+    private boolean isCreatedInServisGUI = false;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderTask> tasks = new LinkedHashSet<>();
 }

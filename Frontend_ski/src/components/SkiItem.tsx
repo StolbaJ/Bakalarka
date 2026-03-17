@@ -24,6 +24,7 @@ export interface SkiData {
   partNo?: string | null
   serialNo?: string | null
   skiUsage?: string | null
+   isFromImportedOrder?: boolean
 }
 
 interface SkiItemProps {

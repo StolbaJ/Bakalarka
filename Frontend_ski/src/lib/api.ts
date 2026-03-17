@@ -561,6 +561,7 @@ export interface OrderSummaryResponse {
   price: number | null
   discount: number | null
   pohodaId: number | null
+  isCreatedInServisGUI: boolean
 }
 
 export interface ViewOrderByTokenResponse {
@@ -583,6 +584,7 @@ export interface OrderDetailResponse {
   price: number | null
   discount: number | null
   pohodaId: number | null
+  isCreatedInServisGUI: boolean
   tasks: OrderTaskResponse[]
 }
 
@@ -595,6 +597,7 @@ export interface CreateOrderRequest {
   price?: number | null
   discount?: number | null
   pohodaId?: number | null
+  isCreatedInServisGUI?: boolean | null
   skiIds: number[]
   /** Cílová struktura pro každou lyži (stejné pořadí jako skiIds) */
   targetStruktura?: (string | null)[]
@@ -675,6 +678,7 @@ export interface SkiResponse {
   partNo: string | null
   serialNo: string | null
   skiUsage: string | null
+  isFromImportedOrder: boolean
 }
 
 export interface CreateSkiRequest {
@@ -696,6 +700,7 @@ export interface CreateSkiRequest {
   partNo?: string | null
   serialNo?: string | null
   skiUsage?: string | null
+  isFromImportedOrder?: boolean | null
 }
 
 export interface UpdateSkiRequest {
@@ -717,6 +722,7 @@ export interface UpdateSkiRequest {
   partNo?: string | null
   serialNo?: string | null
   skiUsage?: string | null
+  isFromImportedOrder?: boolean | null
 }
 
 export interface UserResponse {

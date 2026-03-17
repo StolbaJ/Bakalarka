@@ -52,6 +52,7 @@ public class OrderController {
             return ResponseEntity.badRequest().build();
         }
         Order order = new Order();
+        order.setCreatedInServisGUI(Boolean.TRUE.equals(request.isCreatedInServisGUI()));
         if (request.customerId() != null) {
             customerRepository.findById(request.customerId()).ifPresent(order::setCustomer);
         }
@@ -153,6 +154,9 @@ public class OrderController {
                     }
                     if (request.dueDate() != null) {
                         order.setDueDate(request.dueDate().isBlank() ? null : LocalDate.parse(request.dueDate()));
+                    }
+                    if (request.isCreatedInServisGUI() != null) {
+                        order.setCreatedInServisGUI(Boolean.TRUE.equals(request.isCreatedInServisGUI()));
                     }
                     orderRepository.save(order);
                     List<OrderTask> tasks = orderTaskRepository.findByOrderIdWithSkiAndItems(order.getId());
@@ -348,8 +352,8 @@ public class OrderController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    public record CreateOrderRequest(Long customerId, String dueDate, String priority, String status, String notes, BigDecimal price, BigDecimal discount, Long pohodaId, List<Long> skiIds, List<String> targetStruktura) {}
-    public record UpdateOrderRequest(String notes, String priority, String status, BigDecimal price, BigDecimal discount, Long pohodaId, Long customerId, String dueDate) {}
+    public record CreateOrderRequest(Long customerId, String dueDate, String priority, String status, String notes, BigDecimal price, BigDecimal discount, Long pohodaId, Boolean isCreatedInServisGUI, List<Long> skiIds, List<String> targetStruktura) {}
+    public record UpdateOrderRequest(String notes, String priority, String status, BigDecimal price, BigDecimal discount, Long pohodaId, Long customerId, String dueDate, Boolean isCreatedInServisGUI) {}
     public record AddTaskToOrderRequest(Long skiId, String targetStruktura) {}
     public record AddTaskItemRequest(String taskName, String taskDescription, String taskInstruction, Long modificationOptionId, BigDecimal price) {}
     public record UpdateTaskRequest(String status, String targetStruktura) {}
@@ -379,7 +383,8 @@ public class OrderController {
                 status,
                 order.getPrice(),
                 order.getDiscount(),
-                order.getPohodaId()
+                order.getPohodaId(),
+                order.isCreatedInServisGUI()
         );
     }
 
@@ -407,6 +412,7 @@ public class OrderController {
                 order.getPrice(),
                 order.getDiscount(),
                 order.getPohodaId(),
+                order.isCreatedInServisGUI(),
                 tasks
         );
     }
@@ -462,7 +468,8 @@ public class OrderController {
             String status,
             java.math.BigDecimal price,
             java.math.BigDecimal discount,
-            Long pohodaId
+            Long pohodaId,
+            boolean isCreatedInServisGUI
     ) {}
 
     public record OrderDetailResponse(
@@ -479,6 +486,7 @@ public class OrderController {
             java.math.BigDecimal price,
             java.math.BigDecimal discount,
             Long pohodaId,
+            boolean isCreatedInServisGUI,
             List<OrderTaskResponse> tasks
     ) {}
 

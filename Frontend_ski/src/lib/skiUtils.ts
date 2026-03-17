@@ -36,6 +36,7 @@ export function skiResponseToData(res: SkiResponse): SkiData {
     partNo: res.partNo ?? undefined,
     serialNo: res.serialNo ?? undefined,
     skiUsage: res.skiUsage ?? undefined,
+    isFromImportedOrder: res.isFromImportedOrder,
   }
 }
 
@@ -55,6 +56,7 @@ export function dataToCreateSkiRequest(data: Partial<SkiData>) {
     nextServiceDate: data.nextService ?? undefined,
     struktura: data.struktura ?? null,
     structureChangeCount: data.structureChangeCount,
+    isFromImportedOrder: data.isFromImportedOrder ?? null,
   }
 }
 

@@ -130,6 +130,7 @@ export default function DatabasePage() {
           partNo: data.partNo ?? null,
           serialNo: data.serialNo ?? null,
           skiUsage: data.skiUsage ?? null,
+          isFromImportedOrder: data.isFromImportedOrder ?? null,
         })
         setEditingSki(null)
       } else {
@@ -148,6 +149,7 @@ export default function DatabasePage() {
           partNo: data.partNo ?? null,
           serialNo: data.serialNo ?? null,
           skiUsage: data.skiUsage ?? null,
+          isFromImportedOrder: data.isFromImportedOrder ?? null,
         })
         setShowAddForm(false)
       }

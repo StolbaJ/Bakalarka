@@ -82,6 +82,7 @@ public class CustomerOrderController {
                 order.getPrice(),
                 order.getDiscount(),
                 order.getPohodaId(),
+                order.isCreatedInServisGUI(),
                 tasks
         );
     }

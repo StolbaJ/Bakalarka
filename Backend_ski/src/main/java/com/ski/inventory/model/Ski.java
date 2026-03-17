@@ -87,6 +87,9 @@ public class Ski {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "ski_usage", columnDefinition = "ski_usage")
     private SkiUsage skiUsage;
+
+    @Column(name = "is_from_imported_order", nullable = false)
+    private boolean isFromImportedOrder = false;
     
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

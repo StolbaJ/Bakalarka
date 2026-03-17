@@ -63,6 +63,7 @@ export interface SkiFormData {
   partNo?: string
   serialNo?: string
   skiUsage?: string
+  isFromImportedOrder?: boolean
 }
 
 const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) => {
@@ -80,6 +81,7 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
   const [serialNo, setSerialNo] = useState('')
   const [skiUsage, setSkiUsage] = useState('')
   const [structureChangeCount, setStructureChangeCount] = useState<number | ''>('')
+  const [isFromImportedOrder, setIsFromImportedOrder] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -99,6 +101,7 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
       setSerialNo(ski.serialNo ?? '')
       setSkiUsage(ski.skiUsage ?? '')
       setStructureChangeCount(ski.structureChangeCount ?? '')
+      setIsFromImportedOrder(Boolean(ski.isFromImportedOrder))
     }
   }, [ski])
 
@@ -126,6 +129,7 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
         partNo: partNo.trim() || undefined,
         serialNo: serialNo.trim() || undefined,
         skiUsage: skiUsage || undefined,
+        isFromImportedOrder,
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Chyba při ukládání')
@@ -139,6 +143,7 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
       {error && (
         <div className="p-3 bg-red-50 text-red-700 rounded-md text-sm">{error}</div>
       )}
+      {/* Základní informace */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Značka *</label>
@@ -160,7 +165,8 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             required
           />
         </div>
-        <div>
+        <div className="flex gap-4">
+          <div className="w-32">
           <label className="block text-sm font-medium text-gray-700 mb-1">Délka (cm) *</label>
           <input
             type="text"
@@ -170,8 +176,8 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             className="w-full border border-gray-300 rounded-md px-3 py-2"
             required
           />
-        </div>
-        <div>
+          </div>
+          <div className="w-24">
           <label className="block text-sm font-medium text-gray-700 mb-1">Rok</label>
           <input
             type="number"
@@ -181,8 +187,8 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             max={2100}
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
-        </div>
-        <div>
+          </div>
+          <div className="flex-1 min-w-[160px]">
           <label className="block text-sm font-medium text-gray-700 mb-1">Počet změn struktury (broušení)</label>
           <input
             type="number"
@@ -192,8 +198,13 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             placeholder="0"
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
+          </div>
         </div>
-        <div className="md:col-span-2">
+      </div>
+
+      {/* Použití, import a stav lyže */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Použití</label>
           <select
             value={skiUsage}
@@ -205,6 +216,51 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             ))}
           </select>
         </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1 invisible">Import</label>
+          <div className="flex items-center space-x-2">
+            <input
+              id="isFromImportedOrder"
+              type="checkbox"
+              checked={isFromImportedOrder}
+              onChange={(e) => setIsFromImportedOrder(e.target.checked)}
+              className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+            />
+            <label htmlFor="isFromImportedOrder" className="text-sm font-medium text-gray-700">
+              Lyže je vložena z importované objednávky (random)
+            </label>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Stav</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Kondice</label>
+            <select
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2"
+            >
+              {CONDITION_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Identifikátory lyže */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">EAN</label>
           <input
@@ -235,36 +291,18 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
         </div>
+      </div>
+
+      {/* Servis, umístění a poznámky */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Stav</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2"
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kondice</label>
-          <select
-            value={condition}
-            onChange={(e) => setCondition(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2"
-          >
-            {CONDITION_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Umístění</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Počet změn struktury (broušení)</label>
           <input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
+            type="number"
+            value={structureChangeCount}
+            onChange={(e) => setStructureChangeCount(e.target.value === '' ? '' : parseInt(e.target.value, 10))}
+            min={0}
+            placeholder="0"
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
         </div>
@@ -277,15 +315,25 @@ const SkiEditForm: React.FC<SkiEditFormProps> = ({ ski, onSubmit, onCancel }) =>
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
         </div>
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Poznámky</label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            rows={3}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Umístění</label>
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2"
           />
         </div>
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">Poznámky</label>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          rows={3}
+          className="w-full border border-gray-300 rounded-md px-3 py-2"
+        />
       </div>
       <div className="flex justify-end space-x-3 pt-4">
         <button

@@ -1853,6 +1853,7 @@ function CreateOrderModal({
         priority,
         notes: notes || null,
         price: price === '' ? null : parseFloat(price),
+        isCreatedInServisGUI: true,
         skiIds: selectedSkiIds,
         targetStruktura: targetStrukturaForPayload,
       }
