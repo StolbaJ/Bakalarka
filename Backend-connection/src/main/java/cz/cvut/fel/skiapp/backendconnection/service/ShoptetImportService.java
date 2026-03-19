@@ -83,6 +83,9 @@ public class ShoptetImportService {
     }
 
     private boolean containsServiceItem(ShoptetOrderDto dto) {
+        if (dto.getItems() == null) {
+            return false;
+        }
         return dto.getItems().stream()
                 .anyMatch(i -> SERVICE_SKU_CODES.contains(i.getProductCode()));
     }
