@@ -89,14 +89,15 @@ public class OrderController {
     @GetMapping
     public ResponseEntity<PageResponse<OrderSummaryResponse>> getAllOrders(
             @RequestParam(required = false) String search,
+            @RequestParam(required = false) String taskName,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         if (size < 1) size = 1;
         if (size > 100) size = 100;
         Pageable pageable = PageRequest.of(page, size);
-        Page<Order> orderPage = (search != null && !search.isBlank())
-                ? orderRepository.searchByOrderNumberOrCustomerNameOrderByCreatedAtDesc(search.trim(), pageable)
-                : orderRepository.findAllByOrderByCreatedAtDesc(pageable);
+        String searchTerm = search != null ? search.trim() : "";
+        String taskNameFilter = taskName != null ? taskName.trim() : "";
+        Page<Order> orderPage = orderRepository.findOrdersWithFilters(searchTerm, taskNameFilter, pageable);
         List<OrderSummaryResponse> content = orderPage.getContent().stream()
                 .map(o -> toSummaryResponse(o, (int) orderTaskRepository.countByOrderId(o.getId())))
                 .toList();

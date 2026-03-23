@@ -233,10 +233,15 @@ function OrdersPageContent() {
   const [strukturyOptions, setStrukturyOptions] = useState<StrukturaOptionResponse[]>([])
   const [modificationOptions, setModificationOptions] = useState<ModificationOptionResponse[]>([])
 
-  const loadOrders = useCallback(async (pageNum: number, pageSize: number, searchTerm: string) => {
+  const loadOrders = useCallback(async (pageNum: number, pageSize: number, searchTerm: string, taskName: string) => {
     setLoading(true)
     try {
-      const res = await apiClient.getOrders(pageNum, pageSize, searchTerm || undefined)
+      const res = await apiClient.getOrders(
+        pageNum,
+        pageSize,
+        searchTerm || undefined,
+        taskName || undefined
+      )
       setOrders(res.content)
       setTotalElements(res.totalElements)
       setTotalPages(res.totalPages)
@@ -251,8 +256,8 @@ function OrdersPageContent() {
   }, [])
 
   useEffect(() => {
-    loadOrders(page, size, search)
-  }, [loadOrders, page, size, search])
+    loadOrders(page, size, search, modificationFilter)
+  }, [loadOrders, page, size, search, modificationFilter])
 
   useEffect(() => {
     let cancelled = false
@@ -353,16 +358,6 @@ function OrdersPageContent() {
 
   const filteredOrders = orders
     .filter(o => showDone || !o.orderDone)
-    .filter(o => {
-      if (!modificationFilter) return true
-      const detail = orderDetails[o.id]
-      if (!detail) return false
-      return detail.tasks.some(task =>
-        task.taskItems.some(item =>
-          item.taskName === modificationFilter && (!item.completed || showDone)
-        )
-      )
-    })
     .sort((a, b) => {
       if (a.orderDone !== b.orderDone) return a.orderDone ? 1 : -1
       if (sortBy === 'orderNumber') {
@@ -406,7 +401,12 @@ function OrdersPageContent() {
             onClose={() => setShowCreateModal(false)}
             onCreated={async (created) => {
               setShowCreateModal(false)
-              const res = await apiClient.getOrders(page, size, search || undefined)
+              const res = await apiClient.getOrders(
+                page,
+                size,
+                search || undefined,
+                modificationFilter || undefined
+              )
               setOrders(res.content)
               setTotalElements(res.totalElements)
               setTotalPages(res.totalPages)
@@ -447,7 +447,11 @@ function OrdersPageContent() {
               <select
                 value={modificationFilter}
                 onChange={e => { setModificationFilter(e.target.value); setPage(0) }}
-                className="min-w-[200px] rounded-md border-gray-300 shadow-sm text-sm cursor-pointer"
+                className={`min-w-[220px] rounded-md border shadow-sm text-sm cursor-pointer transition-colors ${
+                  modificationFilter
+                    ? 'border-blue-500 bg-blue-50 text-blue-900 focus:border-blue-600 focus:ring-blue-600'
+                    : 'border-gray-300 bg-white text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+                }`}
               >
                 <option value="">{t('orders.modificationFilterAll')}</option>
                 {modificationOptions.map(option => (

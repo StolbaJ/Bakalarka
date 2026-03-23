@@ -21,8 +21,40 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     Page<Order> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
-    @Query("SELECT o FROM Order o LEFT JOIN o.customer c WHERE LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')) ORDER BY o.createdAt DESC")
-    Page<Order> searchByOrderNumberOrCustomerNameOrderByCreatedAtDesc(@Param("search") String search, Pageable pageable);
+    @Query(
+            value = """
+                    SELECT DISTINCT o
+                    FROM Order o
+                    LEFT JOIN o.customer c
+                    WHERE (:search IS NULL OR :search = '' OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')))
+                      AND (:taskName IS NULL OR :taskName = '' OR EXISTS (
+                          SELECT 1
+                          FROM OrderTask ot
+                          JOIN ot.taskItems ti
+                          WHERE ot.order = o
+                            AND ti.taskName = :taskName
+                      ))
+                    ORDER BY o.createdAt DESC
+                    """,
+            countQuery = """
+                    SELECT COUNT(DISTINCT o.id)
+                    FROM Order o
+                    LEFT JOIN o.customer c
+                    WHERE (:search IS NULL OR :search = '' OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')))
+                      AND (:taskName IS NULL OR :taskName = '' OR EXISTS (
+                          SELECT 1
+                          FROM OrderTask ot
+                          JOIN ot.taskItems ti
+                          WHERE ot.order = o
+                            AND ti.taskName = :taskName
+                      ))
+                    """
+    )
+    Page<Order> findOrdersWithFilters(
+            @Param("search") String search,
+            @Param("taskName") String taskName,
+            Pageable pageable
+    );
 
     /** Pro cron: objednávky, u kterých ještě nebyl odeslán e-mail o založení. */
     List<Order> findByOrderCreatedEmailSentFalse();

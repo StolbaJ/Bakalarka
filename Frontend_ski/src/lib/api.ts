@@ -326,9 +326,10 @@ class ApiClient {
   }
 
   // Orders endpoints (Admin, Technician)
-  async getOrders(page = 0, size = 20, search?: string): Promise<PageResponse<OrderSummaryResponse>> {
+  async getOrders(page = 0, size = 20, search?: string, taskName?: string): Promise<PageResponse<OrderSummaryResponse>> {
     const params = new URLSearchParams({ page: String(page), size: String(size) })
     if (search != null && search.trim() !== '') params.set('search', search.trim())
+    if (taskName != null && taskName.trim() !== '') params.set('taskName', taskName.trim())
     const data = await this.request<PageResponse<OrderSummaryResponse> | OrderSummaryResponse[]>(`/api/technician/orders?${params}`)
     return this.normalizePageResponse(data)
   }

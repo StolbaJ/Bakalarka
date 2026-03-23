@@ -15,6 +15,8 @@ docker compose -f docker/docker-compose.dev.yml up -d --build
 - API: http://localhost:8080  
 - DB: localhost:5432
 
+**pgAdmin / DBeaver:** Nové připojení → Host: `localhost`, Port: `5432`, Database: `ski_inventory`, Username: `postgres`, Password: `postgres`. (DB musí běžet: `docker compose -f docker/docker-compose.dev.yml up -d`.)
+
 Výchozí login: `admin` / `admin123`, `technician` / `tech123`.
 
 ## Prod (Nginx + SSL)

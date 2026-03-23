@@ -61,7 +61,7 @@ class OrderControllerTest {
     @WithMockUser(roles = "TECHNICIAN")
     void getAllOrders_returnsPaginated() throws Exception {
         Order order = createOrder(1L, "ORD-001", null);
-        when(orderRepository.findAllByOrderByCreatedAtDesc(any(PageRequest.class)))
+        when(orderRepository.findOrdersWithFilters(eq(""), eq(""), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(order), PageRequest.of(0, 20), 1L));
         when(orderTaskRepository.countByOrderId(1L)).thenReturn(0L);
         when(orderTaskRepository.countByOrderIdAndStatus(eq(1L), eq(ServiceTaskStatus.DOKONCENO))).thenReturn(0L);
@@ -79,7 +79,7 @@ class OrderControllerTest {
     @WithMockUser(roles = "TECHNICIAN")
     void getAllOrders_withSearch_callsSearchRepository() throws Exception {
         Order order = createOrder(1L, "ORD-002", "Novák");
-        when(orderRepository.searchByOrderNumberOrCustomerNameOrderByCreatedAtDesc(eq("Novák"), any(PageRequest.class)))
+        when(orderRepository.findOrdersWithFilters(eq("Novák"), eq(""), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(order), PageRequest.of(0, 20), 1L));
         when(orderTaskRepository.countByOrderId(1L)).thenReturn(2L);
 
