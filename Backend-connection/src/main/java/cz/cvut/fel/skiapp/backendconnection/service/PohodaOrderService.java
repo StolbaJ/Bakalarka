@@ -23,6 +23,17 @@ public class PohodaOrderService {
     @Autowired
     private ServiceOrderRepository orderRepository;
 
+    /**
+     * Import objednávek z POHODA XML. Kompletní mapování na {@link cz.cvut.fel.skiapp.backendconnection.model.ServiceOrder}
+     * je připraveno k doplnění (dříve PohodaOrder / PohodaOrderItem).
+     */
+    public void importOrdersFromXml(String xmlContent) throws Exception {
+        if (xmlContent == null || xmlContent.isBlank()) {
+            return;
+        }
+        // TODO: parsovat XML a ukládat přes orderRepository (viz zakomentovaná implementace níže)
+    }
+
     /*public ArrayList<PohodaOrder> importOrdersFromXml(String xmlContent) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
