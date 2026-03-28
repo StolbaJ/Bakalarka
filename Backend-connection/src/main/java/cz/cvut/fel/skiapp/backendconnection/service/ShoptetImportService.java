@@ -3,83 +3,58 @@ package cz.cvut.fel.skiapp.backendconnection.service;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule; // Oprava importu
-import cz.cvut.fel.skiapp.backendconnection.dto.ItemDto;
 import cz.cvut.fel.skiapp.backendconnection.dto.OrderDto;
+import cz.cvut.fel.skiapp.backendconnection.dto.ShoptetOrderDto;
 import cz.cvut.fel.skiapp.backendconnection.dto.ShoptetOrdersRoot;
-import cz.cvut.fel.skiapp.backendconnection.model.ShoptetOrder;
-import cz.cvut.fel.skiapp.backendconnection.repository.ShoptetOrderRepository;
+import cz.cvut.fel.skiapp.backendconnection.mapper.ShoptetMapper;
+import cz.cvut.fel.skiapp.backendconnection.model.ServiceOrder;
+import cz.cvut.fel.skiapp.backendconnection.repository.ServiceOrderRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.URL; // Oprava z DocFlavor.URL na java.net.URL
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ShoptetImportService {
 
-    private final ShoptetOrderRepository shoptetOrderRepository;
+    private final ServiceOrderRepository orderRepository;
     private final XmlMapper xmlMapper;
+    private final ShoptetMapper shoptetMapper;
 
-    // Definice kódů produktů, které považujeme za servis lyží
-    private static final List<String> SERVICE_SKU_CODES = Arrays.asList("SERV-001", "SERV-002", "BRUS-01");
-
-    public ShoptetImportService(ShoptetOrderRepository orderRepository) {
-        this.shoptetOrderRepository = orderRepository;
-        this.xmlMapper = new XmlMapper();
-        this.xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        this.xmlMapper.registerModule(new JavaTimeModule());
-    }
+    private static final List<String> SERVICE_SKU_CODES = List.of("RC_018", "RC_081", "RC_084");
 
     @Scheduled(cron = "0 0/30 * * * *")
     public void importOrdersFromShoptet() {
-        String shoptetXmlUrl = "https://vas-eshop.cz/export/orders.xml?hash=vas-unikatni-hash";
+        String url = "https://vas-eshop.cz/export/orders.xml";
 
         try {
-            // Správné použití java.net.URL
-            ShoptetOrdersRoot data = xmlMapper.readValue(new URL(shoptetXmlUrl), ShoptetOrdersRoot.class);
+            ShoptetOrdersRoot root = xmlMapper.readValue(new URL(url), ShoptetOrdersRoot.class);
+            if (root.getOrders() == null) return;
 
-            if (data.getOrders() == null) return;
+            for (ShoptetOrderDto dto : root.getOrders()) {
+                if (containsServiceItem(dto) && !orderRepository.existsByShoptetId(dto.getShoptetId())) {
 
-            for (OrderDto dto : data.getOrders()) {
-                // 1. Filtrace: Obsahuje objednávka alespoň jeden servisní kód?
-                if (containsServiceItem(dto)) {
+                    // POUŽITÍ MAPPERU
+                    ServiceOrder entity = shoptetMapper.toEntity(dto);
+                    orderRepository.save(entity);
 
-                    // 2. Idempotence: Už jsme ji importovali dříve?
-                    if (!shoptetOrderRepository.existsByShoptetId((dto.getShoptetId()))) {
-                        saveOrder(dto);
-                    }
+                    log.info("Importována zakázka {} ze Shoptetu", dto.getOrderCode());
                 }
             }
         } catch (IOException e) {
-            log.error("Chyba při stahování dat ze Shoptetu: " + e.getMessage());
+            log.error("Chyba importu: {}", e.getMessage());
         }
     }
 
-    /**
-     * Metoda projde položky objednávky a vrátí true, pokud najde kód odpovídající servisu.
-     */
-    private boolean containsServiceItem(OrderDto dto) {
-        if (dto.getItems() == null) return false;
-
+    private boolean containsServiceItem(ShoptetOrderDto dto) {
         return dto.getItems().stream()
-                .anyMatch(item -> SERVICE_SKU_CODES.contains(item.getProductCode()));
-    }
-
-    private void saveOrder(OrderDto dto) {
-        // Zde vytvoříš instanci entity a namapuješ data z DTO
-        /*ShoptetOrder order = new ShoptetOrder();
-        order.setShoptetId(dto.getShoptetId());
-        order.setOrderCode(dto.getOrderCode());
-        */
-        // ... další mapování polí (datum, email atd.)
-        ShoptetOrder order = ShoptetOrder.builder().shoptetId(dto.getShoptetId()).orderCode(dto.getOrderCode()).date(dto.getDateCreated()).
-                totalPrice(dto.getTotalPrice()).isPaid(dto.getPaidStatus()).customerEmail(dto.getCustomer().getEmail()).items(dto.getItems()).build();
-
-        shoptetOrderRepository.save(order);
-        log.info("Uložena nová servisní objednávka: " + dto.getOrderCode());
+                .anyMatch(i -> SERVICE_SKU_CODES.contains(i.getProductCode()));
     }
 }

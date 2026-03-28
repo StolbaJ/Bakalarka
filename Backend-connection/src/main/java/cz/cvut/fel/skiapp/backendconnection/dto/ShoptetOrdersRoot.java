@@ -16,6 +16,6 @@ public class ShoptetOrdersRoot {
     // Getter a Setter
     @JacksonXmlProperty(localName = "order")
     @JacksonXmlElementWrapper(useWrapping = false)
-    private List<OrderDto> orders;
+    private List<ShoptetOrderDto> orders;
 
 }

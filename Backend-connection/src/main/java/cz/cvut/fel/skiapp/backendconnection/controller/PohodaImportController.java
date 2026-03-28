@@ -1,6 +1,7 @@
 package cz.cvut.fel.skiapp.backendconnection.controller;
 
 import cz.cvut.fel.skiapp.backendconnection.service.PohodaOrderService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pohoda")
+@Slf4j
 public class PohodaImportController {
 
     private final PohodaOrderService orderService;
@@ -22,9 +24,7 @@ public class PohodaImportController {
     }
 
     @PostMapping(value = "/import", consumes = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<String> importOrders(
-            @RequestHeader("X-API-KEY") String providedApiKey,
-            @RequestBody String xmlContent) {
+    public ResponseEntity<String> importOrders(@RequestHeader("X-API-KEY") String providedApiKey, @RequestBody String xmlContent) {
 
         // 1. Základní autorizace
         if (!API_KEY.equals(providedApiKey)) {
@@ -36,15 +36,15 @@ public class PohodaImportController {
             orderService.importOrdersFromXml(xmlContent);
             return ResponseEntity.ok("Import proběhl úspěšně.");
         } catch (Exception e) {
-            // Logování chyby (v reálné aplikaci použij logger)
-            e.printStackTrace();
+            // Logování chyby
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Chyba při zpracování XML: " + e.getMessage());
         }
     }
 
 
-    // --- EXPORT DAT DO POHODY (Novinka) ---
+    // --- EXPORT DAT DO POHODY ---
     @GetMapping(value = "/export", produces = MediaType.APPLICATION_XML_VALUE)
     public ResponseEntity<String> exportToPohoda(@RequestHeader("X-API-KEY") String providedApiKey) {
         if (!API_KEY.equals(providedApiKey)) return ResponseEntity.status(401).build();

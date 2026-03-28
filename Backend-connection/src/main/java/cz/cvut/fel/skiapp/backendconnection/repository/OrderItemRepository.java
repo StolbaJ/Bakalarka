@@ -1,9 +1,9 @@
 package cz.cvut.fel.skiapp.backendconnection.repository;
 
-import cz.cvut.fel.skiapp.backendconnection.model.ShoptetOrderItem;
+import cz.cvut.fel.skiapp.backendconnection.model.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ShoptetOrderItemRepository extends JpaRepository<ShoptetOrderItem, Long> {
+public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 }
