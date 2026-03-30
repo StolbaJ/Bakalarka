@@ -39,6 +39,9 @@ jwt:
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
 
 app:
+  swagger:
+    # Secure cookie pro Swagger vstup (HTTPS v produkci). V dev profilu je false kvůli lokálnímu HTTP.
+    cookie-secure: ${APP_SWAGGER_COOKIE_SECURE:true}
   mail:
     enabled: true
     from: "BezkyServis <no-reply@bezkyservis.xyz>"

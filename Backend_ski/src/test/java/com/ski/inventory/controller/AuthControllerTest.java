@@ -98,19 +98,29 @@ class AuthControllerTest {
     void changePassword_valid_returns200() throws Exception {
         mockMvc.perform(patch("/api/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"currentPassword\":\"old\",\"newPassword\":\"new\"}"))
+                        .content("{\"currentPassword\":\"oldpass\",\"newPassword\":\"newpass1\"}"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void changePassword_wrongCurrent_returns401() throws Exception {
         doThrow(new BadCredentialsException("Wrong password"))
-                .when(userService).changeOwnPassword("wrong", "new");
+                .when(userService).changeOwnPassword("wrong", "newpass1");
 
         mockMvc.perform(patch("/api/auth/change-password")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"currentPassword\":\"wrong\",\"newPassword\":\"new\"}"))
+                        .content("{\"currentPassword\":\"wrong\",\"newPassword\":\"newpass1\"}"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void login_blankUsername_returns400WithValidationBody() throws Exception {
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"\",\"password\":\"x\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation failed"))
+                .andExpect(jsonPath("$.fieldErrors.username").exists());
     }
 
     @Test

@@ -11,6 +11,7 @@ import com.ski.inventory.repository.SkiRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SkiController.class)
+@Import(GlobalExceptionHandler.class)
 class SkiControllerTest {
 
     @Autowired
@@ -119,6 +121,25 @@ class SkiControllerTest {
                 .andExpect(jsonPath("$.brand").value("Brand"))
                 .andExpect(jsonPath("$.model").value("Model"));
         verify(skiRepository).save(any(Ski.class));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void createSki_blankBrand_returns400() throws Exception {
+        SkiController.CreateSkiRequest req = new SkiController.CreateSkiRequest(
+                "", "Model", "170", 2023, "allround", BigDecimal.valueOf(3.5),
+                "DOBRY", "DOSTUPNY", "A1", "notes",
+                null, null,
+                null, null, null, null,
+                null, null,
+                false);
+
+        mockMvc.perform(post("/api/technician/skis")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation failed"));
     }
 
     @Test

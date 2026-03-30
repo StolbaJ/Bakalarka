@@ -7,6 +7,10 @@ import com.ski.inventory.repository.UserAuditLogRepository;
 import com.ski.inventory.repository.UserRepository;
 import com.ski.inventory.service.UserService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -80,7 +84,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/role")
-    public ResponseEntity<UserResponse> updateRole(@PathVariable Long id, @RequestBody UpdateRoleRequest request) {
+    public ResponseEntity<UserResponse> updateRole(@PathVariable Long id, @Valid @RequestBody UpdateRoleRequest request) {
         User user = userService.updateRole(id, UserRole.valueOf(request.role()));
         return ResponseEntity.ok(toResponse(user));
     }
@@ -149,15 +153,17 @@ public class UserController {
     ) {}
 
     public record CreateUserRequest(
-            String username,
-            String password,
-            String role,
-            String fullName,
-            String email,
+            @NotBlank @Size(min = 1, max = 64) String username,
+            @Size(min = 6, max = 128) String password,
+            @NotBlank @Pattern(regexp = "ADMIN|TECHNICIAN") String role,
+            @Size(max = 200) String fullName,
+            @Email @Size(max = 255) String email,
             Boolean generatePassword
     ) {}
 
-    public record UpdateRoleRequest(String role) {}
+    public record UpdateRoleRequest(
+            @NotBlank @Pattern(regexp = "ADMIN|TECHNICIAN|CUSTOMER") String role
+    ) {}
 
     public record ResetPasswordResponse(String newPassword) {}
 

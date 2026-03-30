@@ -5,6 +5,9 @@ import com.ski.inventory.service.UserService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -100,8 +103,23 @@ public class AuthController {
                 .anyMatch("ROLE_CUSTOMER"::equals);
     }
     
-    public record LoginRequest(String username, String password) {}
-    public record CustomerLoginRequest(String orderNumber, String phone) {}
-    public record ChangePasswordRequest(String currentPassword, String newPassword) {}
-    public record UpdateProfileRequest(String fullName, String email) {}
+    public record LoginRequest(
+            @NotBlank @Size(max = 64) String username,
+            @NotBlank @Size(max = 128) String password
+    ) {}
+
+    public record CustomerLoginRequest(
+            @NotBlank @Size(max = 64) String orderNumber,
+            @NotBlank @Size(max = 32) String phone
+    ) {}
+
+    public record ChangePasswordRequest(
+            @NotBlank @Size(max = 128) String currentPassword,
+            @NotBlank @Size(min = 6, max = 128) String newPassword
+    ) {}
+
+    public record UpdateProfileRequest(
+            @Size(max = 200) String fullName,
+            @Email @Size(max = 255) String email
+    ) {}
 }

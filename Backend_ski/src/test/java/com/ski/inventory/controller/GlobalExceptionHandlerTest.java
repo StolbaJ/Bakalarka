@@ -44,4 +44,16 @@ class GlobalExceptionHandlerTest {
 
         assertThat(response.getBody()).hasSize(1);
     }
+
+    @Test
+    void handleIllegalArgument_returns400WithMessage() {
+        IllegalArgumentException ex = new IllegalArgumentException("Uživatelské jméno již existuje");
+
+        ResponseEntity<Map<String, Object>> response = handler.handleIllegalArgument(ex);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody()).containsEntry("error", "Bad request");
+        assertThat(response.getBody()).containsEntry("message", "Uživatelské jméno již existuje");
+    }
 }

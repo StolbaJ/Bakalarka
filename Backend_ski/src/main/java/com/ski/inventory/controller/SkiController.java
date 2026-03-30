@@ -9,6 +9,8 @@ import com.ski.inventory.model.SkiUsage;
 import com.ski.inventory.repository.OrderTaskRepository;
 import com.ski.inventory.repository.SkiRepository;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -251,9 +253,9 @@ public class SkiController {
     ) {}
 
     public record CreateSkiRequest(
-            @jakarta.validation.constraints.NotBlank String brand,
-            @jakarta.validation.constraints.NotBlank String model,
-            @jakarta.validation.constraints.NotBlank String length,
+            @NotBlank @Size(max = 64) String brand,
+            @NotBlank @Size(max = 64) String model,
+            @NotBlank @Size(max = 32) String length,
             Integer year,
             String skiType,
             java.math.BigDecimal weightKg,
@@ -273,9 +275,9 @@ public class SkiController {
     ) {}
 
     public record UpdateSkiRequest(
-            @jakarta.validation.constraints.NotBlank String brand,
-            @jakarta.validation.constraints.NotBlank String model,
-            @jakarta.validation.constraints.NotBlank String length,
+            @NotBlank @Size(max = 64) String brand,
+            @NotBlank @Size(max = 64) String model,
+            @NotBlank @Size(max = 32) String length,
             Integer year,
             String skiType,
             java.math.BigDecimal weightKg,

@@ -14,6 +14,7 @@ import com.ski.inventory.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,6 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
+@Import(GlobalExceptionHandler.class)
 class UserControllerTest {
 
     @Autowired
@@ -95,6 +97,20 @@ class UserControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[1].username").value("tech"))
                 .andExpect(jsonPath("$[1].role").value("TECHNICIAN"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void createUser_invalidRole_returns400() throws Exception {
+        UserController.CreateUserRequest req = new UserController.CreateUserRequest(
+                "user1", "pass123", "INVALID", null, null, false);
+
+        mockMvc.perform(post("/api/admin/users")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Validation failed"));
     }
 
     @Test
