@@ -12,9 +12,10 @@ import java.math.BigDecimal;
 @Setter
 @Table(name = "order_items")
 public class OrderItem {
-    @Id
+
+    @jakarta.persistence.Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "order_id")
@@ -24,7 +25,7 @@ public class OrderItem {
     private Ski ski;
 
     private String taskName; // Např. "Broušení hran", "Voskování"
-    private String taskInstruction; // Např. "87 stupňů"
+    private String taskInstruction;
     private BigDecimal price;
 
     /*@Enumerated(EnumType.STRING)

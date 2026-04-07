@@ -24,9 +24,9 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Generated(event = EventType.INSERT)
+    /*@Generated(event = EventType.INSERT)
     @Column(name = "customer_number", unique = true, nullable = false, length = 12, insertable = false, updatable = false)
-    private String customerNumber;
+    private String customerNumber;*/
 
     @Column(nullable = false, length = 100)
     private String name;

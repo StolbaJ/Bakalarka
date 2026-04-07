@@ -2,21 +2,19 @@ services:
   # Databáze
   postgres-db:
     image: postgres:16-alpine
-    container_name: postgres_ski_db
+    container_name: postgres_ski_connection_db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=ski_connection
+      - POSTGRES_DB=ski_connection_db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ski_connection"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ski_connection_db"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - shared-net
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -31,7 +29,7 @@ services:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/ski_connection
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/ski_connection_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - JWT_SECRET=dev-secret-key-minimum-32-characters-long-for-testing
@@ -43,11 +41,9 @@ services:
       - api.machine.url=http://localhost:5000
     ports:
       - "8081:8080"
-    networks:
-      - shared-net
 
-networks:
-  shared-net:
+
+
 
 volumes:
   postgres_data:

@@ -1,6 +1,6 @@
 package cz.cvut.fel.skiapp.backendconnection.integration;
 
-import cz.cvut.fel.skiapp.backendconnection.model.Order;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

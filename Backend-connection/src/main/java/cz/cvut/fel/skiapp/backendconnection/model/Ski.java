@@ -21,12 +21,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Ski {
 
+    public Ski(String notes) {
+        this.brand = "PROVIZORNI_LYZE";
+        this.model = "PROVIZORNI_MODEL";
+        this.length = "150";
+        this.status = SkiStatus.PROVIZORNI;
+        this.notes = notes;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Generated(event = EventType.INSERT)
-    @Column(name = "ski_number", unique = true, nullable = false, length = 12, insertable = false, updatable = false)
+    //@Generated(event = EventType.INSERT)
+    @Column(name = "ski_number") /*, unique = true, nullable = false, length = 12, insertable = false, updatable = false*/
     private String skiNumber;
 
     @Column(nullable = false, length = 50)

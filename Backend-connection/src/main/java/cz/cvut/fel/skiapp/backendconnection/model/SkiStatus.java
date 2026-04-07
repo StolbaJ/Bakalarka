@@ -4,5 +4,6 @@ public enum SkiStatus {
     DOSTUPNY,
     V_SERVISU,
     REZERVOVANO,
-    NEDOSTUPNY
+    NEDOSTUPNY,
+    PROVIZORNI
 }

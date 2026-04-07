@@ -13,6 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ShoptetOrderDto {
+
     @JacksonXmlProperty(localName = "shoptetId")
     private String shoptetId;
 
@@ -24,7 +25,7 @@ public class ShoptetOrderDto {
     private LocalDateTime date;
 
     @JacksonXmlProperty(localName = "totalPrice")
-    private String totalPrice; // Bereme jako String kvůli čárce
+    private String totalPrice;
 
     @JacksonXmlProperty(localName = "isPaid")
     private String isPaid;
@@ -34,6 +35,11 @@ public class ShoptetOrderDto {
 
     @JacksonXmlProperty(localName = "customerPhone")
     private String customerPhone;
+
+    @JacksonXmlProperty(localName = "customerFullName")
+    private String customerFullName;
+    @JacksonXmlProperty(localName = "customerAdress")
+    private String customerAdress;
 
     @JacksonXmlElementWrapper(localName = "items")
     @JacksonXmlProperty(localName = "item")
