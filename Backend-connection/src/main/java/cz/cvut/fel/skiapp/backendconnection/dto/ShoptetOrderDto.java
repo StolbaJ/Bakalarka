@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ShoptetOrderDto {
+
     @JacksonXmlProperty(localName = "shoptetId")
     private String shoptetId;
 

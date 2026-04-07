@@ -67,6 +67,7 @@ public class ShoptetMapper {
                 .items(new ArrayList<>())
                 .build();
 
+        // Převod ceny (řešíme čárku v XML)
         if (dto.getTotalPrice() != null && !dto.getTotalPrice().isEmpty()) {
             order.setTotalPrice(new BigDecimal(dto.getTotalPrice().replace(",", ".")));
         }

@@ -45,7 +45,6 @@ public class ShoptetImportService {
                 if (containsServiceItem(dto) && !orderRepository.existsByShoptetId(dto.getShoptetId())) {
 
                     Customer customer = getOrCreateCustomer(dto);
-
                     ServiceOrder entity = shoptetMapper.toEntity(dto, customer);
 
                     Ski temporarySki = new Ski("Temporary Ski - " + dto.getOrderCode());

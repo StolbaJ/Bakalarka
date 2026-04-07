@@ -39,6 +39,6 @@ api:
 
 logging:
   level:
-    cz.cvut.fel.skiapp.backendconnection: ${LOG_LEVEL:INFO}
+    cz.cvut.fel.skiapp.backendconnection: ${LOG_LEVEL:}
     org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
     org.flywaydb: INFO

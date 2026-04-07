@@ -24,7 +24,7 @@ public class OrderItem {
     private Ski ski;
 
     private String taskName; // Např. "Broušení hran", "Voskování"
-    private String taskInstruction; // Např. "87 stupňů"
+    private String taskInstruction;
     private BigDecimal price;
 
     /*@Enumerated(EnumType.STRING)
