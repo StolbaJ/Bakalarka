@@ -2,7 +2,11 @@ package cz.cvut.fel.skiapp.backendconnection.mapper;
 
 import cz.cvut.fel.skiapp.backendconnection.dto.ShoptetItemDto;
 import cz.cvut.fel.skiapp.backendconnection.dto.ShoptetOrderDto;
-import cz.cvut.fel.skiapp.backendconnection.model.*;
+import cz.cvut.fel.skiapp.backendconnection.model.Customer;
+import cz.cvut.fel.skiapp.backendconnection.model.OrderItem;
+import cz.cvut.fel.skiapp.backendconnection.model.OrderSource;
+import cz.cvut.fel.skiapp.backendconnection.model.OrderStatus;
+import cz.cvut.fel.skiapp.backendconnection.model.ServiceOrder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -56,24 +60,21 @@ public class ShoptetMapper {
                 .createdAt(dto.getDate())
                 .source(OrderSource.SHOPTET)
                 .status(OrderStatus.QUEUED)
-                .customer(customer) // Tady propojíme objednávku s tím, co servisa našla
+                .customer(customer)
                 .customerEmail(dto.getCustomerEmail())
                 .customerPhone(dto.getCustomerPhone())
                 .isPaid(dto.getIsPaid() != null ? dto.getIsPaid() : "0")
                 .items(new ArrayList<>())
                 .build();
 
-        // Převod ceny (řešíme čárku v XML)
         if (dto.getTotalPrice() != null && !dto.getTotalPrice().isEmpty()) {
             order.setTotalPrice(new BigDecimal(dto.getTotalPrice().replace(",", ".")));
         }
 
-        // Mapování položek (Items) - Tímto se uloží do tabulky order_items
         if (dto.getItems() != null) {
             for (var itemDto : dto.getItems()) {
                 OrderItem item = new OrderItem();
-                item.setOrder(order); // Zpětná vazba pro JPA
-                //item.setProductName(itemDto.getName());
+                item.setOrder(order);
                 item.setProductCode(itemDto.getProductCode());
                 item.setAmount(Integer.parseInt(itemDto.getAmount() != null ? itemDto.getAmount() : "1"));
                 item.setRemark(itemDto.getRemark());
@@ -89,9 +90,7 @@ public class ShoptetMapper {
         OrderItem item = new OrderItem();
         item.setOrder(order);
         item.setTaskName(itemDto.getName());
-        item.setTaskInstruction(itemDto.getProductCode()); // Můžeme použít jako kód úkonu
-        //item.setStatus(ItemStatus.WAITING);
-        // Ski a další vazby se dořeší později v servise
+        item.setTaskInstruction(itemDto.getProductCode());
         return item;
     }
 }

@@ -24,9 +24,7 @@ public class PohodaImportController {
     }
 
     @PostMapping(value = "/import", consumes = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity<String> importOrders(
-            @RequestHeader("X-API-KEY") String providedApiKey,
-            @RequestBody String xmlContent) {
+    public ResponseEntity<String> importOrders(@RequestHeader("X-API-KEY") String providedApiKey, @RequestBody String xmlContent) {
 
         if (!API_KEY.equals(providedApiKey)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Neplatný API klíč.");

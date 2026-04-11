@@ -44,18 +44,14 @@ public class ShoptetImportService {
             for (ShoptetOrderDto dto : root.getOrders()) {
                 if (containsServiceItem(dto) && !orderRepository.existsByShoptetId(dto.getShoptetId())) {
 
-                    // ZÍSKÁNÍ ZÁKAZNÍKA
                     Customer customer = getOrCreateCustomer(dto);
 
-                    // MAPOVÁNÍ
                     ServiceOrder entity = shoptetMapper.toEntity(dto, customer);
 
-                    // PŘIPOJENÍ LYŽÍ
                     Ski temporarySki = new Ski("Temporary Ski - " + dto.getOrderCode());
                     skiRepository.save(temporarySki);
                     entity.getItems().forEach(item -> item.setSki(temporarySki));
 
-                    // ULOŽENÍ
                     orderRepository.save(entity);
 
                     log.info("Importována zakázka {} pro: {}", dto.getOrderCode(), customer.getName());
@@ -67,10 +63,8 @@ public class ShoptetImportService {
     }
 
     private Customer getOrCreateCustomer(ShoptetOrderDto dto) {
-        // Zkusíme najít podle emailu v naší DB
         return customerRepository.findByEmail(dto.getCustomerEmail())
                 .orElseGet(() -> {
-                    // Pokud neexistuje, vytvoříme úplně novou entitu Customer
                     log.info("Nový zákazník detekován, ukládám: {}", dto.getCustomerEmail());
                     Customer newCustomer = Customer.builder()
                             .name(dto.getCustomerFullName())

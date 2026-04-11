@@ -3,7 +3,6 @@ package cz.cvut.fel.skiapp.backendconnection.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 
@@ -13,7 +12,7 @@ import java.math.BigDecimal;
 @Table(name = "order_items")
 public class OrderItem {
 
-    @jakarta.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -25,7 +24,7 @@ public class OrderItem {
     private Ski ski;
 
     private String taskName; // Např. "Broušení hran", "Voskování"
-    private String taskInstruction;
+    private String taskInstruction; // Např. "87 stupňů"
     private BigDecimal price;
 
     /*@Enumerated(EnumType.STRING)

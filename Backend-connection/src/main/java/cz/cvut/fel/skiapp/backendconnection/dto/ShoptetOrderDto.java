@@ -3,7 +3,6 @@ package cz.cvut.fel.skiapp.backendconnection.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 public class ShoptetOrderDto {
-
     @JacksonXmlProperty(localName = "shoptetId")
     private String shoptetId;
 
@@ -25,7 +23,7 @@ public class ShoptetOrderDto {
     private LocalDateTime date;
 
     @JacksonXmlProperty(localName = "totalPrice")
-    private String totalPrice;
+    private String totalPrice; // String kvůli desetinné čárce v XML
 
     @JacksonXmlProperty(localName = "isPaid")
     private String isPaid;
