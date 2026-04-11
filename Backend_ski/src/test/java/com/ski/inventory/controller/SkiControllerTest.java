@@ -5,6 +5,7 @@ import com.ski.inventory.model.Ski;
 import com.ski.inventory.model.SkiCondition;
 import com.ski.inventory.model.SkiStatus;
 import com.ski.inventory.monitoring.ServerErrorRecorder;
+import com.ski.inventory.security.AuthCookieService;
 import com.ski.inventory.service.JwtService;
 import com.ski.inventory.repository.OrderTaskRepository;
 import com.ski.inventory.repository.SkiRepository;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -35,7 +37,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(SkiController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, AuthCookieService.class})
+@TestPropertySource(properties = {
+        "jwt.secret=test-secret-key-minimum-32-characters-long-for-hs256",
+        "jwt.expiration=86400000",
+        "app.auth.cookie-secure=false"
+})
 class SkiControllerTest {
 
     @Autowired

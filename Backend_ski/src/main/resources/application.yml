@@ -39,6 +39,12 @@ jwt:
   expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
 
 app:
+  auth:
+    # HttpOnly JWT cookie – path /api (stejná hodnota musí být u vymazání cookie)
+    cookie-name: ${APP_AUTH_COOKIE_NAME:access_token}
+    cookie-secure: ${APP_AUTH_COOKIE_SECURE:true}
+    # Lax = stejný web přes Next proxy; u přímého volání API z jiné domény použij None + Secure
+    cookie-same-site: ${APP_AUTH_COOKIE_SAME_SITE:Lax}
   swagger:
     # Secure cookie pro Swagger vstup (HTTPS v produkci). V dev profilu je false kvůli lokálnímu HTTP.
     cookie-secure: ${APP_SWAGGER_COOKIE_SECURE:true}

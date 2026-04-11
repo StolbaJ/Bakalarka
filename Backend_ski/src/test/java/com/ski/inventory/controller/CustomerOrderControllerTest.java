@@ -2,6 +2,7 @@ package com.ski.inventory.controller;
 
 import com.ski.inventory.model.*;
 import com.ski.inventory.monitoring.ServerErrorRecorder;
+import com.ski.inventory.security.AuthCookieService;
 import com.ski.inventory.repository.OrderRepository;
 import com.ski.inventory.repository.OrderTaskRepository;
 import com.ski.inventory.service.JwtService;
@@ -10,7 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -24,6 +27,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CustomerOrderController.class)
+@Import(AuthCookieService.class)
+@TestPropertySource(properties = {
+        "jwt.secret=test-secret-key-minimum-32-characters-long-for-hs256",
+        "jwt.expiration=86400000",
+        "app.auth.cookie-secure=false"
+})
 class CustomerOrderControllerTest {
 
     @Autowired

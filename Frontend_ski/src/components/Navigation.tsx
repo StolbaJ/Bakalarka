@@ -208,9 +208,9 @@ const Navigation = () => {
                       <Settings className="w-4 h-4" />
                       <span>{t('nav.accountSettings')}</span>
                     </Link>
-                    {user?.role === 'ADMIN' && user?.token && (
+                    {user?.role === 'ADMIN' && (
                       <a
-                        href={apiClient.getSwaggerEntryUrl(user.token)}
+                        href={apiClient.getSwaggerEntryUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => setShowUserMenu(false)}

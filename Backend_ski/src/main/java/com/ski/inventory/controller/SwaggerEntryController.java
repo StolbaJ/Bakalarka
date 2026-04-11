@@ -4,6 +4,9 @@ import com.ski.inventory.service.JwtService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,22 +38,24 @@ public class SwaggerEntryController {
 
     @GetMapping("/swagger-entry")
     public void swaggerEntry(
-            @RequestParam("token") String token,
+            @RequestParam(value = "token", required = false) String token,
             HttpServletResponse response
     ) throws IOException {
-        if (token == null || token.isBlank()) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing token");
-            return;
-        }
-        try {
-            String role = jwtService.extractRole(token);
-            String subject = jwtService.extractUsername(token);
-            if (!"ADMIN".equals(role) || !jwtService.validateToken(token, subject)) {
-                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Admin access required");
-                return;
+        boolean adminOk = false;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).anyMatch("ROLE_ADMIN"::equals)) {
+            adminOk = true;
+        } else if (token != null && !token.isBlank()) {
+            try {
+                String role = jwtService.extractRole(token);
+                String subject = jwtService.extractUsername(token);
+                adminOk = "ADMIN".equals(role) && jwtService.validateToken(token, subject);
+            } catch (Exception ignored) {
+                adminOk = false;
             }
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+        }
+        if (!adminOk) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Admin access required");
             return;
         }
 

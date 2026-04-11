@@ -22,14 +22,17 @@ export interface CustomerLoginRequest {
   phone: string
 }
 
-export interface AuthResponse {
-  token: string
+/** Data session z API – JWT je jen v HttpOnly cookie, ne v těle odpovědi. */
+export interface AuthSessionInfo {
   userId: number
   username: string
   role: string
   fullName: string | null
   email: string | null
 }
+
+/** @deprecated použij AuthSessionInfo – token se už nevrací v JSON */
+export type AuthResponse = AuthSessionInfo
 
 export interface CredentialsHintLogin {
   label: string
@@ -41,6 +44,14 @@ export type CredentialsHintResponse =
   | { showHint: false }
   | { showHint: true; logins: CredentialsHintLogin[] }
   | { showHint: true; username: string; password: string }
+
+const CSRF_HEADER = 'X-XSRF-TOKEN'
+
+function readXsrfCookie(): string | null {
+  if (typeof document === 'undefined') return null
+  const m = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/)
+  return m ? decodeURIComponent(m[1].trim()) : null
+}
 
 class ApiClient {
   private baseUrl: string
@@ -54,6 +65,17 @@ class ApiClient {
 
   setOnUnauthorized(callback: (() => void) | null): void {
     this.onUnauthorized = callback
+  }
+
+  /**
+   * Zajistí CSRF cookie (XSRF-TOKEN) před prvním POST/PATCH/DELETE.
+   * Volat po mountu aplikace nebo před mutujícími požadavky.
+   */
+  async ensureCsrfCookie(): Promise<void> {
+    if (typeof window === 'undefined') return
+    if (readXsrfCookie()) return
+    const url = `${this.baseUrl}/api/auth/csrf-ping`
+    await fetch(url, { method: 'GET', credentials: 'include' })
   }
 
   /** Zpětná kompatibilita: starý BE vrací pole, nový PageResponse. Vždy vrátíme PageResponse. */
@@ -77,23 +99,30 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
-    console.log('API Request:', url, options.method || 'GET')
-    
-    const config: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
+    const method = (options.method || 'GET').toUpperCase()
+    console.log('API Request:', url, method)
+
+    const needsCsrf = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)
+    if (needsCsrf && typeof window !== 'undefined' && !readXsrfCookie()) {
+      await this.ensureCsrfCookie()
     }
 
-    // Přidat token, pokud existuje
-    const token = this.getToken()
-    if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`,
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string> | undefined),
+    }
+    if (needsCsrf) {
+      const xsrf = readXsrfCookie()
+      if (xsrf) {
+        headers[CSRF_HEADER] = xsrf
       }
+    }
+
+    const config: RequestInit = {
+      ...options,
+      method,
+      headers,
+      credentials: 'include',
     }
 
     try {
@@ -157,54 +186,44 @@ class ApiClient {
     }
   }
 
-  private getToken(): string | null {
-    if (typeof window === 'undefined') return null
-    const user = localStorage.getItem('user')
-    if (user) {
-      try {
-        const parsed = JSON.parse(user)
-        return parsed.token || null
-      } catch {
-        return null
-      }
-    }
-    return null
-  }
-
   /**
    * URL pro vstup do Swagger UI (pouze pro admina).
-   * Otevřít v novém okně; backend ověří token a přesměruje na Swagger.
+   * JWT je v HttpOnly cookie – backend ověří roli a přesměruje na Swagger.
    */
-  getSwaggerEntryUrl(token: string): string {
+  getSwaggerEntryUrl(): string {
     const base = this.baseUrl || (typeof window !== 'undefined' ? window.location.origin : '')
-    return `${base}/api/swagger-entry?token=${encodeURIComponent(token)}`
+    return `${base}/api/swagger-entry`
   }
 
   // Auth endpoints
-  async login(username: string, password: string): Promise<AuthResponse> {
+  async login(username: string, password: string): Promise<AuthSessionInfo> {
     console.log('ApiClient.login called with username:', username)
     const endpoint = '/api/auth/login'
     const body = JSON.stringify({ username, password })
     console.log('Calling login endpoint:', endpoint, 'with body:', body)
-    return this.request<AuthResponse>(endpoint, {
+    return this.request<AuthSessionInfo>(endpoint, {
       method: 'POST',
       body: body,
     })
   }
 
-  async loginCustomer(orderNumber: string, phone: string): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/api/auth/login/customer', {
+  async loginCustomer(orderNumber: string, phone: string): Promise<AuthSessionInfo> {
+    return this.request<AuthSessionInfo>('/api/auth/login/customer', {
       method: 'POST',
       body: JSON.stringify({ orderNumber, phone }),
     })
   }
 
+  async logout(): Promise<void> {
+    return this.request<void>('/api/auth/logout', { method: 'POST' })
+  }
+
   /**
-   * Ověří platnost aktuálního tokenu u serveru (volá POST /api/auth/refresh).
-   * Při reloadu stačí jedno volání; při 401 token už není platný (expirovaný, změna hesla, deaktivace).
+   * Ověří platnost session u serveru (POST /api/auth/refresh; JWT v cookie).
+   * Při 401 session už není platná (expirovaný JWT, změna hesla, deaktivace).
    */
-  async validateSession(): Promise<AuthResponse> {
-    return this.request<AuthResponse>('/api/auth/refresh', { method: 'POST' })
+  async validateSession(): Promise<AuthSessionInfo> {
+    return this.request<AuthSessionInfo>('/api/auth/refresh', { method: 'POST' })
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<void> {
@@ -460,7 +479,11 @@ class ApiClient {
   /** Veřejné zobrazení objednávky podle tokenu z e-mailu (bez přihlášení). Vrátí objednávku a přihlašovací údaje. */
   async viewOrderByToken(token: string): Promise<ViewOrderByTokenResponse> {
     const url = `${this.baseUrl}/api/public/orders/view?token=${encodeURIComponent(token)}`
-    const res = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    })
     if (!res.ok) {
       const text = await res.text()
       let msg = `HTTP ${res.status}`
@@ -567,8 +590,7 @@ export interface OrderSummaryResponse {
 
 export interface ViewOrderByTokenResponse {
   order: OrderDetailResponse
-  authToken: string
-  authResponse: AuthResponse
+  authResponse: AuthSessionInfo
 }
 
 export interface OrderDetailResponse {

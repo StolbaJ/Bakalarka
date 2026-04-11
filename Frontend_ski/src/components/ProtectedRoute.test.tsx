@@ -69,7 +69,6 @@ describe('ProtectedRoute', () => {
       user: {
         username: 'tech',
         role: 'TECHNICIAN',
-        token: 'token',
       },
       isLoading: false,
       loginStaff: jest.fn(),

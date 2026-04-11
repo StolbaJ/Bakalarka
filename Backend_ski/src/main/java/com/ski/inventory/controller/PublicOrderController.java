@@ -7,8 +7,11 @@ import com.ski.inventory.model.ServiceTaskItem;
 import com.ski.inventory.model.ServiceTaskStatus;
 import com.ski.inventory.repository.OrderRepository;
 import com.ski.inventory.repository.OrderTaskRepository;
+import com.ski.inventory.dto.AuthSessionResponse;
+import com.ski.inventory.security.AuthCookieService;
 import com.ski.inventory.service.AuthenticationService;
 import com.ski.inventory.service.OrderViewTokenService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,12 +31,14 @@ public class PublicOrderController {
     private final OrderTaskRepository orderTaskRepository;
     private final OrderViewTokenService orderViewTokenService;
     private final AuthenticationService authenticationService;
+    private final AuthCookieService authCookieService;
 
-    public PublicOrderController(OrderRepository orderRepository, OrderTaskRepository orderTaskRepository, OrderViewTokenService orderViewTokenService, AuthenticationService authenticationService) {
+    public PublicOrderController(OrderRepository orderRepository, OrderTaskRepository orderTaskRepository, OrderViewTokenService orderViewTokenService, AuthenticationService authenticationService, AuthCookieService authCookieService) {
         this.orderRepository = orderRepository;
         this.orderTaskRepository = orderTaskRepository;
         this.orderViewTokenService = orderViewTokenService;
         this.authenticationService = authenticationService;
+        this.authCookieService = authCookieService;
     }
 
     /**
@@ -41,7 +46,7 @@ public class PublicOrderController {
      * aby mohl prohlížet všechny své objednávky.
      */
     @GetMapping("/view")
-    public ResponseEntity<?> viewOrderByToken(@RequestParam String token) {
+    public ResponseEntity<?> viewOrderByToken(@RequestParam String token, HttpServletResponse httpResponse) {
         var claims = orderViewTokenService.parseToken(token);
         if (claims.isEmpty()) {
             return ResponseEntity.status(401).body(Map.of("message", "Neplatný nebo expirovaný odkaz."));
@@ -62,10 +67,10 @@ public class PublicOrderController {
         List<OrderTask> tasks = orderTaskRepository.findByOrderIdWithSkiAndItems(order.getId());
         OrderController.OrderDetailResponse orderDetail = toDetailResponse(order, tasks);
         var authResponse = authenticationService.authenticateCustomer(order.getOrderNumber(), customer.getPhone());
+        authCookieService.addAuthCookie(httpResponse, authResponse.token());
         Map<String, Object> body = new HashMap<>();
         body.put("order", orderDetail);
-        body.put("authToken", authResponse.token());
-        body.put("authResponse", authResponse);
+        body.put("authResponse", AuthSessionResponse.from(authResponse));
         return ResponseEntity.ok(body);
     }
 

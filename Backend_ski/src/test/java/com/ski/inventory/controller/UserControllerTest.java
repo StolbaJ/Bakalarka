@@ -10,6 +10,7 @@ import com.ski.inventory.repository.UserAuditLogRepository;
 import com.ski.inventory.repository.UserRepository;
 import com.ski.inventory.service.JwtService;
 import com.ski.inventory.service.PasswordService;
+import com.ski.inventory.security.AuthCookieService;
 import com.ski.inventory.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -34,7 +36,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, AuthCookieService.class})
+@TestPropertySource(properties = {
+        "jwt.secret=test-secret-key-minimum-32-characters-long-for-hs256",
+        "jwt.expiration=86400000",
+        "app.auth.cookie-secure=false"
+})
 class UserControllerTest {
 
     @Autowired

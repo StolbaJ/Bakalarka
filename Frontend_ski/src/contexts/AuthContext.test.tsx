@@ -9,6 +9,8 @@ jest.mock('@/lib/api', () => ({
     login: jest.fn(),
     loginCustomer: jest.fn(),
     validateSession: jest.fn(),
+    ensureCsrfCookie: jest.fn().mockResolvedValue(undefined),
+    logout: jest.fn().mockResolvedValue(undefined),
     setOnUnauthorized: jest.fn(),
   },
 }))
@@ -28,7 +30,6 @@ const AuthProbe = () => {
       <button
         onClick={() =>
           setUserFromAuthResponse({
-            token: 'token-from-link',
             userId: 7,
             username: 'customer-link',
             role: 'CUSTOMER',
@@ -47,13 +48,13 @@ const AuthProbe = () => {
 describe('AuthContext', () => {
   beforeEach(() => {
     localStorage.clear()
+    sessionStorage.clear()
     jest.clearAllMocks()
     mockedApiClient.validateSession.mockRejectedValue(new Error('no session'))
   })
 
   it('stores user after successful staff login with ADMIN role', async () => {
     mockedApiClient.login.mockResolvedValue({
-      token: 'token-1',
       userId: 1,
       username: 'admin',
       role: 'ADMIN',
@@ -74,14 +75,13 @@ describe('AuthContext', () => {
       expect(screen.getByTestId('role')).toHaveTextContent('ADMIN')
     })
 
-    const stored = localStorage.getItem('user')
+    const stored = sessionStorage.getItem('ski_session_user')
     expect(stored).toContain('"username":"admin"')
     expect(stored).toContain('"role":"ADMIN"')
   })
 
   it('returns false and keeps user empty when login role is CUSTOMER', async () => {
     mockedApiClient.login.mockResolvedValue({
-      token: 'token-2',
       userId: 2,
       username: 'customer-like',
       role: 'CUSTOMER',
@@ -101,11 +101,11 @@ describe('AuthContext', () => {
       expect(mockedApiClient.login).toHaveBeenCalledWith('admin', 'admin123')
     })
     expect(screen.getByTestId('username')).toHaveTextContent('none')
-    expect(localStorage.getItem('user')).toBeNull()
+    expect(sessionStorage.getItem('ski_session_user')).toBeNull()
   })
 
   it('clears user and storage on logout', async () => {
-    localStorage.setItem('user', JSON.stringify({ username: 'admin', role: 'ADMIN', token: 'abc' }))
+    sessionStorage.setItem('ski_session_user', JSON.stringify({ username: 'admin', role: 'ADMIN' }))
 
     render(
       <AuthProvider>
@@ -122,7 +122,7 @@ describe('AuthContext', () => {
     await waitFor(() => {
       expect(screen.getByTestId('username')).toHaveTextContent('none')
     })
-    expect(localStorage.getItem('user')).toBeNull()
+    expect(sessionStorage.getItem('ski_session_user')).toBeNull()
   })
 
   it('rethrows 429 error from loginStaff', async () => {
@@ -153,7 +153,6 @@ describe('AuthContext', () => {
 
   it('logs customer in when CUSTOMER role is returned', async () => {
     mockedApiClient.loginCustomer.mockResolvedValue({
-      token: 'cust-token',
       userId: 21,
       username: 'customer-user',
       role: 'CUSTOMER',
@@ -192,7 +191,6 @@ describe('AuthContext', () => {
 
   it('registers unauthorized callback and callback logs user out', async () => {
     mockedApiClient.login.mockResolvedValue({
-      token: 'token-logout',
       userId: 99,
       username: 'admin2',
       role: 'ADMIN',
@@ -229,6 +227,6 @@ describe('AuthContext', () => {
     await waitFor(() => {
       expect(screen.getByTestId('username')).toHaveTextContent('none')
     })
-    expect(localStorage.getItem('user')).toBeNull()
+    expect(sessionStorage.getItem('ski_session_user')).toBeNull()
   })
 })

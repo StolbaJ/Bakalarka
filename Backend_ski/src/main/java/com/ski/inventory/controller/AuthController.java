@@ -1,9 +1,13 @@
 package com.ski.inventory.controller;
 
+import com.ski.inventory.dto.AuthSessionResponse;
+import com.ski.inventory.security.AuthCookieService;
 import com.ski.inventory.service.AuthenticationService;
 import com.ski.inventory.service.UserService;
 import io.jsonwebtoken.JwtException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,52 +26,72 @@ public class AuthController {
     
     private final AuthenticationService authenticationService;
     private final UserService userService;
+    private final AuthCookieService authCookieService;
     
-    public AuthController(AuthenticationService authenticationService, UserService userService) {
+    public AuthController(
+            AuthenticationService authenticationService,
+            UserService userService,
+            AuthCookieService authCookieService) {
         this.authenticationService = authenticationService;
         this.userService = userService;
+        this.authCookieService = authCookieService;
+    }
+
+    /**
+     * Prázdný endpoint – první GET s credentials nastaví CSRF cookie (XSRF-TOKEN) pro následné POST/PATCH/DELETE.
+     */
+    @GetMapping("/csrf-ping")
+    public ResponseEntity<Void> csrfPing() {
+        return ResponseEntity.noContent().build();
     }
     
     @PostMapping("/refresh")
-    public ResponseEntity<AuthenticationService.AuthResponse> refresh(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    public ResponseEntity<AuthSessionResponse> refresh(HttpServletRequest request, HttpServletResponse response) {
+        String token = resolveAccessToken(request);
+        if (token == null || token.isBlank()) {
             return ResponseEntity.status(401).build();
         }
-        String token = authHeader.substring(7);
         try {
-            AuthenticationService.AuthResponse response = authenticationService.refreshToken(token);
-            return ResponseEntity.ok(response);
+            AuthenticationService.AuthResponse auth = authenticationService.refreshToken(token);
+            authCookieService.addAuthCookie(response, auth.token());
+            return ResponseEntity.ok(AuthSessionResponse.from(auth));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).build();
         } catch (JwtException e) {
-            // Expirovaný nebo neplatný JWT (vyhazováno už při parsování v refreshToken)
             return ResponseEntity.status(401).build();
         }
     }
     
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationService.AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        AuthenticationService.AuthResponse response = authenticationService.authenticate(
+    public ResponseEntity<AuthSessionResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+        AuthenticationService.AuthResponse auth = authenticationService.authenticate(
                 request.username(),
                 request.password()
         );
-        return ResponseEntity.ok(response);
+        authCookieService.addAuthCookie(response, auth.token());
+        return ResponseEntity.ok(AuthSessionResponse.from(auth));
     }
     
     @PostMapping("/login/customer")
-    public ResponseEntity<AuthenticationService.AuthResponse> loginCustomer(@Valid @RequestBody CustomerLoginRequest request) {
+    public ResponseEntity<AuthSessionResponse> loginCustomer(@Valid @RequestBody CustomerLoginRequest request, HttpServletResponse response) {
         try {
-            AuthenticationService.AuthResponse response = authenticationService.authenticateCustomer(
+            AuthenticationService.AuthResponse auth = authenticationService.authenticateCustomer(
                     request.orderNumber(),
                     request.phone()
             );
-            return ResponseEntity.ok(response);
+            authCookieService.addAuthCookie(response, auth.token());
+            return ResponseEntity.ok(AuthSessionResponse.from(auth));
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(401).body(null);
+            return ResponseEntity.status(401).build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        authCookieService.clearAuthCookie(response);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/change-password")
@@ -101,6 +125,24 @@ public class AuthController {
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch("ROLE_CUSTOMER"::equals);
+    }
+
+    private String resolveAccessToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        String name = authCookieService.getCookieName();
+        for (Cookie c : cookies) {
+            if (name.equals(c.getName())) {
+                return c.getValue();
+            }
+        }
+        return null;
     }
     
     public record LoginRequest(

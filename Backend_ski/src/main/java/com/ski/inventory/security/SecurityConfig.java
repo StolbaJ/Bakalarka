@@ -12,6 +12,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,6 +32,13 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final SwaggerCookieAuthenticationFilter swaggerCookieAuthenticationFilter;
     private final ServerErrorRecordingFilter serverErrorRecordingFilter;
+
+    /** CSRF cookie čitelný JS (HttpOnly=false) – klient pošle hodnotu v hlavičce X-XSRF-TOKEN. */
+    private static CookieCsrfTokenRepository csrfTokenRepository() {
+        CookieCsrfTokenRepository r = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        r.setCookiePath("/");
+        return r;
+    }
     
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           SwaggerCookieAuthenticationFilter swaggerCookieAuthenticationFilter,
@@ -41,8 +50,17 @@ public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        CsrfTokenRequestAttributeHandler csrfHandler = new CsrfTokenRequestAttributeHandler();
+        csrfHandler.setCsrfRequestAttributeName("_csrf");
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(csrf -> csrf
+                    .csrfTokenRepository(csrfTokenRepository())
+                    .csrfTokenRequestHandler(csrfHandler)
+                    .ignoringRequestMatchers(
+                            "/api/auth/login",
+                            "/api/auth/login/customer",
+                            "/api/auth/refresh"
+                    ))
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth

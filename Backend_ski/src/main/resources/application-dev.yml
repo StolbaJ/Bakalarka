@@ -6,6 +6,8 @@ spring:
 
 # Pro vývoj/testy - zobrazit vygenerované heslo při resetu
 app:
+  auth:
+    cookie-secure: false
   swagger:
     cookie-secure: false
   user-management:

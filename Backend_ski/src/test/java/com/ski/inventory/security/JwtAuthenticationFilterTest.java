@@ -2,6 +2,7 @@ package com.ski.inventory.security;
 
 import com.ski.inventory.service.JwtService;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -21,6 +23,8 @@ class JwtAuthenticationFilterTest {
 
     @Mock
     private JwtService jwtService;
+    @Mock
+    private AuthCookieService authCookieService;
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -32,13 +36,15 @@ class JwtAuthenticationFilterTest {
 
     @BeforeEach
     void setUp() {
-        filter = new JwtAuthenticationFilter(jwtService);
+        filter = new JwtAuthenticationFilter(jwtService, authCookieService);
+        lenient().when(authCookieService.getCookieName()).thenReturn("access_token");
         SecurityContextHolder.clearContext();
     }
 
     @Test
     void doFilterInternal_noAuthHeader_proceedsWithoutAuthentication() throws Exception {
         when(request.getHeader("Authorization")).thenReturn(null);
+        when(request.getCookies()).thenReturn(null);
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -50,6 +56,7 @@ class JwtAuthenticationFilterTest {
     @Test
     void doFilterInternal_authHeaderNotBearer_proceedsWithoutAuthentication() throws Exception {
         when(request.getHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
+        when(request.getCookies()).thenReturn(null);
 
         filter.doFilterInternal(request, response, filterChain);
 
@@ -89,6 +96,22 @@ class JwtAuthenticationFilterTest {
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
         assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
                 .anyMatch(a -> a.getAuthority().equals("ROLE_TECHNICIAN"));
+    }
+
+    @Test
+    void doFilterInternal_validJwtFromCookie_setsAuthentication() throws Exception {
+        String token = "cookie.jwt.token";
+        when(request.getHeader("Authorization")).thenReturn(null);
+        when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("access_token", token)});
+        when(jwtService.extractUsername(token)).thenReturn("admin");
+        when(jwtService.extractRole(token)).thenReturn("ADMIN");
+        when(jwtService.validateToken(token, "admin")).thenReturn(true);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+        assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("admin");
     }
 
     @Test

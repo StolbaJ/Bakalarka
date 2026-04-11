@@ -2,6 +2,7 @@ package com.ski.inventory.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ski.inventory.monitoring.ServerErrorRecorder;
+import com.ski.inventory.security.AuthCookieService;
 import com.ski.inventory.service.AuthenticationService;
 import com.ski.inventory.service.JwtService;
 import com.ski.inventory.service.UserService;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -23,7 +25,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
-@Import(GlobalExceptionHandler.class)
+@Import({GlobalExceptionHandler.class, AuthCookieService.class})
+@TestPropertySource(properties = {
+        "jwt.secret=test-secret-key-minimum-32-characters-long-for-hs256",
+        "jwt.expiration=86400000",
+        "app.auth.cookie-secure=false"
+})
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
 
@@ -50,7 +57,6 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"username\":\"admin\",\"password\":\"pass\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("access"))
                 .andExpect(jsonPath("$.userId").value(1))
                 .andExpect(jsonPath("$.username").value("user"))
                 .andExpect(jsonPath("$.role").value("ADMIN"));
@@ -82,7 +88,8 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/refresh")
                         .header("Authorization", "Bearer valid-token"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("newToken"));
+                .andExpect(jsonPath("$.username").value("user"))
+                .andExpect(jsonPath("$.role").value("ADMIN"));
     }
 
     @Test
@@ -132,7 +139,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"orderNumber\":\"ORD-1\",\"phone\":\"+420123456789\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("t"));
+                .andExpect(jsonPath("$.username").value("customer"))
+                .andExpect(jsonPath("$.role").value("CUSTOMER"));
     }
 
     @Test
