@@ -290,7 +290,7 @@ class ApiClient {
     })
   }
 
-  async getAuditLog(page = 0, size = 50, userId?: number): Promise<AuditLogPage> {
+  async getAuditLog(page = 0, size = 5, userId?: number): Promise<AuditLogPage> {
     const params = new URLSearchParams({ page: String(page), size: String(size) })
     if (userId != null) params.set('userId', String(userId))
     return this.request<AuditLogPage>(`/api/admin/users/audit-log?${params}`)

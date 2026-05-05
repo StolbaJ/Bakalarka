@@ -5,7 +5,10 @@ import { Plus, Key, Shield, UserX, UserCheck, History } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import ConfirmModal from '@/components/ConfirmModal'
+import PaginationControls from '@/components/PaginationControls'
 import { apiClient, UserResponse, CreateUserRequest, AuditLogPage } from '@/lib/api'
+
+const AUDIT_PAGE_SIZE_OPTIONS = [5, 10, 25, 50]
 
 type ActionModal =
   | { type: 'role'; user: UserResponse }
@@ -36,6 +39,8 @@ export default function UsersPage() {
   const [showAuditLog, setShowAuditLog] = useState(false)
   const [auditLog, setAuditLog] = useState<AuditLogPage | null>(null)
   const [auditLoading, setAuditLoading] = useState(false)
+  const [auditPage, setAuditPage] = useState(0)
+  const [auditPageSize, setAuditPageSize] = useState(5)
   const [resetPasswordResult, setResetPasswordResult] = useState<{ password: string | null } | null>(null)
 
   const loadUsers = useCallback(async () => {
@@ -52,10 +57,10 @@ export default function UsersPage() {
     }
   }, [])
 
-  const loadAuditLog = useCallback(async (userId?: number) => {
+  const loadAuditLog = useCallback(async (pageNum: number, pageSize: number, userId?: number) => {
     setAuditLoading(true)
     try {
-      const data = await apiClient.getAuditLog(0, 100, userId)
+      const data = await apiClient.getAuditLog(pageNum, pageSize, userId)
       setAuditLog(data)
     } catch {
       setAuditLog(null)
@@ -69,8 +74,18 @@ export default function UsersPage() {
   }, [loadUsers])
 
   useEffect(() => {
-    if (showAuditLog) loadAuditLog()
-  }, [showAuditLog, loadAuditLog])
+    if (!showAuditLog) return
+    loadAuditLog(auditPage, auditPageSize)
+  }, [showAuditLog, auditPage, auditPageSize, loadAuditLog])
+
+  const handleAuditPageChange = useCallback((newPage: number) => {
+    setAuditPage(newPage)
+  }, [])
+
+  const handleAuditSizeChange = useCallback((newSize: number) => {
+    setAuditPageSize(newSize)
+    setAuditPage(0)
+  }, [])
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -212,9 +227,14 @@ export default function UsersPage() {
           </div>
           <div className="flex flex-wrap gap-2 justify-center sm:justify-end">
             <button
+              type="button"
               onClick={() => {
-                setShowAuditLog(!showAuditLog)
-                if (!showAuditLog) loadAuditLog()
+                if (!showAuditLog) {
+                  setAuditPage(0)
+                  setShowAuditLog(true)
+                } else {
+                  setShowAuditLog(false)
+                }
               }}
               className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
             >
@@ -347,37 +367,51 @@ export default function UsersPage() {
             </h2>
             {auditLoading ? (
               <div className="p-8 text-center text-gray-500">{t('users.loading')}</div>
-            ) : auditLog && auditLog.content.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.date')}</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.actions')}</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.user')}</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.performedBy')}</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.details')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {auditLog.content.map((entry) => (
-                      <tr key={entry.id}>
-                        <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
-                          {new Date(entry.createdAt).toLocaleString('cs-CZ')}
-                        </td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                          {getActionLabel(entry.action)}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{entry.targetUsername}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{entry.performedBy}</td>
-                        <td className="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">
-                          {entry.details || '-'}
-                        </td>
+            ) : auditLog && auditLog.totalElements > 0 ? (
+              <>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.date')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.actions')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.user')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.performedBy')}</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{t('users.details')}</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {auditLog.content.map((entry) => (
+                        <tr key={entry.id}>
+                          <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                            {new Date(entry.createdAt).toLocaleString('cs-CZ')}
+                          </td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                            {getActionLabel(entry.action)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-600">{entry.targetUsername}</td>
+                          <td className="px-4 py-3 text-sm text-gray-600">{entry.performedBy}</td>
+                          <td className="px-4 py-3 text-sm text-gray-500 max-w-xs truncate">
+                            {entry.details || '-'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {auditLog.totalPages > 0 && (
+                  <PaginationControls
+                    page={auditPage}
+                    size={auditPageSize}
+                    totalElements={auditLog.totalElements}
+                    totalPages={auditLog.totalPages}
+                    onPageChange={handleAuditPageChange}
+                    onSizeChange={handleAuditSizeChange}
+                    pageSizeOptions={AUDIT_PAGE_SIZE_OPTIONS}
+                    t={t}
+                  />
+                )}
+              </>
             ) : (
               <div className="p-8 text-center text-gray-500">{t('users.noRecords')}</div>
             )}
