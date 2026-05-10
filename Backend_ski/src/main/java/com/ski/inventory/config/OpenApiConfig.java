@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class OpenApiConfig {
 
     private static final String BEARER_AUTH = "bearerAuth";
+    private static final String COOKIE_AUTH = "cookieAuth";
 
     private static final String PERMISSIONS_DESCRIPTION = """
             **Oprávnění dle cest (výchozí):**
@@ -36,18 +37,27 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Ski Inventory API")
                         .description("REST API pro správu inventáře lyží – objednávky, lyže, zákazníci, uživatelé.\n\n"
+                                + "**Autentizace:** `POST /api/auth/login` a `POST /api/auth/login/customer` nastaví JWT do HttpOnly cookie `access_token`. "
+                                + "Token se nevrací v JSON odpovědi. API klienti musí u dalších požadavků posílat cookie `access_token`; alternativně lze stejný JWT poslat v hlavičce `Authorization: Bearer <token>`.\n\n"
                                 + PERMISSIONS_DESCRIPTION)
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Ski Inventory")))
+                .addSecurityItem(new SecurityRequirement().addList(COOKIE_AUTH))
                 .addSecurityItem(new SecurityRequirement().addList(BEARER_AUTH))
                 .components(new Components()
+                        .addSecuritySchemes(COOKIE_AUTH,
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.APIKEY)
+                                        .in(SecurityScheme.In.COOKIE)
+                                        .name("access_token")
+                                        .description("JWT uložený serverem po loginu jako HttpOnly cookie. Login response vrací jen informace o session, ne token v JSON těle."))
                         .addSecuritySchemes(BEARER_AUTH,
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("JWT token z /api/auth/login nebo /api/auth/login/customer")));
+                                        .description("Alternativní autentizace pro API klienty: pošli JWT v hlavičce Authorization: Bearer <token>. Login endpoint token nevrací v JSON těle; standardně ho nastavuje do cookie access_token.")));
     }
 
     /** Doplní u každého endpointu v Swaggeru text o požadovaných rolích z @PreAuthorize. */
