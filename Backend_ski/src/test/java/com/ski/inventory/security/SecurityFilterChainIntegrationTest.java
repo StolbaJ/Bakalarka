@@ -1,10 +1,7 @@
 package com.ski.inventory.security;
 
-import com.ski.inventory.monitoring.ServerErrorRecorder;
 import com.ski.inventory.repository.*;
 import com.ski.inventory.service.EmailService;
-import com.ski.inventory.service.JwtService;
-import com.ski.inventory.service.PasswordService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.HealthEndpoint;
@@ -12,10 +9,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -128,6 +125,14 @@ class SecurityFilterChainIntegrationTest {
         int status = mockMvc.perform(get("/api/auth/login"))
                 .andReturn().getResponse().getStatus();
         assert status != 403 : "Auth endpoints should be public, got " + status;
+    }
+
+    @Test
+    void csrfPing_setsReadableXsrfCookie() throws Exception {
+        mockMvc.perform(get("/api/auth/csrf-ping"))
+                .andExpect(status().isNoContent())
+                .andExpect(cookie().exists("XSRF-TOKEN"))
+                .andExpect(cookie().httpOnly("XSRF-TOKEN", false));
     }
 
     @Test

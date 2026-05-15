@@ -17,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -41,7 +42,8 @@ public class AuthController {
      * Prázdný endpoint – první GET s credentials nastaví CSRF cookie (XSRF-TOKEN) pro následné POST/PATCH/DELETE.
      */
     @GetMapping("/csrf-ping")
-    public ResponseEntity<Void> csrfPing() {
+    public ResponseEntity<Void> csrfPing(CsrfToken csrfToken) {
+        csrfToken.getToken();
         return ResponseEntity.noContent().build();
     }
     
