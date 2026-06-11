@@ -1,0 +1,7 @@
+certbot/
+*.pem
+*.key
+*.crt
+# Povolit Cloudflare origin certifikát v repozitáři (klíč NIKDY necommituj – jen přes GitHub Secret)
+!ssl/cert.pem
+

@@ -301,6 +301,10 @@ class ApiClient {
     return this.request<StatisticsResponse>(`/api/admin/statistics${params}`)
   }
 
+  async getDashboardSummary(): Promise<DashboardSummaryResponse> {
+    return this.request<DashboardSummaryResponse>('/api/technician/dashboard/summary')
+  }
+
   async getMonitoringOverview(): Promise<MonitoringOverviewResponse> {
     return this.request<MonitoringOverviewResponse>('/api/admin/monitoring/overview')
   }
@@ -839,6 +843,13 @@ export interface StatisticsResponse {
   daily: DailyStats[]
   topTaskTypes: NameCount[]
   topStructures: NameCount[]
+}
+
+export interface DashboardSummaryResponse {
+  totalSkis: number
+  inService: number
+  completed: number
+  averageCompletionHours: number | null
 }
 
 export interface StrukturaOptionResponse {

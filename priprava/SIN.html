@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kviz: Metodiky vyvoje SW</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f0f4f8;
+    color: #111827;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  .shell {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+  .header p {
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .progress-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #d1d5db;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+  .progress-label {
+    font-size: 0.82rem;
+    color: #6b7280;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: right;
+  }
+  .score-badge {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1d4ed8;
+    background: #dbeafe;
+    padding: 3px 10px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+
+  /* Card */
+  .card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    color: #111827;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .category-tag {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    white-space: nowrap;
+    color: #ffffff;
+    flex-shrink: 0;
+  }
+  .cat-scrum      { background: #7c3aed; }
+  .cat-agile      { background: #0891b2; }
+  .cat-uml        { background: #059669; }
+  .cat-arch       { background: #d97706; }
+  .cat-java       { background: #dc2626; }
+  .cat-patterns   { background: #7c3aed; }
+  .cat-requirements { background: #0d9488; }
+  .cat-devops     { background: #4f46e5; }
+
+  .q-counter {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    flex-shrink: 0;
+  }
+
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  /* Answers */
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .answer-btn {
+    width: 100%;
+    text-align: left;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    color: #1a1a2e;
+    font-size: 0.95rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    line-height: 1.4;
+  }
+  .answer-btn:hover:not(:disabled) {
+    border-color: #3b82f6;
+    background: #eff6ff;
+    color: #1a1a2e;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct {
+    border-color: #16a34a;
+    background: #dcfce7;
+    color: #14532d;
+  }
+  .answer-btn.wrong {
+    border-color: #dc2626;
+    background: #fee2e2;
+    color: #7f1d1d;
+  }
+  .answer-btn.neutral-disabled {
+    border-color: #e5e7eb;
+    background: #f3f4f6;
+    color: #6b7280;
+  }
+
+  /* Explanation */
+  .explanation {
+    display: none;
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: #166534;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .explanation.visible {
+    display: block;
+  }
+  .explanation.wrong-exp {
+    background: #fff7ed;
+    border-color: #f97316;
+    color: #7c2d12;
+  }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .nav-btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    color: #374151;
+  }
+  .nav-btn.prev-btn {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+  }
+  .nav-btn.prev-btn:hover:not(:disabled) {
+    background: #e5e7eb;
+    color: #111827;
+  }
+  .nav-btn.next-btn {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #ffffff;
+    margin-left: auto;
+  }
+  .nav-btn.next-btn:hover:not(:disabled) {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+  }
+  .nav-btn:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+  .nav-btn.hidden-btn {
+    visibility: hidden;
+  }
+
+  /* Results */
+  .results-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 36px 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    text-align: center;
+    color: #111827;
+  }
+  .results-emoji {
+    font-size: 3.2rem;
+    margin-bottom: 12px;
+  }
+  .results-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+  }
+  .results-subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 24px;
+  }
+  .results-big {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #3b82f6;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .results-of {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 28px;
+  }
+  .results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-box {
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .stat-box.green { background: #dcfce7; }
+  .stat-box.red   { background: #fee2e2; }
+  .stat-box .stat-num { font-size: 1.8rem; font-weight: 700; }
+  .stat-box.green .stat-num { color: #15803d; }
+  .stat-box.red .stat-num   { color: #b91c1c; }
+  .stat-box .stat-lbl { font-size: 0.82rem; font-weight: 500; }
+  .stat-box.green .stat-lbl { color: #166534; }
+  .stat-box.red .stat-lbl   { color: #991b1b; }
+  .restart-btn {
+    padding: 13px 32px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: #3b82f6;
+    color: #ffffff;
+    transition: background 0.15s;
+  }
+  .restart-btn:hover { background: #2563eb; }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    body { background: #0f172a; color: #e2e8f0; }
+    .header h1 { color: #f1f5f9; }
+    .header p  { color: #94a3b8; }
+    .progress-bar-track { background: #334155; }
+    .progress-bar-fill  { background: #60a5fa; }
+    .progress-label     { color: #94a3b8; }
+    .score-badge        { color: #93c5fd; background: #1e3a5f; }
+    .card { background: #1e293b; box-shadow: 0 1px 4px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.2); color: #e2e8f0; }
+    .q-counter { color: #64748b; }
+    .question-text { color: #f1f5f9; }
+    .answer-btn { background: #0f172a; border-color: #334155; color: #e2e8f0; }
+    .answer-btn:hover:not(:disabled) { background: #1e3a5f; border-color: #60a5fa; color: #f1f5f9; }
+    .answer-btn.correct { border-color: #16a34a; background: #14532d; color: #bbf7d0; }
+    .answer-btn.wrong   { border-color: #dc2626; background: #7f1d1d; color: #fecaca; }
+    .answer-btn.neutral-disabled { background: #1e293b; border-color: #334155; color: #64748b; }
+    .explanation { background: #14532d; border-color: #16a34a; color: #bbf7d0; }
+    .explanation.wrong-exp { background: #7c2d12; border-color: #f97316; color: #fed7aa; }
+    .nav-btn.prev-btn { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+    .nav-btn.prev-btn:hover:not(:disabled) { background: #334155; color: #f1f5f9; }
+    .nav-btn.next-btn { background: #3b82f6; border-color: #3b82f6; color: #ffffff; }
+    .nav-btn.next-btn:hover:not(:disabled) { background: #2563eb; border-color: #2563eb; color: #ffffff; }
+    .results-card { background: #1e293b; color: #e2e8f0; }
+    .results-title    { color: #f1f5f9; }
+    .results-subtitle { color: #94a3b8; }
+    .results-big { color: #60a5fa; }
+    .results-of  { color: #94a3b8; }
+    .stat-box.green { background: #14532d; }
+    .stat-box.red   { background: #7f1d1d; }
+    .stat-box.green .stat-num { color: #4ade80; }
+    .stat-box.red .stat-num   { color: #f87171; }
+    .stat-box.green .stat-lbl { color: #86efac; }
+    .stat-box.red .stat-lbl   { color: #fca5a5; }
+    .restart-btn { background: #3b82f6; color: #ffffff; }
+    .restart-btn:hover { background: #2563eb; }
+  }
+
+  @media (max-width: 520px) {
+    .card { padding: 20px 16px; }
+    .results-card { padding: 28px 16px; }
+    .results-grid { grid-template-columns: 1fr 1fr; }
+    .question-text { font-size: 0.97rem; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="header">
+    <h1>Metodiky vyvoje SW</h1>
+    <p>Interaktivni kviz ke zkousce</p>
+  </div>
+
+  <div id="app"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var allQuestions = [
+    {
+      cat: 'agile',
+      catLabel: 'Agilni metody',
+      q: 'Ktery dokument slouzi jako prvni krok od napadu k realite a obsahuje popis projektu, rozsah, cile a prinosy?',
+      answers: [
+        { text: 'Product backlog', correct: false },
+        { text: 'Vision document', correct: true },
+        { text: 'Sprint goal', correct: false },
+        { text: 'RACI matice', correct: false }
+      ],
+      explanation: 'Vision document (vize projektu) je prvni krok od napadu k realite. Obsahuje popis projektu, celkovy rozsah, hlavni cile a prinosy pro zadavatele a uzivatele.'
+    },
+    {
+      cat: 'agile',
+      catLabel: 'Agilni metody',
+      q: 'Ktery pristup k vyvoji SW je zalozen na linearnim postupu analyza => navrh => implementace => testovani => nasazeni?',
+      answers: [
+        { text: 'Scrum', correct: false },
+        { text: 'Extreme Programming', correct: false },
+        { text: 'Waterfall (tradicni pristup)', correct: true },
+        { text: 'Kanban', correct: false }
+      ],
+      explanation: 'Tradicni pristup (waterfall) je linearni: analyza, navrh, implementace, testovani, nasazeni. Nevyhodou je spatna reakce na zmeny a draha oprava chyb odhalena az na konci.'
+    },
+    {
+      cat: 'agile',
+      catLabel: 'Agilni metody',
+      q: 'Agilni manifest z roku 2001 uprednostnuje mimo jine:',
+      answers: [
+        { text: 'Procesy a nastroje pred lidmi a komunikaci', correct: false },
+        { text: 'Fungujici software pred vycerpavajici dokumentaci', correct: true },
+        { text: 'Striktni plan pred reakci na zmenu', correct: false },
+        { text: 'Presnou smlouvu pred spolupraci se zakaznikem', correct: false }
+      ],
+      explanation: 'Agilni manifest deklaruje: lide a komunikace > procesy a nastroje, fungujici SW > dokumentace, spoluprace se zakaznikem > smlouva, reakce na zmenu > striktni plan.'
+    },
+    {
+      cat: 'devops',
+      catLabel: 'DevOps',
+      q: 'Jaky je hlavni princip DevOps?',
+      answers: [
+        { text: 'Vyvoj a provoz jsou oddelena oddeleni bez interakce', correct: false },
+        { text: 'You build it, you run it', correct: true },
+        { text: 'Rucni nasazovani je spolehlivejsi nez automatizace', correct: false },
+        { text: 'Testovani je zodpovednosti pouze QA tymu', correct: false }
+      ],
+      explanation: 'DevOps propojuje vyvoj (Dev) a provoz (Ops) pod heslem "You build it, you run it!" Cilem je automatizace procesu a kratsi cykly nasazovani (CI/CD).'
+    },
+    {
+      cat: 'scrum',
+      catLabel: 'Scrum',
+      q: 'Ktera role v tymu Scrum je zodpovedna za spravu product backlogu a urceni priorit?',
+      answers: [
+        { text: 'Scrum Master', correct: false },
+        { text: 'Vyvojovy tym', correct: false },
+        { text: 'Product Owner', correct: true },
+        { text: 'Stakeholder', correct: false }
+      ],
+      explanation: 'Product Owner reprezentuje stakeholdery, spravuje product backlog a urcuje priority (co se ma delat), ale ne jak to delat.'
+    },
+    {
+      cat: 'scrum',
+      catLabel: 'Scrum',
+      q: 'Co je hlavni ulohou Scrum Mastera?',
+      answers: [
+        { text: 'Psat kod a implementovat pozadavky', correct: false },
+        { text: 'Pridelit ukoly jednotlivym clenum tymu', correct: false },
+        { text: 'Facilitovat procesy, odstranovati prekazky a chranit tym pred rusenim', correct: true },
+        { text: 'Schvalovat architektonicka rozhodovani', correct: false }
+      ],
+      explanation: 'Scrum Master je facilitator. Zajistuje, ze tym spravne pouziva Scrum, odstranova prekazky, organizuje schuzky a chrany tym pred externim rusenim.'
+    },
+    {
+      cat: 'scrum',
+      catLabel: 'Scrum',
+      q: 'Co je vystupem Sprint Planning Meeting?',
+      answers: [
+        { text: 'Hotovy produkt pripraveny k nasazeni', correct: false },
+        { text: 'Sprint backlog a sprint goal', correct: true },
+        { text: 'Aktualizovany product backlog a retrospektiva', correct: false },
+        { text: 'Demo pro stakeholdery', correct: false }
+      ],
+      explanation: 'Na Sprint Planning Meeting tym spolecne s Product Ownerem vybere ukoly pro sprint. Vystupem je sprint backlog (seznam ukolu) a stanoveny sprint goal (cil sprintu).'
+    },
+    {
+      cat: 'scrum',
+      catLabel: 'Scrum',
+      q: 'Jak dlouho typicky trva Daily Stand-up Meeting ve Scrumu?',
+      answers: [
+        { text: 'Cca 60 minut', correct: false },
+        { text: 'Cca 15 minut', correct: true },
+        { text: 'Cca 30 minut', correct: false },
+        { text: 'Neni casove omezen', correct: false }
+      ],
+      explanation: 'Daily Stand-up (Scrum Daily) trva typicky cca 15 minut. Kazdy clen odpovida na tri otazky: co jsem udelal vcera, co budu delat dnes, jake mam prekazky.'
+    },
+    {
+      cat: 'scrum',
+      catLabel: 'Scrum',
+      q: 'Ktera Scrum udalost slouzi k reflexi procesu a planovani zlepseni pro dalsi sprint?',
+      answers: [
+        { text: 'Sprint Review (Demo Meeting)', correct: false },
+        { text: 'Sprint Retrospective', correct: true },
+        { text: 'Sprint Planning', correct: false },
+        { text: 'Daily Stand-up', correct: false }
+      ],
+      explanation: 'Sprint Retrospective probiha po Sprint Review. Tym diskutuje, co se povedlo a co by slo zlepsit, a planuji konkretni zlepseni pro dalsi sprint.'
+    },
+    {
+      cat: 'requirements',
+      catLabel: 'Pozadavky',
+      q: 'Ktera kategorie pozadavku popisuje chovani IT reseni, jeho vykononostni a bezpecnostni omezeni?',
+      answers: [
+        { text: 'Byznys pozadavky', correct: false },
+        { text: 'Prechodne pozadavky', correct: false },
+        { text: 'Systemove pozadavky', correct: true },
+        { text: 'Byznys cile', correct: false }
+      ],
+      explanation: 'Systemovy pozadavek popisuje chovani IT reseni, jeho omezeni (vykon, bezpecnost). Reaguje na byznys pozadavky a IT architekturu. Priklad: System bude umoznovat export tabulek do CSV.'
+    },
+    {
+      cat: 'requirements',
+      catLabel: 'Pozadavky',
+      q: 'Jak zni sablona pro zapis byznys pozadavku?',
+      answers: [
+        { text: 'Jako [role] potrebuji [cil], protoze [prinos].', correct: true },
+        { text: 'System bude umoznovat [CO?] ([KOMU?]).', correct: false },
+        { text: 'Pro [aktora] bude system poskytovat [funkci].', correct: false },
+        { text: 'Uzivatele musi byt schopni [akce] za [podminek].', correct: false }
+      ],
+      explanation: 'Sablona pro byznys pozadavky: "Jako [role], potrebuji [cil/prani], protoze [prinos]." Napriklad: Jako obchodnik potrebuji byt informovan o konciicich smlouvach, abych mohl zacit vcas jednat.'
+    },
+    {
+      cat: 'requirements',
+      catLabel: 'Pozadavky',
+      q: 'Co jsou "Delighters" v Kano modelu kategorizace pozadavku?',
+      answers: [
+        { text: 'Samozrejme vlastnosti, jejichz absence zpusobuje nespokojenost', correct: false },
+        { text: 'Explicitne zminen pozadavky, ktere zakaznik ocekava', correct: false },
+        { text: 'Neocekavane vlastnosti, ktere zakaznika potesi', correct: true },
+        { text: 'Pozadavky na vykon a bezpecnost systemu', correct: false }
+      ],
+      explanation: 'Kano model deli pozadavky na: Dissatisfiers (nutne - absence zpusobuje nespokojenost), Satisfiers (ocekavane - explicitne zminen) a Delighters (zbytne - neocekavane, ale potesi).'
+    },
+    {
+      cat: 'uml',
+      catLabel: 'UML',
+      q: 'Ktery UML diagram vizualizuje tok cinnosti, vetveni a parallelni behy procesu?',
+      answers: [
+        { text: 'Diagram trid', correct: false },
+        { text: 'Diagram aktivit', correct: true },
+        { text: 'Diagram pripadu uziti', correct: false },
+        { text: 'Sekveneni diagram', correct: false }
+      ],
+      explanation: 'Diagram aktivit je graficka reprezentace procesu, ktera vizualizuje tok cinnosti, rozhodovani, parallelni behy a odpovednosti (partitions). Slouzi k zachyceni business procesu (AS IS, TO BE).'
+    },
+    {
+      cat: 'uml',
+      catLabel: 'UML',
+      q: 'V UML diagramu trid, co znaci plny kosoctverec (filled diamond) na strane celku?',
+      answers: [
+        { text: 'Agregace - casti mohou existovat nezavisle', correct: false },
+        { text: 'Kompozice - casti jsou zavisle na celku a zanikaji s nim', correct: true },
+        { text: 'Dedicnost (generalizace)', correct: false },
+        { text: 'Realizace interfacu', correct: false }
+      ],
+      explanation: 'Kompozice je silnejsi forma agregace znacena plnym kosoctvercem. Casti jsou zavisle na celku - pokud celek zanikne, zanikaji i casti (kaskadove mazani). Priklad: Dum ma patra, ktera bez domu neexistuji.'
+    },
+    {
+      cat: 'uml',
+      catLabel: 'UML',
+      q: 'Co zobrazuje UML sekveneni diagram?',
+      answers: [
+        { text: 'Fyzicke nasazeni SW komponent na HW', correct: false },
+        { text: 'Casovou posloupnost interakci a zprav mezi objekty', correct: true },
+        { text: 'Stavy objektu a prechody mezi nimi', correct: false },
+        { text: 'Logicke rozdeleni systemu na moduly', correct: false }
+      ],
+      explanation: 'Sekveneni diagram modeluje casovou posloupnost interakci mezi objekty. Zobrazuje zpravy possilane mezi objekty (lifelines), aktivace, synchronni i asynchronni volani a kombinovane fragmenty (alt, opt, loop).'
+    },
+    {
+      cat: 'uml',
+      catLabel: 'UML',
+      q: 'Ktery typ scenaree prichodu uziti popisuje idealni prubeh bez chyb?',
+      answers: [
+        { text: 'Vyjimecny scenar (exceptional flow)', correct: false },
+        { text: 'Alternativni scenar', correct: false },
+        { text: 'Hlavni scenar (happy flow)', correct: true },
+        { text: 'Negativni scenar', correct: false }
+      ],
+      explanation: 'Hlavni scenar (happy flow) popisuje idealni prubeh bez chyb a vyjimek. Alternativni scenar zachycuje odlisne prubehy a vyjimecny scenar zpracovava chybove stavy.'
+    },
+    {
+      cat: 'java',
+      catLabel: 'Java EE',
+      q: 'Ktery tier v Java EE architekture obsahuje komponenty zajistujici dynamicke generovani obsahu a rizeni toku aplikace?',
+      answers: [
+        { text: 'Business tier', correct: false },
+        { text: 'EIS tier', correct: false },
+        { text: 'Web tier', correct: true },
+        { text: 'Client tier', correct: false }
+      ],
+      explanation: 'Web tier zajistuje komunikaci mezi klientem a business tierem: dynamicke generovani obsahu (HTML, XML, JSON), sber vstupu, rizeni toku aplikace a udrzovani stavu relace. Pouziva Servlets, JSF, JSP.'
+    },
+    {
+      cat: 'java',
+      catLabel: 'Java EE',
+      q: 'Co je hlavnim prinosem Dependency Injection (DI)?',
+      answers: [
+        { text: 'Komponenta sama vyhledava sve zavislosti pres registry', correct: false },
+        { text: 'Zavislosti jsou komponente predavany zvenku, snizuje se coupling', correct: true },
+        { text: 'Vsechny komponenty jsou singleton instance', correct: false },
+        { text: 'Zavislosti jsou zakodovany staticky v zdrojovem kodu', correct: false }
+      ],
+      explanation: 'Dependency Injection predava zavislosti komponent zvenku (od frameworku/kontejneru). Prinos: nizka zavislost (loosely coupled), snazsi testovani (moznost podsunout mock), lepsi sprava zivotniho cyklu. V Java EE realizovano pres CDI.'
+    },
+    {
+      cat: 'java',
+      catLabel: 'JavaBeans',
+      q: 'Ktera vlastnost JavaBeans oznacena jako "Bound property" ma specialni chovani?',
+      answers: [
+        { text: 'Pouziva metodu is() misto get()', correct: false },
+        { text: 'Zmena hodnoty muze byt vetovana posluchacem', correct: false },
+        { text: 'Komponenta oznamuje zmenu hodnoty posluchacum (PropertyChangeListener)', correct: true },
+        { text: 'Hodnota je ulozena jako XML', correct: false }
+      ],
+      explanation: 'Bound property oznamuje zmenu sve hodnoty posluchacum (PropertyChangeListener). Constrained property naopak muze byt vetovana poslucacem (VetoableChangeListener).'
+    },
+    {
+      cat: 'patterns',
+      catLabel: 'Design patterny',
+      q: 'Ktery GRASP vzor radii prirazovat odpovednost te tride, ktera ma nejvice informaci potrebnych k provedeni ukolu?',
+      answers: [
+        { text: 'Controller', correct: false },
+        { text: 'Creator', correct: false },
+        { text: 'Information Expert', correct: true },
+        { text: 'Pure Fabrication', correct: false }
+      ],
+      explanation: 'Information Expert resi, ktere tride pridelit odpovednost. Odpoved: pridelit ji tride, ktera obsahuje nejvice informaci potrebnych k provedeni ukolu. Cilern je zachovat High Cohesion a Low Coupling.'
+    },
+    {
+      cat: 'patterns',
+      catLabel: 'Design patterny',
+      q: 'Design pattern Observer slouzi k:',
+      answers: [
+        { text: 'Zjednoduseni rozhrani sloziteho subsystemu', correct: false },
+        { text: 'Automatickemu upozorneni objektu na zmeny stavu jineho objektu', correct: true },
+        { text: 'Oddeleni dat, UI a rizeni toku', correct: false },
+        { text: 'Vytvareni instanci objektu bez znalosti konkretni tridy', correct: false }
+      ],
+      explanation: 'Observer umoznuje objektum (pozorovatelum) byt automaticky upozorneni na zmeny stavu subjektu, aniz by byly pevne vazany. Podporuje volnou vazbu (low coupling) a architektury zalozene na udalostech.'
+    },
+    {
+      cat: 'patterns',
+      catLabel: 'Design patterny',
+      q: 'Co je celem design patternu Facade (Fasada)?',
+      answers: [
+        { text: 'Umoznit vice pohledu na stejny model dat', correct: false },
+        { text: 'Poskytnout jednoduche vysoceurovenove rozhrani ke slozitemu subsystemu', correct: true },
+        { text: 'Sledovat zmeny v entitach behem transakce', correct: false },
+        { text: 'Automaticky generovat getter a setter metody', correct: false }
+      ],
+      explanation: 'Facade poskytuje sjednocene, jednoduche rozhrani ke slozitemu subsystemu. Skryva vnitrni implementaci, snizuje pocet objektu se kterymi klienti komunikuji a snizuje coupling.'
+    },
+    {
+      cat: 'arch',
+      catLabel: 'Architektura',
+      q: 'Jak se lisi architektonicky styl od softwarove architektury?',
+      answers: [
+        { text: 'Jsou to synonyma, obe oznacuji konkretni navrh systemu', correct: false },
+        { text: 'Styl je konceptualni ramec/vzor, architektura je konkretni realizace systemu', correct: true },
+        { text: 'Architektura je teoreticka, styl je prakticky', correct: false },
+        { text: 'Styl se tyka UI, architektura backend vrstev', correct: false }
+      ],
+      explanation: 'Architektonicky styl je obecny vzor definujici principy a strukturu (napr. vrstvy, SOA). Softwarova architektura je konkretni realizace pro dany system vyuzivajici jeden nebo vice stylu s konkretnimi komponentami.'
+    },
+    {
+      cat: 'arch',
+      catLabel: 'Architektura',
+      q: 'Ktery architektonicky styl data prozhani serii nezavislych zpracovatelskych kroku?',
+      answers: [
+        { text: 'Call and Return', correct: false },
+        { text: 'Implicit Invocation', correct: false },
+        { text: 'Pipes and Filters', correct: true },
+        { text: 'Virtual Machines', correct: false }
+      ],
+      explanation: 'Pipes and Filters: data prochazi radou nezavislych filtru (zpracovatele). Vyhody: jednoduchost navrhu, snadna rozsiritelnost. Nevyhody: mozne omezene koordinaci, vykonova narocnost.'
+    },
+    {
+      cat: 'arch',
+      catLabel: 'SOA',
+      q: 'Ktera charakteristika je typicka pro sluzby v SOA architekture?',
+      answers: [
+        { text: 'Pevna vazba (tight coupling) pro maximalni vykon', correct: false },
+        { text: 'Volna vazba (loose coupling) a platformova nezavislost', correct: true },
+        { text: 'Sdileny stav mezi vsemi sluzbami', correct: false },
+        { text: 'Komunikace pouze synchronnimi volanimi', correct: false }
+      ],
+      explanation: 'Sluzby v SOA maji: volnou vazbu (loose coupling), opakovatelnost (reusability), bezstavovost (statelessness), autonomii, objevitelnost, abstrakci, skladatelnost a platformovou nezavislost.'
+    },
+    {
+      cat: 'java',
+      catLabel: 'Java EE',
+      q: 'Jaky je rozdil mezi agregaci a kompozici v UML diagramu trid?',
+      answers: [
+        { text: 'Jsou to synonyma pro stejny typ vztahu', correct: false },
+        { text: 'U agregace casti mohou existovat nezavisle; u kompozice zanikaji s celkem', correct: true },
+        { text: 'Agregace je silnejsi vztah nez kompozice', correct: false },
+        { text: 'Kompozice reprezentuje dedicnost, agregace asociaci', correct: false }
+      ],
+      explanation: 'Agregace (prazdny kosoctverec): casti mohou existovat nezavisle na celku. Priklad: pocitac a periferie. Kompozice (plny kosoctverec): casti jsou zavisle a zanikaji s celkem (kaskadove mazani). Priklad: dum a patra.'
+    },
+    {
+      cat: 'scrum',
+      catLabel: 'Scrum',
+      q: 'Jak velky je typicky Scrum tym (vyvojovy tym)?',
+      answers: [
+        { text: '2 az 4 lide', correct: false },
+        { text: '5 az 9 lidi', correct: true },
+        { text: '10 az 15 lidi', correct: false },
+        { text: 'Velikost neni specificovana', correct: false }
+      ],
+      explanation: 'Scrum tym (vyvojovy tym) je typicky 5 az 9 lidi, je multidisciplinarni (vyvojari, testeri, analytici) a samoorganizujici se. Nese odpovednost za dodani funkcniho prirastku.'
+    },
+    {
+      cat: 'requirements',
+      catLabel: 'Pozadavky',
+      q: 'Co jsou "Prechodne pozadavky" (Transitional Requirements)?',
+      answers: [
+        { text: 'Pozadavky na vykononost a spolehlivost systemu', correct: false },
+        { text: 'Docasne pozadavky souvisejici se zavedenim reseni (skoleni, migrace)', correct: true },
+        { text: 'Pozadavky definovane az po spusteni systemu', correct: false },
+        { text: 'Pozadavky od externiho auditora', correct: false }
+      ],
+      explanation: 'Prechodne (transitional) pozadavky jsou docasne pozadavky souvisejici se zavedenim reseni: napr. skoleni uzivatelu, migrace dat ze stareho systemu, paralelni provoz.'
+    },
+    {
+      cat: 'patterns',
+      catLabel: 'Design patterny',
+      q: 'Ktery Design pattern v perzistentni vrstve izoluje logiku pristupu k datum od zbytku aplikace?',
+      answers: [
+        { text: 'Unit of Work', correct: false },
+        { text: 'Repository', correct: false },
+        { text: 'Data Access Object (DAO)', correct: true },
+        { text: 'Facade', correct: false }
+      ],
+      explanation: 'Data Access Object (DAO) poskytuje rozhrani pro pristup k datum a izoluje logiku pristupu k datum od zbytku aplikace. Repository je abstrakce nad DAO zamerena na praci s agregaty domeny.'
+    },
+    {
+      cat: 'arch',
+      catLabel: 'Architektura',
+      q: 'Co znamena horizontalni skaloani (scale out)?',
+      answers: [
+        { text: 'Zvetseni vykonu jednoho serveru (silnejsi HW)', correct: false },
+        { text: 'Pridani vice serveru a jejich clusterovani', correct: true },
+        { text: 'Optimalizace SQL dotazu v databazi', correct: false },
+        { text: 'Nasazeni aplikace do CDN', correct: false }
+      ],
+      explanation: 'Horizontalni skaloani (scale out) = pridani vice serveru a jejich clusterovani. Vertikalni skaloani (scale up) = zvetseni vykonu jednoho serveru (silnejsi HW).'
+    }
+  ];
+
+  // State
+  var questions = [];
+  var currentIndex = 0;
+  var score = 0;
+  var answered = []; // { chosenIdx, shuffledAnswers, wasCorrect }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function init() {
+    questions = shuffle(allQuestions);
+    currentIndex = 0;
+    score = 0;
+    answered = new Array(questions.length).fill(null);
+    renderQuiz();
+  }
+
+  function renderQuiz() {
+    var app = document.getElementById('app');
+    if (currentIndex >= questions.length) {
+      renderResults(app);
+      return;
+    }
+    var q = questions[currentIndex];
+    var state = answered[currentIndex];
+    var shuffled = state ? state.shuffledAnswers : shuffle(q.answers);
+    if (!state) {
+      // pre-store shuffled order so back-nav shows same order
+      answered[currentIndex] = null; // keep null until answered, but store shuffled
+      answered[currentIndex] = { shuffledAnswers: shuffled, chosenIdx: null, wasCorrect: null };
+    }
+    // recalculate actual state
+    state = answered[currentIndex];
+    var isAnswered = state.chosenIdx !== null;
+
+    var progressPct = Math.round((answeredCount() / questions.length) * 100);
+    var catClass = 'cat-' + q.cat;
+
+    var html = '';
+    // Progress
+    html += '<div class="progress-wrap">';
+    html += '<div class="progress-bar-track"><div class="progress-bar-fill" style="width:' + progressPct + '%"></div></div>';
+    html += '<span class="progress-label">' + (currentIndex + 1) + ' / ' + questions.length + '</span>';
+    html += '<span class="score-badge">Skore: ' + score + '</span>';
+    html += '</div>';
+
+    // Card
+    html += '<div class="card">';
+    html += '<div class="card-top">';
+    html += '<span class="category-tag ' + catClass + '">' + q.catLabel + '</span>';
+    html += '<span class="q-counter">Otazka ' + (currentIndex + 1) + '</span>';
+    html += '</div>';
+    html += '<div class="question-text">' + q.q + '</div>';
+    html += '<div class="answers" id="answers-list">';
+    for (var i = 0; i < state.shuffledAnswers.length; i++) {
+      var ans = state.shuffledAnswers[i];
+      var cls = 'answer-btn';
+      if (isAnswered) {
+        if (ans.correct) {
+          cls += ' correct';
+        } else if (i === state.chosenIdx) {
+          cls += ' wrong';
+        } else {
+          cls += ' neutral-disabled';
+        }
+      }
+      html += '<button class="' + cls + '" data-idx="' + i + '"' + (isAnswered ? ' disabled' : '') + '>' + ans.text + '</button>';
+    }
+    html += '</div>';
+
+    // Explanation
+    var expCls = 'explanation' + (isAnswered ? ' visible' : '') + (isAnswered && !state.wasCorrect ? ' wrong-exp' : '');
+    html += '<div class="' + expCls + '" id="explanation-box">' + q.explanation + '</div>';
+
+    // Nav
+    html += '<div class="nav-row">';
+    var prevVisible = currentIndex > 0;
+    html += '<button class="nav-btn prev-btn' + (!prevVisible ? ' hidden-btn' : '') + '" id="btn-prev" ' + (!prevVisible ? 'disabled' : '') + '>&#8592; Zpet</button>';
+    if (isAnswered) {
+      var isLast = currentIndex === questions.length - 1;
+      html += '<button class="nav-btn next-btn" id="btn-next">' + (isLast ? 'Zobrazit vysledky &#8594;' : 'Dalsi &#8594;') + '</button>';
+    } else {
+      html += '<button class="nav-btn next-btn hidden-btn" id="btn-next" disabled>Dalsi &#8594;</button>';
+    }
+    html += '</div>';
+    html += '</div>'; // /card
+
+    app.innerHTML = html;
+
+    // Attach answer listeners
+    if (!isAnswered) {
+      var btns = document.querySelectorAll('.answer-btn');
+      for (var b = 0; b < btns.length; b++) {
+        btns[b].addEventListener('click', onAnswerClick);
+      }
+    }
+
+    var prevBtn = document.getElementById('btn-prev');
+    if (prevBtn && prevVisible) {
+      prevBtn.addEventListener('click', function() {
+        currentIndex--;
+        renderQuiz();
+      });
+    }
+
+    var nextBtn = document.getElementById('btn-next');
+    if (nextBtn && isAnswered) {
+      nextBtn.addEventListener('click', function() {
+        currentIndex++;
+        renderQuiz();
+      });
+    }
+  }
+
+  function onAnswerClick(e) {
+    var btn = e.currentTarget;
+    var idx = parseInt(btn.getAttribute('data-idx'), 10);
+    var q = questions[currentIndex];
+    var state = answered[currentIndex];
+    var chosen = state.shuffledAnswers[idx];
+    var correct = chosen.correct;
+
+    state.chosenIdx = idx;
+    state.wasCorrect = correct;
+    if (correct) score++;
+
+    // Update UI immediately
+    var allBtns = document.querySelectorAll('.answer-btn');
+    for (var i = 0; i < allBtns.length; i++) {
+      allBtns[i].disabled = true;
+      var ans = state.shuffledAnswers[i];
+      if (ans.correct) {
+        allBtns[i].className = 'answer-btn correct';
+      } else if (i === idx) {
+        allBtns[i].className = 'answer-btn wrong';
+      } else {
+        allBtns[i].className = 'answer-btn neutral-disabled';
+      }
+    }
+
+    var expBox = document.getElementById('explanation-box');
+    if (expBox) {
+      expBox.className = 'explanation visible' + (!correct ? ' wrong-exp' : '');
+    }
+
+    // Show next button
+    var navRow = document.querySelector('.nav-row');
+    if (navRow) {
+      var isLast = currentIndex === questions.length - 1;
+      var nextBtnEl = document.getElementById('btn-next');
+      if (nextBtnEl) {
+        nextBtnEl.className = 'nav-btn next-btn';
+        nextBtnEl.disabled = false;
+        nextBtnEl.style.visibility = 'visible';
+        nextBtnEl.textContent = isLast ? 'Zobrazit vysledky \u2192' : 'Dalsi \u2192';
+        nextBtnEl.addEventListener('click', function() {
+          currentIndex++;
+          renderQuiz();
+        });
+      }
+    }
+
+    // Update score badge
+    var badge = document.querySelector('.score-badge');
+    if (badge) badge.textContent = 'Skore: ' + score;
+  }
+
+  function answeredCount() {
+    var c = 0;
+    for (var i = 0; i < answered.length; i++) {
+      if (answered[i] && answered[i].chosenIdx !== null) c++;
+    }
+    return c;
+  }
+
+  function renderResults(app) {
+    var total = questions.length;
+    var pct = Math.round((score / total) * 100);
+    var wrong = total - score;
+    var emoji, title, subtitle;
+    if (pct >= 90) {
+      emoji = '🏆'; title = 'Vynikajici!'; subtitle = 'Perfektni znalost latky.';
+    } else if (pct >= 70) {
+      emoji = '🎉'; title = 'Dobre!'; subtitle = 'Solidni znalosti, mala rezerva.';
+    } else if (pct >= 50) {
+      emoji = '📚'; title = 'Slusny zaklad'; subtitle = 'Vhodne zopakovat slabsi temata.';
+    } else {
+      emoji = '💪'; title = 'Pokracuj!'; subtitle = 'Latka vyzaduje dalsi opakování.';
+    }
+
+    var html = '<div class="results-card">';
+    html += '<div class="results-emoji">' + emoji + '</div>';
+    html += '<div class="results-title">' + title + '</div>';
+    html += '<div class="results-subtitle">' + subtitle + '</div>';
+    html += '<div class="results-big">' + pct + '%</div>';
+    html += '<div class="results-of">' + score + ' ze ' + total + ' otazek spravne</div>';
+    html += '<div class="results-grid">';
+    html += '<div class="stat-box green"><div class="stat-num">' + score + '</div><div class="stat-lbl">Spravne</div></div>';
+    html += '<div class="stat-box red"><div class="stat-num">' + wrong + '</div><div class="stat-lbl">Spatne</div></div>';
+    html += '</div>';
+    html += '<button class="restart-btn" id="restart-btn">Zkusit znovu</button>';
+    html += '</div>';
+
+    app.innerHTML = html;
+
+    document.getElementById('restart-btn').addEventListener('click', function() {
+      init();
+    });
+  }
+
+  init();
+});
+</script>
+</body>
+</html>

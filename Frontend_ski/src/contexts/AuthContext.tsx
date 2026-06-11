@@ -98,7 +98,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   useEffect(() => {
-    let cancelled = false
+    let active = true
     try {
       localStorage.removeItem('user')
     } catch {
@@ -106,30 +106,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const run = async () => {
-      await apiClient.ensureCsrfCookie()
-      const storedUser = sessionStorage.getItem(SESSION_USER_KEY)
-      if (!storedUser) {
-        if (!cancelled) setIsLoading(false)
-        return
-      }
-      let parsed: Record<string, unknown>
       try {
-        parsed = JSON.parse(storedUser) as Record<string, unknown>
-      } catch {
-        sessionStorage.removeItem(SESSION_USER_KEY)
-        if (!cancelled) setIsLoading(false)
-        return
-      }
-      const initial = sessionToUser(parsed)
-      if (!initial) {
-        sessionStorage.removeItem(SESSION_USER_KEY)
-        if (!cancelled) setIsLoading(false)
-        return
-      }
-      if (!cancelled) setUser(initial)
-      apiClient.validateSession()
-        .then((response) => {
-          if (cancelled) return
+        await apiClient.ensureCsrfCookie()
+        const storedUser = sessionStorage.getItem(SESSION_USER_KEY)
+        if (!storedUser) return
+
+        let parsed: Record<string, unknown>
+        try {
+          parsed = JSON.parse(storedUser) as Record<string, unknown>
+        } catch {
+          sessionStorage.removeItem(SESSION_USER_KEY)
+          return
+        }
+        const initial = sessionToUser(parsed)
+        if (!initial) {
+          sessionStorage.removeItem(SESSION_USER_KEY)
+          return
+        }
+        if (active) setUser(initial)
+
+        try {
+          const response = await apiClient.validateSession()
+          if (!active) return
           const updated: User = {
             username: response.username,
             role: initial.role,
@@ -140,22 +138,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
           setUser(updated)
           persistUser(updated)
-        })
-        .catch((err: Error & { status?: number }) => {
-          if (cancelled) return
-          if (err?.status === 401) {
+        } catch (err: unknown) {
+          if (!active) return
+          const status = (err as Error & { status?: number })?.status
+          if (status === 401) {
             setUser(null)
             sessionStorage.removeItem(SESSION_USER_KEY)
           }
-        })
-        .finally(() => {
-          if (!cancelled) setIsLoading(false)
-        })
+        }
+      } catch {
+        if (!active) return
+        setUser(null)
+        sessionStorage.removeItem(SESSION_USER_KEY)
+      } finally {
+        if (active) setIsLoading(false)
+      }
     }
 
     void run()
     return () => {
-      cancelled = true
+      active = false
     }
   }, [])
 

@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMA Kvíz – Teorie čísel & Relace</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f0f4ff;
+  color: #111827;
+  min-height: 100vh;
+  padding: 24px 16px 48px;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  color: #4b5563;
+  margin-top: 6px;
+  font-size: 0.95rem;
+}
+
+/* Progress */
+.progress-wrap {
+  background: #dde3f5;
+  border-radius: 999px;
+  height: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #818cf8);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.score-badge {
+  font-weight: 600;
+  color: #4f46e5;
+}
+
+/* Card */
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  color: #111827;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.category-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.cat-divisibility  { background: #7c3aed; }
+.cat-modulo        { background: #0891b2; }
+.cat-bezout        { background: #059669; }
+.cat-euclid        { background: #d97706; }
+.cat-relations     { background: #dc2626; }
+.cat-induction     { background: #9333ea; }
+.cat-recurrence    { background: #0f766e; }
+
+.question-number {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.question-text {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: #1f2937;
+  margin-bottom: 20px;
+}
+
+/* Answers */
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.answer-btn {
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 13px 16px;
+  text-align: left;
+  font-size: 0.93rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1a1a2e;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  line-height: 1.45;
+}
+
+.answer-btn:not(:disabled):hover {
+  border-color: #818cf8;
+  background: #eef2ff;
+  transform: translateX(2px);
+}
+
+.answer-btn:disabled { cursor: default; }
+
+.answer-btn.correct {
+  background: #d1fae5;
+  border-color: #10b981;
+  color: #065f46;
+}
+
+.answer-btn.wrong {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #7f1d1d;
+}
+
+.answer-btn.correct::after {
+  content: ' ✓';
+  font-weight: 700;
+}
+
+.answer-btn.wrong::after {
+  content: ' ✗';
+  font-weight: 700;
+}
+
+/* Explanation */
+.explanation {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  font-size: 0.875rem;
+  color: #1e3a5f;
+  line-height: 1.55;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.explanation.visible { display: block; }
+
+/* Navigation */
+.nav-row {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.nav-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 2px solid #c7d2fe;
+  background: #eef2ff;
+  color: #3730a3;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #c7d2fe;
+  border-color: #818cf8;
+}
+
+.nav-btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.nav-btn.primary {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #ffffff;
+}
+
+.nav-btn.primary:hover:not(:disabled) {
+  background: #4338ca;
+  border-color: #4338ca;
+}
+
+/* Result screen */
+.result-screen {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  text-align: center;
+  color: #111827;
+  display: none;
+}
+
+.result-emoji {
+  font-size: 3.5rem;
+  margin-bottom: 12px;
+}
+
+.result-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin-bottom: 8px;
+}
+
+.result-sub {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-bottom: 28px;
+}
+
+.result-percent {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #4f46e5;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.result-detail {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 32px;
+}
+
+.result-bar-wrap {
+  background: #e5e7eb;
+  border-radius: 999px;
+  height: 12px;
+  margin: 0 auto 32px;
+  max-width: 360px;
+  overflow: hidden;
+}
+
+.result-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4f46e5, #818cf8);
+}
+
+.restart-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 13px 32px;
+  border-radius: 10px;
+  border: none;
+  background: #4f46e5;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.restart-btn:hover { background: #4338ca; }
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0f0f1a;
+    color: #e5e7eb;
+  }
+
+  .header h1 { color: #c7d2fe; }
+  .header p { color: #9ca3af; }
+
+  .progress-wrap { background: #1e1b4b; }
+
+  .card {
+    background: #1a1a2e;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    color: #e5e7eb;
+  }
+
+  .question-text { color: #e5e7eb; }
+
+  .answer-btn {
+    background: #252540;
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+
+  .answer-btn:not(:disabled):hover {
+    background: #2e2a5e;
+    border-color: #818cf8;
+  }
+
+  .answer-btn.correct {
+    background: #064e3b;
+    border-color: #10b981;
+    color: #a7f3d0;
+  }
+
+  .answer-btn.wrong {
+    background: #450a0a;
+    border-color: #ef4444;
+    color: #fca5a5;
+  }
+
+  .explanation {
+    background: #1e2d4f;
+    border-left-color: #60a5fa;
+    color: #bfdbfe;
+  }
+
+  .nav-btn {
+    background: #1e1b4b;
+    border-color: #4f46e5;
+    color: #a5b4fc;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background: #312e81;
+    border-color: #818cf8;
+  }
+
+  .nav-btn.primary {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    color: #ffffff;
+  }
+
+  .nav-btn.primary:hover:not(:disabled) {
+    background: #4338ca;
+  }
+
+  .result-screen {
+    background: #1a1a2e;
+    color: #e5e7eb;
+  }
+
+  .result-title { color: #c7d2fe; }
+  .result-sub { color: #9ca3af; }
+  .result-percent { color: #818cf8; }
+  .result-detail { color: #6b7280; }
+  .result-bar-wrap { background: #374151; }
+
+  .progress-label { color: #9ca3af; }
+  .score-badge { color: #818cf8; }
+  .question-number { color: #6b7280; }
+}
+
+@media (max-width: 480px) {
+  .card { padding: 20px 16px; }
+  .header h1 { font-size: 1.4rem; }
+  .nav-btn { padding: 9px 14px; font-size: 0.83rem; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>B4B01DMA – Kvíz</h1>
+    <p>Celá čísla, Euklidův algoritmus, Relace, Indukce, Rekurence</p>
+  </div>
+
+  <div id="quiz-area">
+    <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+    <div class="progress-label">
+      <span id="q-counter">Otázka 1 / 24</span>
+      <span class="score-badge" id="score-display">Skóre: 0</span>
+    </div>
+    <div class="card" id="card">
+      <div class="card-top">
+        <span class="category-tag" id="cat-tag"></span>
+        <span class="question-number" id="q-num"></span>
+      </div>
+      <div class="question-text" id="q-text"></div>
+      <div class="answers" id="answers"></div>
+      <div class="explanation" id="explanation"></div>
+      <div class="nav-row">
+        <button class="nav-btn" id="btn-back">&#8592; Zpět</button>
+        <button class="nav-btn primary" id="btn-next" disabled>Další &#8594;</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-screen" id="result-screen">
+    <div class="result-emoji" id="result-emoji"></div>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-sub" id="result-sub"></div>
+    <div class="result-percent" id="result-percent"></div>
+    <div class="result-detail" id="result-detail"></div>
+    <div class="result-bar-wrap"><div class="result-bar" id="result-bar"></div></div>
+    <button class="restart-btn" id="restart-btn">Zkusit znovu</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var RAW_QUESTIONS = [
+    {
+      cat: 'divisibility',
+      catLabel: 'Dělitelnost',
+      catClass: 'cat-divisibility',
+      q: 'Co znamená, že a | b (a dělí b)?',
+      correct: 'Existuje celé číslo k takové, že b = k * a.',
+      wrong: [
+        'Existuje přirozené číslo k takové, že a = k * b.',
+        'Platí a mod b = 0.',
+        'Platí b mod a = 1.'
+      ],
+      exp: 'Definice dělitelnosti: a | b, jestliže existuje k v Z takové, že b = k * a. Všimni si, že k musí být celé (nikoliv jen přirozené) číslo.'
+    },
+    {
+      cat: 'divisibility',
+      catLabel: 'Dělitelnost',
+      catClass: 'cat-divisibility',
+      q: 'Relace dělitelnosti na celých číslech je:',
+      correct: 'Reflexivní, tranzitivní a antisymetrická, ale není symetrická.',
+      wrong: [
+        'Reflexivní, symetrická a tranzitivní (tedy ekvivalence).',
+        'Pouze tranzitivní.',
+        'Symetrická a reflexivní, ale ne tranzitivní.'
+      ],
+      exp: 'Dělitelnost je reflexivní (a | a), tranzitivní (a|b a b|c => a|c) a antisymetrická (a|b a b|a => |a|=|b|). Symetrická není, protože 2 | 6, ale 6 nezvratne 2.'
+    },
+    {
+      cat: 'divisibility',
+      catLabel: 'Dělitelnost',
+      catClass: 'cat-divisibility',
+      q: 'Co platí o gcd(a, 0)?',
+      correct: 'gcd(a, 0) = |a| pro každé a.',
+      wrong: [
+        'gcd(a, 0) = 0 pro každé a.',
+        'gcd(a, 0) = 1 pro každé a != 0.',
+        'gcd(a, 0) neni definovano.'
+      ],
+      exp: 'Každé celé číslo dělí nulu (0 = 0 * a), takže největší společný dělitel a a 0 je |a|. Speciálně gcd(0,0) = 0.'
+    },
+    {
+      cat: 'divisibility',
+      catLabel: 'Dělitelnost',
+      catClass: 'cat-divisibility',
+      q: 'Platí lcm(a, b) * gcd(a, b) = ?',
+      correct: '|a| * |b| pro a, b != 0.',
+      wrong: [
+        'a + b pro všechna a, b.',
+        'gcd(a, b)^2 pro nesoudělná čísla.',
+        'lcm(a, b) - gcd(a, b).'
+      ],
+      exp: 'Vztah lcm(a,b) * gcd(a,b) = |a| * |b| platí pro nenulová celá čísla. Je to užitečná identita propojující LCM a GCD.'
+    },
+    {
+      cat: 'modulo',
+      catLabel: 'Aritmetika mod n',
+      catClass: 'cat-modulo',
+      q: 'Co znamená a ≡ b (mod n)?',
+      correct: 'n dělí (a - b), tedy a a b mají stejný zbytek po dělení n.',
+      wrong: [
+        'a mod b = n.',
+        'a + b je dělitelné n.',
+        'a dělí b v oboru Z_n.'
+      ],
+      exp: 'Kongruence a ≡ b (mod n) je ekvivalentní podmínce n | (a-b), tj. existuje k takové, ze a = b + kn. Důsledkem je, že a a b mají stejný zbytek po dělení n.'
+    },
+    {
+      cat: 'modulo',
+      catLabel: 'Aritmetika mod n',
+      catClass: 'cat-modulo',
+      q: 'Kdy existuje inverzní prvek k číslu a v Z_n?',
+      correct: 'Právě tehdy, když gcd(a, n) = 1.',
+      wrong: [
+        'Vždy, pro každé a a n.',
+        'Právě tehdy, když a je prvočíslo.',
+        'Právě tehdy, když n je prvočíslo.'
+      ],
+      exp: 'Inverze a^{-1} mod n existuje právě tehdy, když a a n jsou nesoudělná (gcd = 1). Pokud mají společného dělitele d > 1, rovnice a*x ≡ 1 (mod n) nemá řešení.'
+    },
+    {
+      cat: 'modulo',
+      catLabel: 'Aritmetika mod n',
+      catClass: 'cat-modulo',
+      q: 'Co je výsledek (17 mod 5)?',
+      correct: '2',
+      wrong: ['3', '1', '0'],
+      exp: '17 = 3 * 5 + 2, takže zbytek po dělení 17 pěti je 2. Formálně 17 mod 5 = 2.'
+    },
+    {
+      cat: 'modulo',
+      catLabel: 'Aritmetika mod n',
+      catClass: 'cat-modulo',
+      q: 'Jestliže a ≡ u (mod n) a b ≡ v (mod n), co platí?',
+      correct: 'a*b ≡ u*v (mod n) a takto i pro sčítání a odčítání.',
+      wrong: [
+        'a*b ≡ u+v (mod n).',
+        'Součin kongruencí nelze kombinovat.',
+        'a*b ≡ u*v (mod n^2).'
+      ],
+      exp: 'V Z_n platí, že operace sčítání, odčítání i násobení jsou kompatibilní s kongruencí: a±b ≡ u±v (mod n) a ab ≡ uv (mod n). Díky tomu Z_n tvoří komutativní okruh.'
+    },
+    {
+      cat: 'modulo',
+      catLabel: 'Aritmetika mod n',
+      catClass: 'cat-modulo',
+      q: 'Malá Fermatova věta: pro prvočíslo p a gcd(a, p) = 1 platí:',
+      correct: 'a^(p-1) ≡ 1 (mod p)',
+      wrong: [
+        'a^p ≡ 0 (mod p)',
+        'a^(p+1) ≡ a (mod p)',
+        'a^(p-1) ≡ a (mod p)'
+      ],
+      exp: 'Mala Fermatova věta rika, ze a^(p-1) ≡ 1 (mod p) pro prvočíslo p a a nesoudělné s p. Využiva se pro rychlý výpočet inverze: a^{-1} ≡ a^{p-2} (mod p).'
+    },
+    {
+      cat: 'bezout',
+      catLabel: 'Bezoutova identita',
+      catClass: 'cat-bezout',
+      q: 'Co tvrdí Bezoutova identita?',
+      correct: 'gcd(a, b) lze zapsat jako alpha*a + beta*b pro celá čísla alpha, beta.',
+      wrong: [
+        'gcd(a, b) = a*b / lcm(a, b).',
+        'Pro každé a, b existuje řešení rovnice a*x + b*y = a*b.',
+        'gcd(a, b) je nejmenší kladné celé číslo dělitelné oběma a a b.'
+      ],
+      exp: 'Bezoutova identita zaručuje existenci celých koeficientu alpha, beta takových, ze gcd(a,b) = alpha*a + beta*b. Priklad: gcd(12,42) = 6 = (-3)*12 + 1*42.'
+    },
+    {
+      cat: 'bezout',
+      catLabel: 'Bezoutova identita',
+      catClass: 'cat-bezout',
+      q: 'Lineární diofantická rovnice ax + by = c má celočíselné řešení právě tehdy, když:',
+      correct: 'c je násobkem gcd(a, b).',
+      wrong: [
+        'c je prvočíslo.',
+        'gcd(a, b) = 1.',
+        'c > a + b.'
+      ],
+      exp: 'Řešení existuje tehdy a jen tehdy, když gcd(a,b) | c. Jinak je rovnice neřešitelná v celých číslech. Tato podmínka přímo vychází z Bezoutovy identity.'
+    },
+    {
+      cat: 'bezout',
+      catLabel: 'Bezoutova identita',
+      catClass: 'cat-bezout',
+      q: 'Jaký tvar mají všechna řešení homogenní rovnice ax + by = 0?',
+      correct: 'x = k * (b/gcd(a,b)), y = -k * (a/gcd(a,b)) pro k v Z.',
+      wrong: [
+        'x = k*a, y = -k*b pro k v Z.',
+        'x = 0, y = 0 (jedine řešení).',
+        'x = gcd(a,b), y = -gcd(a,b).'
+      ],
+      exp: 'Věta o homogenním řešení: všechna celočíselná řešení ax+by=0 jsou tvaru (k*b/d, -k*a/d) pro k v Z, kde d = gcd(a,b). Tato množina tvoří obecné řešení homogenní části.'
+    },
+    {
+      cat: 'euclid',
+      catLabel: 'Euklidův algoritmus',
+      catClass: 'cat-euclid',
+      q: 'Na čem je postaven Euklidův algoritmus pro výpočet gcd(a, b)?',
+      correct: 'Na postupném nahrazování gcd(a, b) = gcd(b, a mod b) dokud zbytek není 0.',
+      wrong: [
+        'Na prvočíselném rozkladu obou čísel.',
+        'Na binárním půlení čísel.',
+        'Na hledání nejmenšího společného násobku.'
+      ],
+      exp: 'Algoritmus využívá vlastnost gcd(a,b) = gcd(b, a mod b). Postupně zmenšujeme čísla, dokud zbytek nedosáhne nuly. Poslední nenulový zbytek je gcd. Složitost je logaritmická.'
+    },
+    {
+      cat: 'euclid',
+      catLabel: 'Euklidův algoritmus',
+      catClass: 'cat-euclid',
+      q: 'Co navíc umí rozšířený Euklidův algoritmus oproti základnímu?',
+      correct: 'Nalezne koeficienty A, B takové, ze A*a + B*b = gcd(a, b) (Bezoutovu identitu).',
+      wrong: [
+        'Vypočítá lcm(a, b) bez nutnosti znát gcd.',
+        'Ověří, zda je číslo prvočíslo.',
+        'Najde největší prvočíselný dělitel.'
+      ],
+      exp: 'Rozšířeny Eukliduv algoritmus vedle gcd vrací i koeficienty Bezoutovy identity. Pracuje s tabulkou trí sloupcu: zbytek r_i a koeficienty x_i, y_i, kde platí r_i = x_i*a + y_i*b.'
+    },
+    {
+      cat: 'euclid',
+      catLabel: 'Euklidův algoritmus',
+      catClass: 'cat-euclid',
+      q: 'Jaká je časová složitost Euklidova algoritmu?',
+      correct: 'Logaritmická – O(log(min(a, b))).',
+      wrong: [
+        'Lineární – O(a + b).',
+        'Kvadratická – O(a * b).',
+        'Konstantní – O(1).'
+      ],
+      exp: 'Díky postupnemu zmenšovani je počet kroku Euklidova algoritmu logaritmicky úměrný vstupním číslum. Je proto velmi efektivní i pro velká čísla.'
+    },
+    {
+      cat: 'relations',
+      catLabel: 'Binární relace',
+      catClass: 'cat-relations',
+      q: 'Co je binární relace R z A do B?',
+      correct: 'Libovolná podmnožina kartézského součinu A × B.',
+      wrong: [
+        'Funkce z A do B.',
+        'Bijekce mezi prvky A a B.',
+        'Ekvivalenční třída na A ∪ B.'
+      ],
+      exp: 'Binární relace je podmnozina kartézského součinu A × B. Píšeme aRb nebo (a,b) ∈ R. Relace je obecnějsi pojem nez funkce – jeden prvek může být ve vztahu s více prvky.'
+    },
+    {
+      cat: 'relations',
+      catLabel: 'Binární relace',
+      catClass: 'cat-relations',
+      q: 'Relace je antisymetrická, jestliže:',
+      correct: 'Pro každé a, b: (aRb a bRa) => a = b.',
+      wrong: [
+        'Pro každé a, b: aRb => bRa.',
+        'Pro žádné a, b: aRb a bRa.',
+        'Pro každé a, b: (aRb nebo bRa).'
+      ],
+      exp: 'Antisymetrie říká, ze pokud jsou oba prvky navzájem v relaci (aRb i bRa), musí jít o tentýž prvek (a = b). Príkladem je relace ≤ na celých číslech.'
+    },
+    {
+      cat: 'relations',
+      catLabel: 'Binární relace',
+      catClass: 'cat-relations',
+      q: 'Která kombinace vlastností definuje ekvivalenci?',
+      correct: 'Reflexivita, symetrie a tranzitivita.',
+      wrong: [
+        'Reflexivita, antisymetrie a tranzitivita.',
+        'Symetrie a tranzitivita (bez reflexivity).',
+        'Pouze symetrie.'
+      ],
+      exp: 'Ekvivalence = reflexivita + symetrie + tranzitivita. Ekvivalence rozděluje množinu na třídy ekvivalence. Příkladem je kongruence modulo n, nebo relace "má stejnou výšku jako".'
+    },
+    {
+      cat: 'relations',
+      catLabel: 'Binární relace',
+      catClass: 'cat-relations',
+      q: 'Co je částečné uspořádání?',
+      correct: 'Relace splňující reflexivitu, antisymetrii a tranzitivitu.',
+      wrong: [
+        'Relace splňující reflexivitu, symetrii a tranzitivitu.',
+        'Relace splňující pouze tranzitivitu.',
+        'Libovolná injektivní relace na množině.'
+      ],
+      exp: 'Částečné usporádání je relace splňující reflexivitu, antisymetrii a tranzitivitu. Příkladem je relace dělitelnosti nebo relace podmnožiny. Dvojice (A, ≤) se nazývá částečně uspořádaná množina.'
+    },
+    {
+      cat: 'relations',
+      catLabel: 'Binární relace',
+      catClass: 'cat-relations',
+      q: 'Co zobrazuje Hasseův diagram?',
+      correct: 'Grafické znázornění částečně uspořádané množiny – hrany spojují prvky bez mezičlánku.',
+      wrong: [
+        'Graf ekvivalenční relace s třídami ekvivalence.',
+        'Grafické znázornění symetrické relace na množině.',
+        'Diagram průchodu Euklidovým algoritmem.'
+      ],
+      exp: 'Hasseův diagram reprezentuje částečné uspořádání tak, ze hrana a→b existuje jen pokud a < b a neexistuje c s a < c < b. Prvky jsou uspořádany vertikálně dle vztahu.'
+    },
+    {
+      cat: 'induction',
+      catLabel: 'Matematická indukce',
+      catClass: 'cat-induction',
+      q: 'Jaké dva kroky jsou nutné ve slabé matematické indukci?',
+      correct: 'Základ indukce V(n_0) a indukční krok: V(n) => V(n+1).',
+      wrong: [
+        'Základ indukce a důkaz sporem pro n+1.',
+        'Základ indukce V(n_0) a V(n_0+1), poté krok o 2.',
+        'Pouze indukční krok; základ není potřeba.'
+      ],
+      exp: 'Slabá indukce vyžaduje: (1) základ – dokázat V(n_0), (2) krok – ukázat, ze V(n) implikuje V(n+1). Tyto dva kroky dohromady dokazují V(n) pro všechna n >= n_0.'
+    },
+    {
+      cat: 'induction',
+      catLabel: 'Matematická indukce',
+      catClass: 'cat-induction',
+      q: 'Čím se liší silná indukce od slabé?',
+      correct: 'V indukčním kroku silné indukce lze předpokládat platnost tvrzení pro všechna k s n_0 <= k <= n, nejen pro n.',
+      wrong: [
+        'Silná indukce prochází n o 2 kroky najednou.',
+        'Silná indukce nepotřebuje základ indukce.',
+        'Silná indukce se používá pouze pro nerovnosti.'
+      ],
+      exp: 'Silná (úplná) indukce: při dokazování V(n+1) smíme predpokládat V(k) pro všechna k od n_0 do n, ne jen V(n). Silná indukce se hodí například při dokazování, ze každé n >= 2 je součinem prvočísel.'
+    },
+    {
+      cat: 'recurrence',
+      catLabel: 'Rekurentní rovnice',
+      catClass: 'cat-recurrence',
+      q: 'Jaký vektorový prostor tvoří řešení homogenní lineární rekurentní rovnice řádu k?',
+      correct: 'Prostor dimenze k – řešení lze generovat k lineárně nezávislými bázovými posloupnostmi.',
+      wrong: [
+        'Prostor dimenze 1 – existuje vždy právě jedno netriviální řešení.',
+        'Prostor dimenze k^2.',
+        'Množina řešení není vektorový prostor.'
+      ],
+      exp: 'Množina všech řešení homogenní lineární rekurentní rovnice řádu k tvoří vektorový prostor dimenze k. Bázi tohoto prostoru tvoří posloupnosti odvozené z kořenů charakteristického polynomu.'
+    },
+    {
+      cat: 'recurrence',
+      catLabel: 'Rekurentní rovnice',
+      catClass: 'cat-recurrence',
+      q: 'Rovnice a_{n+2} - 3*a_{n+1} + 2*a_n = 0 má kořeny lambda_1=1 a lambda_2=2. Jaké je obecné řešení?',
+      correct: 'a_n = alpha * 1^n + beta * 2^n = alpha + beta * 2^n.',
+      wrong: [
+        'a_n = alpha * n + beta.',
+        'a_n = (alpha + beta*n) * 2^n.',
+        'a_n = alpha * 3^n + beta * 2^n.'
+      ],
+      exp: 'Dva ruzné kořeny lambda_1=1 a lambda_2=2 dávají základní posloupnosti 1^n=1 a 2^n. Obecné řešení je jejich lineární kombinace: a_n = alpha + beta*2^n. Prostor řešení je 2-rozměrný.'
+    },
+    {
+      cat: 'recurrence',
+      catLabel: 'Rekurentní rovnice',
+      catClass: 'cat-recurrence',
+      q: 'Kořen lambda = 1 s násobností 2 v charakteristickém polynomu dává do báze řešení:',
+      correct: 'Posloupnosti 1 (= 1^n) a n (= n*1^n).',
+      wrong: [
+        'Posloupnosti 1 a 2^n.',
+        'Pouze posloupnost 1^n = 1.',
+        'Posloupnosti n a n^2.'
+      ],
+      exp: 'Kořen lambda s násobností r přidává do báze r posloupností: lambda^n, n*lambda^n, n^2*lambda^n, ..., n^{r-1}*lambda^n. Pro lambda=1 s násobností 2 jsou to 1 a n, takže obecné řešení je alpha + beta*n.'
+    }
+  ];
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  var questions = shuffle(RAW_QUESTIONS);
+  var total = questions.length;
+
+  // Per-question state: answered, chosenIndex, shuffledOptions
+  var states = [];
+  for (var i = 0; i < total; i++) {
+    states.push({ answered: false, chosen: -1, options: null });
+  }
+
+  var currentIdx = 0;
+  var score = 0;
+
+  var progressBar = document.getElementById('progress-bar');
+  var qCounter = document.getElementById('q-counter');
+  var scoreDisplay = document.getElementById('score-display');
+  var catTag = document.getElementById('cat-tag');
+  var qNum = document.getElementById('q-num');
+  var qText = document.getElementById('q-text');
+  var answersDiv = document.getElementById('answers');
+  var explanationDiv = document.getElementById('explanation');
+  var btnBack = document.getElementById('btn-back');
+  var btnNext = document.getElementById('btn-next');
+  var quizArea = document.getElementById('quiz-area');
+  var resultScreen = document.getElementById('result-screen');
+  var restartBtn = document.getElementById('restart-btn');
+
+  function buildOptions(q) {
+    if (!states[currentIdx].options) {
+      var opts = [
+        { text: q.correct, isCorrect: true },
+        { text: q.wrong[0], isCorrect: false },
+        { text: q.wrong[1], isCorrect: false },
+        { text: q.wrong[2], isCorrect: false }
+      ];
+      states[currentIdx].options = shuffle(opts);
+    }
+    return states[currentIdx].options;
+  }
+
+  function render() {
+    var q = questions[currentIdx];
+    var st = states[currentIdx];
+    var opts = buildOptions(q);
+
+    // Progress
+    var pct = Math.round(((currentIdx) / total) * 100);
+    progressBar.style.width = pct + '%';
+    qCounter.textContent = 'Otázka ' + (currentIdx + 1) + ' / ' + total;
+    scoreDisplay.textContent = 'Skóre: ' + score;
+
+    // Category tag
+    catTag.textContent = q.catLabel;
+    catTag.className = 'category-tag ' + q.catClass;
+    qNum.textContent = '#' + (currentIdx + 1);
+
+    // Question
+    qText.textContent = q.q;
+
+    // Answers
+    answersDiv.innerHTML = '';
+    for (var i = 0; i < opts.length; i++) {
+      (function(idx) {
+        var btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = opts[idx].text;
+        btn.style.color = '#1a1a2e';
+
+        if (st.answered) {
+          btn.disabled = true;
+          if (opts[idx].isCorrect) {
+            btn.classList.add('correct');
+            btn.style.color = '#065f46';
+          } else if (idx === st.chosen) {
+            btn.classList.add('wrong');
+            btn.style.color = '#7f1d1d';
+          }
+        } else {
+          btn.addEventListener('click', function() {
+            handleAnswer(idx);
+          });
+        }
+        answersDiv.appendChild(btn);
+      })(i);
+    }
+
+    // Explanation
+    if (st.answered) {
+      explanationDiv.textContent = q.exp;
+      explanationDiv.classList.add('visible');
+    } else {
+      explanationDiv.textContent = '';
+      explanationDiv.classList.remove('visible');
+    }
+
+    // Navigation buttons
+    btnBack.disabled = (currentIdx === 0);
+
+    if (st.answered) {
+      if (currentIdx < total - 1) {
+        btnNext.disabled = false;
+        btnNext.textContent = 'Dalsi \u2192';
+      } else {
+        btnNext.disabled = false;
+        btnNext.textContent = 'Zobrazit výsledky';
+      }
+    } else {
+      btnNext.disabled = true;
+      btnNext.textContent = 'Dalsi \u2192';
+    }
+
+    // Dark mode color fix for answer buttons
+    var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (isDark) {
+      var btns = answersDiv.querySelectorAll('.answer-btn');
+      for (var b = 0; b < btns.length; b++) {
+        if (!btns[b].classList.contains('correct') && !btns[b].classList.contains('wrong')) {
+          btns[b].style.color = '#e5e7eb';
+        } else if (btns[b].classList.contains('correct')) {
+          btns[b].style.color = '#a7f3d0';
+        } else if (btns[b].classList.contains('wrong')) {
+          btns[b].style.color = '#fca5a5';
+        }
+      }
+    }
+  }
+
+  function handleAnswer(optIdx) {
+    var q = questions[currentIdx];
+    var st = states[currentIdx];
+    var opts = st.options;
+
+    st.answered = true;
+    st.chosen = optIdx;
+
+    if (opts[optIdx].isCorrect) {
+      score++;
+    }
+
+    render();
+  }
+
+  btnNext.addEventListener('click', function() {
+    if (currentIdx < total - 1) {
+      currentIdx++;
+      render();
+    } else {
+      showResult();
+    }
+  });
+
+  btnBack.addEventListener('click', function() {
+    if (currentIdx > 0) {
+      currentIdx--;
+      render();
+    }
+  });
+
+  function showResult() {
+    quizArea.style.display = 'none';
+    resultScreen.style.display = 'block';
+
+    var pct = Math.round((score / total) * 100);
+
+    var emoji, title, sub;
+    if (pct >= 90) {
+      emoji = '\uD83C\uDFC6';
+      title = 'Výborně!';
+      sub = 'Látku ovládáš na jedničku. Jsi připraven na zkoušku!';
+    } else if (pct >= 70) {
+      emoji = '\uD83D\uDE0A';
+      title = 'Dobrá práce!';
+      sub = 'Základ máš solidní – pár detailů ještě opakuj.';
+    } else if (pct >= 50) {
+      emoji = '\uD83D\uDCDA';
+      title = 'Slušný základ';
+      sub = 'Viditelné mezery – doporučuji projít materiál ještě jednou.';
+    } else {
+      emoji = '\uD83D\uDE13';
+      title = 'Je co zlepšovat';
+      sub = 'Zkus projít studijní materiál a kvíz si zopakuj.';
+    }
+
+    document.getElementById('result-emoji').textContent = emoji;
+    document.getElementById('result-title').textContent = title;
+    document.getElementById('result-sub').textContent = sub;
+    document.getElementById('result-percent').textContent = pct + ' %';
+    document.getElementById('result-detail').textContent = 'Správně: ' + score + ' z ' + total + ' otázek';
+    document.getElementById('result-bar').style.width = pct + '%';
+  }
+
+  restartBtn.addEventListener('click', function() {
+    questions = shuffle(RAW_QUESTIONS);
+    states = [];
+    for (var i = 0; i < total; i++) {
+      states.push({ answered: false, chosen: -1, options: null });
+    }
+    currentIdx = 0;
+    score = 0;
+    quizArea.style.display = 'block';
+    resultScreen.style.display = 'none';
+    render();
+  });
+
+  // Dark mode change listener
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+      render();
+    });
+  }
+
+  render();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kviz: Programovani v Jave (B0B36PJV)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f0f4f8;
+    color: #111827;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 24px;
+  }
+
+  .progress-wrap {
+    max-width: 640px;
+    margin: 0 auto 20px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  .progress-bar-bg {
+    background: #d1d5db;
+    border-radius: 99px;
+    height: 10px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+
+  .score-badge {
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1d4ed8;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    max-width: 640px;
+    margin: 0 auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    color: #111827;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .category-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 3px 9px;
+    border-radius: 99px;
+    color: #ffffff;
+    flex-shrink: 0;
+  }
+
+  .q-number {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.55;
+    color: #111827;
+    margin-bottom: 20px;
+  }
+
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #1a1a2e;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.45;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1a1a2e;
+  }
+
+  .answer-btn:disabled {
+    cursor: default;
+  }
+
+  .answer-btn.correct {
+    background: #d1fae5;
+    border-color: #34d399;
+    color: #065f46;
+  }
+
+  .answer-btn.wrong {
+    background: #fee2e2;
+    border-color: #f87171;
+    color: #7f1d1d;
+  }
+
+  .explanation {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #374151;
+    background: #f3f4f6;
+    border-left: 4px solid #2563eb;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .explanation.visible {
+    display: block;
+  }
+
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 4px;
+  }
+
+  .nav-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    color: #ffffff;
+  }
+
+  .nav-btn.back {
+    background: #6b7280;
+    color: #ffffff;
+  }
+  .nav-btn.back:hover:not(:disabled) { background: #4b5563; }
+
+  .nav-btn.next {
+    background: #2563eb;
+    color: #ffffff;
+  }
+  .nav-btn.next:hover:not(:disabled) { background: #1d4ed8; }
+
+  .nav-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* Results screen */
+  .results {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 36px 28px;
+    max-width: 640px;
+    margin: 0 auto;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    text-align: center;
+    color: #111827;
+    display: none;
+  }
+
+  .results.visible { display: block; }
+
+  .results h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  .results .big-score {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 16px 0 4px;
+  }
+
+  .results .score-label {
+    font-size: 1rem;
+    color: #4b5563;
+    margin-bottom: 24px;
+  }
+
+  .results .emoji {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .results .grade-text {
+    font-size: 1.05rem;
+    color: #374151;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .restart-btn {
+    padding: 13px 32px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .restart-btn:hover { background: #1d4ed8; }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    h1 { color: #f1f5f9; }
+    .subtitle { color: #94a3b8; }
+    .progress-header { color: #cbd5e1; }
+    .progress-bar-bg { background: #334155; }
+    .score-badge { color: #93c5fd; }
+    .card {
+      background: #1e293b;
+      color: #f1f5f9;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .q-number { color: #94a3b8; }
+    .question-text { color: #f1f5f9; }
+    .answer-btn {
+      background: #263248;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    .answer-btn:hover:not(:disabled) {
+      background: #1e3a5f;
+      border-color: #3b82f6;
+      color: #e2e8f0;
+    }
+    .answer-btn.correct {
+      background: #064e3b;
+      border-color: #34d399;
+      color: #a7f3d0;
+    }
+    .answer-btn.wrong {
+      background: #450a0a;
+      border-color: #f87171;
+      color: #fca5a5;
+    }
+    .explanation {
+      background: #263248;
+      border-color: #3b82f6;
+      color: #cbd5e1;
+    }
+    .nav-btn.back { background: #4b5563; color: #f1f5f9; }
+    .nav-btn.back:hover:not(:disabled) { background: #6b7280; }
+    .results {
+      background: #1e293b;
+      color: #f1f5f9;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .results h2 { color: #f1f5f9; }
+    .results .score-label { color: #94a3b8; }
+    .results .grade-text { color: #cbd5e1; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Kviz: Programovani v Jave</h1>
+<p class="subtitle">B0B36PJV &mdash; Vlastnosti a koncepce jazyka, OOP principy</p>
+
+<div class="progress-wrap">
+  <div class="progress-header">
+    <span id="prog-label">Otazka 1 z 25</span>
+    <span id="prog-pct">0 %</span>
+  </div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="score-badge" id="score-badge">Skore: 0 / 0</div>
+
+<div class="card" id="quiz-card">
+  <div class="card-top">
+    <span class="category-badge" id="cat-badge"></span>
+    <span class="q-number" id="q-number"></span>
+  </div>
+  <div class="question-text" id="q-text"></div>
+  <div class="answers" id="answers"></div>
+  <div class="explanation" id="explanation"></div>
+  <div class="nav-row">
+    <button class="nav-btn back" id="btn-back" disabled>&#8592; Zpet</button>
+    <button class="nav-btn next" id="btn-next" disabled>Dalsi &#8594;</button>
+  </div>
+</div>
+
+<div class="results" id="results">
+  <span class="emoji" id="res-emoji"></span>
+  <h2>Kviz dokoncen!</h2>
+  <div class="big-score" id="res-score"></div>
+  <div class="score-label" id="res-label"></div>
+  <div class="grade-text" id="res-text"></div>
+  <button class="restart-btn" id="btn-restart">Zkusit znovu</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CATEGORIES = {
+    JVM:   { label: 'JVM & Pamet',    color: '#7c3aed' },
+    OOP:   { label: 'OOP principy',   color: '#0891b2' },
+    COL:   { label: 'Kolekce & enum', color: '#065f46' },
+    INNER: { label: 'Vnitrni tridy',  color: '#b45309' },
+    EXC:   { label: 'Vyjimky',        color: '#b91c1c' },
+    IO:    { label: 'Soubory & IO',   color: '#0369a1' },
+    NET:   { label: 'Sokety & sit',   color: '#6d28d9' },
+    PAR:   { label: 'Paralelismus',   color: '#166534' }
+  };
+
+  var ALL_QUESTIONS = [
+    // --- JVM & Pamet ---
+    {
+      cat: 'JVM',
+      q: 'Co je vysledkem kompilace zdrojoveho souboru .java pomoci javac?',
+      answers: [
+        'Spustitelny nativni binarni soubor pro danou platformu',
+        'Soubor .class obsahujici bytecode nezavisly na platforme',
+        'Soubor .jar obsahujici zdrojovy kod',
+        'XML popis tridy pro JVM'
+      ],
+      correct: 1,
+      exp: 'Prekladac javac prevede .java na .class soubor s bytecode. Bytecode je obecny a neni vazany na konkretni procesorovou architekturu &ndash; JVM ho az za behu prelozi do nativnich instrukci.'
+    },
+    {
+      cat: 'JVM',
+      q: 'Jaka je hlavni odpovedinost Garbage Collectoru (GC) v Jave?',
+      answers: [
+        'Kompilace bytecode do nativnich instrukci',
+        'Automaticka dealokace objektu na heapu, na ktere uz neexistuje zadna reference',
+        'Sprava vlaken a jejich priorit',
+        'Sledovani stavu soketovych spojeni'
+      ],
+      correct: 1,
+      exp: 'GC bezi na pozadi JVM, sleduje vsechny reference na objekty na heapu a ty, na ktere uz zadna reference nevede, automaticky dealokuje. Programator tak nemusi pamet rucne uvolnovat.'
+    },
+    {
+      cat: 'JVM',
+      q: 'Co se uklada na Stack pri kazdem volani metody?',
+      answers: [
+        'Pouze navratova hodnota metody',
+        'Vsechny objekty vytvorene operatorem new',
+        'Aktivni zaznam obsahujici navratovou adresu, parametry a lokalni promenne',
+        'Sdilena staticka data vsech trid'
+      ],
+      correct: 2,
+      exp: 'Pri kazdem volani metody vznikne na stacku aktivni zaznam (stack frame) obsahujici navratovou adresu, parametry metody a lokalni promenne. Po nvratu z metody se zaznam odstrani.'
+    },
+    {
+      cat: 'JVM',
+      q: 'Ktery nastroj z JDK slouzi k prohlizeni bytecode v souboru .class?',
+      answers: [
+        'jconsole',
+        'jvisualvm',
+        'javap',
+        'Java Flight Recorder'
+      ],
+      correct: 2,
+      exp: 'Nastroj javap je disassembler bytecode, ktery umi zobrazit obsah .class souboru. Ostatni nastroje (jconsole, jvisualvm, JFR) slouzi ke sledovani vykonu beziciho JVM.'
+    },
+    {
+      cat: 'JVM',
+      q: 'Jaky je rozdil mezi JDK a JRE?',
+      answers: [
+        'JDK slouzi pouze ke kompilaci, JRE pouze ke spusteni, oba obsahuji JVM',
+        'JRE je nadmnozina JDK',
+        'JDK neobsahuje JVM',
+        'JRE a JDK jsou synonyma pro tutez sadu nastroju'
+      ],
+      correct: 0,
+      exp: 'JDK (Java Development Kit) obsahuje nastroje pro vyvoj vcetne prekladace javac i JVM. JRE (Java Runtime Environment) je podmnozina JDK urcena pouze ke spusteni hotovych programu, take obsahuje JVM.'
+    },
+    // --- OOP ---
+    {
+      cat: 'OOP',
+      q: 'Jaky modifikator pristupu umoznuje pristup pouze v ramci stejneho balicku nebo ze tridy samotne a jeji dedicku?',
+      answers: [
+        'public',
+        'private',
+        'protected',
+        'Zadny modifikator (vychozi/package-private)'
+      ],
+      correct: 2,
+      exp: 'Modifikator protected povoli pristup ze tridy samotne, ze vsech potridedu (dedici) a ze trid ve stejnem balicku. Private omezuje pristup jen na danou tridu.'
+    },
+    {
+      cat: 'OOP',
+      q: 'Co je dynamicka vazba (late binding) v Jave?',
+      answers: [
+        'Metoda se vybira jiz pri kompilaci podle deklarovaneho typu promenne',
+        'Metoda se vybira az za behu programu podle skutecneho (dynamickeho) typu objektu',
+        'Prekladac inline-uje vsechna volani metod pro rychlejsi beh',
+        'Vlakno si vola metodu na sobe samem bez synchronizace'
+      ],
+      correct: 1,
+      exp: 'Dynamicka (pozdni) vazba znamena, ze se konkretni implementace metody vybira az za behu podle reelneho typu objektu, ne podle typu referencni promenne. Toto je zaklad polymorfismu.'
+    },
+    {
+      cat: 'OOP',
+      q: 'Ktery z nasledujicich vyroku o rozhrani (interface) v Jave je NEPRAVDIVY?',
+      answers: [
+        'Trida muze implementovat vice rozhrani soucasne',
+        'Rozhrani muze obsahovat stavove instancni atributy',
+        'Rozhrani definuje sadu metod, ktere musejiprovadejici trida implementovat',
+        'Rozhrani umoznuje vicenarsobnou dedicnost v Jave'
+      ],
+      correct: 1,
+      exp: 'Rozhrani nemohou obsahovat stavove instancni atributy (mohou mit pouze konstanty public static final). Atributy sdruzenymi daty patri do trid, ne do rozhrani.'
+    },
+    {
+      cat: 'OOP',
+      q: 'Co je "diamond problem" a jak jej Java resi?',
+      answers: [
+        'Problem pri deserializaci objektu; Java ho resi serialVersionUID',
+        'Nejednoznacnost pri vicenasobne dedicnosti trid; Java ji resi zakazanim vicenasobne dedicnosti trid a umoznenim vicenasobne implementace rozhrani',
+        'Uniknuti pameti z GC; Java ho resi finalizerem',
+        'Konflikt nazvu promennych v anonymnich tridach; Java ho resi klicovym slovem this'
+      ],
+      correct: 1,
+      exp: 'Diamond problem nastava, kdyz dedic dedi stejnou metodu z vice nadtrid a je nejasne, ktera implementace se pouzije. Java to resi tim, ze neumoznuje vicenasobnou dedicnost trid (jen rozhrani).'
+    },
+    {
+      cat: 'OOP',
+      q: 'Jaky je rozdil mezi prekladenim (overloading) a prepsanim (overriding) metody?',
+      answers: [
+        'Overloading je pro staticke metody, overriding pro instancni',
+        'Overloading meni navratovy typ, overriding meni nazev metody',
+        'Overloading se rozhoduje pri kompilaci (ruzne signatury metody), overriding se rozhoduje za behu (potomek predefinuje metodu rodice)',
+        'Oba pojmy jsou synonymy pro polymorfismus'
+      ],
+      correct: 2,
+      exp: 'Overloading: vice metod se stejnym nazvem a rozdilnymi parametry &ndash; vyber provadi prekladac. Overriding: potomek redefinuje metodu rodice se stejnou signaturou &ndash; vyber provadi JVM za behu podle dynamickeho typu.'
+    },
+    {
+      cat: 'OOP',
+      q: 'Co plati o abstraktni tride v Jave?',
+      answers: [
+        'Abstraktni trida nesmi obsahovat zadne implementovane metody',
+        'Abstraktni trida muze obsahovat jak implementovane, tak abstraktni metody a nelze ji primo instanciovat',
+        'Trida muze dedit od vice abstraktnich trid zaroven',
+        'Abstraktni trida automaticky implementuje vsechna rozhrani bez deklarace'
+      ],
+      correct: 1,
+      exp: 'Abstraktni trida (klic. slovo abstract) muze obsahovat plne implementovane i abstraktni metody, muze mit atributy. Nelze z ni vytvorit instanci. Trida ji dedi pres extends (jen jeden rodic).'
+    },
+    // --- Kolekce & enum ---
+    {
+      cat: 'COL',
+      q: 'Ktera implementace rozhrani List v Jave poskytuje rychly nahodny pristup indexem?',
+      answers: [
+        'LinkedList',
+        'TreeSet',
+        'ArrayList',
+        'HashMap'
+      ],
+      correct: 2,
+      exp: 'ArrayList je zalozena na poli, takze pristup indexem je O(1). LinkedList vyuziva spojovy seznam, pristup indexem je O(n). TreeSet a HashMap jsou implementace Set/Map, ne List.'
+    },
+    {
+      cat: 'COL',
+      q: 'Co se stane, kdyz se pokusime modifikovat kolekci zvenku behem iterace pomoci iteratoru (ne metodou it.remove())?',
+      answers: [
+        'Iterace se restartuje od zacatku',
+        'Modifikace je tise ignorovana',
+        'Vyhodi se vyjimka ConcurrentModificationException',
+        'Iterace skonci na spravne pozici, ale muze vynechat nektere prvky'
+      ],
+      correct: 2,
+      exp: 'Vetsina implementaci kolekcí z java.util sleduje pocitadlo modifikaci. Pokud se kolekce zmeni behem iterace jinak nez volanim it.remove(), iterator to detekuje a vyhodi ConcurrentModificationException.'
+    },
+    {
+      cat: 'COL',
+      q: 'Co jsou genericke typy a jaka je jejich hlavni vyhoda?',
+      answers: [
+        'Typy, ktere umoznuji ukladat pouze primitivni hodnoty',
+        'Parametrizovane typy, ktere zajisuji typovou bezpecnost bez nutnosti rucniho pretypovani',
+        'Specialni typy pro paraleni programovani',
+        'Typ, ktery za behu dynamicky meni svou implementaci'
+      ],
+      correct: 1,
+      exp: 'Genericke typy (napr. List<String>) umoznuji psatobecny kod pro ruzne datove typy a zajistuji typovou kontrolu jiz pri kompilaci. Odpadaji pretypovani a riziko ClassCastException za behu.'
+    },
+    {
+      cat: 'COL',
+      q: 'Co je type erasure v kontextu generik v Jave?',
+      answers: [
+        'GC odstranuji genericke objekty prednostne',
+        'Typove informace generik jsou pri kompilaci odstraneny, za behu tedy nejsou dostupne',
+        'Prekladac nahradi vsechna genericka volani metodou equals()',
+        'Genericke typy nelze pouzit ve statickem kontextu'
+      ],
+      correct: 1,
+      exp: 'Java implementuje generika pres type erasure: typove parametry (<T>, <String> apd.) jsou odstraneny pri kompilaci a za behu je v bytecode jen surovy typ (napr. Object). Proto nelze napsat new T() nebo instanceof T.'
+    },
+    {
+      cat: 'COL',
+      q: 'Jaky je vychozi typ enumu v Jave?',
+      answers: [
+        'Rozhrani (interface)',
+        'Specialni typ primitiva',
+        'Specialni typ tridy (lze pridat konstruktory, metody a pole)',
+        'Potomek tridy java.lang.Number'
+      ],
+      correct: 2,
+      exp: 'Enum je v Jave specialni trida (potomek java.lang.Enum). Lze mu pridat konstruktor, atributy a metody, coz umoznuje napriklad ulozit barvu k jednotlivym hodnotam jako v prikladem se Suit.'
+    },
+    // --- Vnitrni tridy ---
+    {
+      cat: 'INNER',
+      q: 'Jaky je hlavni rozdil mezi statickou a nestatickou vnitrni tridou?',
+      answers: [
+        'Staticka vnitrni trida muze byt final, nestaticka ne',
+        'Nestaticka vnitrni trida ma pristup k instancnim clenum vnejsi tridy; staticka vnitrni trida pristup k instanci vnejsi tridy nema',
+        'Staticka vnitrni trida nemůže implementovat rozhrani',
+        'Nestaticka vnitrni trida se musi kompilovat zvlast'
+      ],
+      correct: 1,
+      exp: 'Nestaticka (instancni) vnitrni trida drzi implicitni referenci na instanci vnejsi tridy a muze pristupovat k jejim clenum vcetne privatnich. Staticka vnitrni trida zadnou takovou referenci nema.'
+    },
+    {
+      cat: 'INNER',
+      q: 'Co je anonymni trida v Jave?',
+      answers: [
+        'Trida bez pristupovych modifikatoru',
+        'Trida, ktera implementuje vice rozhrani najednou',
+        'Bezejemenna trida definovana a instanciova priamo na miste, casto pro jednourazovou implementaci rozhrani',
+        'Trida, jejiz zdrojovy kod je skryty pred kompilaci'
+      ],
+      correct: 2,
+      exp: 'Anonymni trida nema jmeno, je definovana i instanciova inline. Pouziva se pro jednorazove implementace rozhrani nebo rozsireni tridy, typicky pro callbacky a posluchace udalosti.'
+    },
+    {
+      cat: 'INNER',
+      q: 'Ktera z nasledujicich podminek je nutna pro skutecnou imutabilitu objektu?',
+      answers: [
+        'Trida musi byt abstract',
+        'Vsechna pole musi byt public static',
+        'Vsechny atributy musi byt private a final a trida nesmi nabizet metody menici stav',
+        'Objekt nesmi implementovat zadne rozhrani'
+      ],
+      correct: 2,
+      exp: 'Imutabilni objekt: vsechna pole private final, zadne settery ani jine metody menici stav, nevracet reference na vnitrni mutable objekty. Prikladem je trida String v Jave.'
+    },
+    {
+      cat: 'INNER',
+      q: 'Vzor Singleton zajistuje, ze trida ma prave jednu instanci. Co k tomu je nezbytne?',
+      answers: [
+        'Trida musi byt abstract a finalni',
+        'Privatni konstruktor, staticka promenna pro instanci a verejna staticka metoda getInstance()',
+        'Trida musi dedit od java.lang.Object a prepisat metodu clone()',
+        'Vsechny metody musi byt synchronized'
+      ],
+      correct: 1,
+      exp: 'Singleton: (1) privatni konstruktor zabranuji vytvoreni instance zvenci, (2) staticka field drzi jedinou instanci, (3) staticka metoda getInstance() ji vrati. Takto je vzor implementovan v ukazkovem kodu.'
+    },
+    // --- Vyjimky ---
+    {
+      cat: 'EXC',
+      q: 'Jaky je rozdil mezi checked a unchecked vyjimkou v Jave?',
+      answers: [
+        'Checked vyjimky jsou vzdy fatalni, unchecked lze zachytit',
+        'Checked vyjimky musi byt osetreny (try-catch nebo throws), unchecked (RuntimeException) to vynucene neni',
+        'Unchecked vyjimky dedi od Throwable, checked od Error',
+        'Checked vyjimky lze vytvorit jen ve standardni knihovne'
+      ],
+      correct: 1,
+      exp: 'Checked vyjimky (napr. IOException) jsou potomky Exception (ne RuntimeException) a prekladac vynucuje jejich osetreni. Unchecked (napr. NullPointerException) jsou potomky RuntimeException, osetreni neni povinne.'
+    },
+    {
+      cat: 'EXC',
+      q: 'Co zajistuje blok finally v konstrukci try-catch-finally?',
+      answers: [
+        'Provede se pouze v pripade, ze nevznikla zadna vyjimka',
+        'Provede se vzdy, at uz vyjimka vznikla nebo ne, vcetne pripadu, kdy je v try pouzito return',
+        'Provede se jen kdyz je vyjimka zachycena v bloku catch',
+        'Provede se pouze jednou, i kdyz je ve smycce'
+      ],
+      correct: 1,
+      exp: 'Blok finally se provede vzdy po bloku try (a pripadne catch) &ndash; bez ohledu na to, zda nastala vyjimka nebo zda byl proveden return. Slouzi k uvolneni prostredku.'
+    },
+    {
+      cat: 'EXC',
+      q: 'Jakou vyhodu prinasi try-with-resources (od Javy 7)?',
+      answers: [
+        'Umoznuje pouzit vice catch bloku bez finally',
+        'Automaticky zavira prostredky implementujici AutoCloseable po skonceni try bloku, i pri vzniku vyjimky',
+        'Umoznuje zachytit vyjimky bez deklarace throws v signatuze metody',
+        'Zvysuje vykon praci se soubory tim, ze buffruje cteni automaticky'
+      ],
+      correct: 1,
+      exp: 'try-with-resources automaticky vola close() na vsech prostredcich uvedenych v zavorce try(...), i kdyby doslo k vyjimce. Eliminuje potrebu finally bloku pro zavirani souboru ci streamu.'
+    },
+    // --- Soubory & IO ---
+    {
+      cat: 'IO',
+      q: 'Jaky je rozdil mezi bytovymi proudy (InputStream/OutputStream) a znakovymi proudy (Reader/Writer)?',
+      answers: [
+        'Bytove proudy jsou vzdy rychlejsi nez znakove proudy',
+        'Znakove proudy pracuji se znaky a spravne handluji kodovani (napr. UTF-8), bytove proudy pracuji s bajtovymi daty bez interpretace kodovani',
+        'Reader/Writer lze pouzit pouze pro soubory na disku, InputStream/OutputStream pro sit',
+        'Bytove proudy podporuji try-with-resources, znakove ne'
+      ],
+      correct: 1,
+      exp: 'InputStream/OutputStream pracuji s bajtovymi sekvencemi (vhodne pro binarna data &ndash; obrazky, audio). Reader/Writer pracuji se znaky a resi kodovani (UTF-8, atd.), vhodne pro textova data.'
+    },
+    {
+      cat: 'IO',
+      q: 'K cemu slouzi trida RandomAccessFile v Jave?',
+      answers: [
+        'K nahodnemu vyberu radku z textoveho souboru',
+        'K pristupu k souboru na nahodne zvolene misto v souboru (nahodny pristup), moznost cist i zapisovat na libovolnou pozici',
+        'K sifrovani souboru nahodnym klicem',
+        'K paralelnimu cteni souboru z vice vlaken'
+      ],
+      correct: 1,
+      exp: 'RandomAccessFile umoznuje pohybovat se v souboru pomoci metody seek() a cist/zapisovat na libovolne misto, na rozdil od proudu, ktere pracuji sekvenacne.'
+    },
+    {
+      cat: 'IO',
+      q: 'Aby mohl byt objekt serializovan pomoci ObjectOutputStream, co musi jeho trida splnovat?',
+      answers: [
+        'Musi dedit od java.io.File',
+        'Musi implementovat rozhrani Serializable',
+        'Musi byt oznacena jako abstract',
+        'Musi mit vychozi (bezparametricky) konstruktor oznaceny jako public'
+      ],
+      correct: 1,
+      exp: 'Serializace pres ObjectOutputStream vyzaduje, aby trida implementovala znackovaci rozhrani java.io.Serializable. Doporucuje se take definovat serialVersionUID pro kompatibilitu verzí.'
+    },
+    // --- Sokety ---
+    {
+      cat: 'NET',
+      q: 'Ktery protokol pouziva trida Socket / ServerSocket v Jave a jake jsou jeho vlastnosti?',
+      answers: [
+        'UDP &ndash; rychly, nespojovany, bez zaruky doruceni',
+        'TCP &ndash; spojovany, zarucuje doruceni a spravne poradi zprav',
+        'HTTP &ndash; textovy protokol aplikacni vrstvy',
+        'ICMP &ndash; protokol pro diagnostiku site'
+      ],
+      correct: 1,
+      exp: 'Socket a ServerSocket v java.net pracuji nad TCP. TCP navazuje spojeni (handshake), zarucuje doruceni a spravne poradi paketu. Pro UDP se pouziva DatagramSocket.'
+    },
+    {
+      cat: 'NET',
+      q: 'Jaka je sekvence volani na strane serveru pro TCP soket?',
+      answers: [
+        'connect() &rarr; send() &rarr; close()',
+        'create() &rarr; bind() &rarr; listen() &rarr; accept() &rarr; receive/send() &rarr; close()',
+        'open() &rarr; read() &rarr; write() &rarr; flush()',
+        'bind() &rarr; connect() &rarr; accept() &rarr; close()'
+      ],
+      correct: 1,
+      exp: 'Server: vytvori ServerSocket (create+bind), zacne naslouchat (listen), pocka na spojeni (accept), komunikuje (send/receive) a uzavre. Klient: vytvori Socket a zavola connect() na adresu serveru.'
+    },
+    // --- Paralelismus ---
+    {
+      cat: 'PAR',
+      q: 'Jaky je rozdil mezi race condition a deadlockem?',
+      answers: [
+        'Race condition je vzdy fatalni chyba, deadlock je pouze varovani',
+        'Race condition nastava, kdyz vice vlaken pristupuje ke sdilenym datum bez koordinace; deadlock nastava, kdyz vlakna cekaji navzajem na prostredky, ktere drzi druhe vlakno',
+        'Jsou to synonyma pro tentyz problem synchronizace',
+        'Race condition se tyka pouze statickich promennych, deadlock pouze instancnich'
+      ],
+      correct: 1,
+      exp: 'Race condition: nedefinovany vysledek zpusobeny nekontrolovanym soubenym pristupem ke sdilenym datum. Deadlock: kruhove cekani &ndash; vlakno A drzi zamek X a ceka na Y, vlakno B drzi Y a ceka na X.'
+    },
+    {
+      cat: 'PAR',
+      q: 'K cemu slouzi klicove slovo volatile v Jave pri pouziti v kontextu vlaken?',
+      answers: [
+        'Zajistuje, ze promenna je pristupna pouze z jednoho vlakna',
+        'Zakazuje JVM cachovat hodnotu promenne v registru vlakna; vsechna vlakna vzdy ctu aktualni hodnotu z hlavni pameti',
+        'Automaticky synchronizuje blok kodu, ktery s promennou pracuje',
+        'Oznacuje promennou jako finalni a nemennou'
+      ],
+      correct: 1,
+      exp: 'volatile rika JVM, aby neuchovavalo hodnotu promenne v lokalni cache vlakna. Kazde cteni probiha z hlavni pameti, takze zmeny jednoho vlakna jsou ihned viditelne ostatnim. Neposkytuje atomicitu operaci jako inkrementace.'
+    },
+    {
+      cat: 'PAR',
+      q: 'Co je ExecutorService a proc se preferuje pred rucnim vytvarenim vlaken?',
+      answers: [
+        'Je to rozhrani pro vytvareni soketovych spojeni',
+        'Sprava vlakneho poolu &ndash; efektivne recykluje vlakna, omezuje overhead vytvareni a usnadnuje spravnou spravu zivotniho cyklu vlaken',
+        'Nastroj pro sledovani vykonu vlaken v jconsole',
+        'Synchronizacni primitivum nahrazujici synchronized bloky'
+      ],
+      correct: 1,
+      exp: 'ExecutorService (napr. Executors.newFixedThreadPool(4)) spravuje pool vlaken. Misto nakladneho vytvoreni noveho vlakna pro kazdy ukol se pouzije existujici vlakno z poolu. Zjednodusuje submit, shutdown a ziskani vysledku (Future).'
+    },
+    {
+      cat: 'PAR',
+      q: 'Co dela metoda join() pri praci s vlakny v Jave?',
+      answers: [
+        'Spusti vlakno a okamzite vrati rizeni',
+        'Nastavi prioritu vlakna',
+        'Aktualni vlakno pocka (zablokuje se) na dokonceni vlakna, na ktery je join() zavolano',
+        'Slouci dve vlakna do jednoho'
+      ],
+      correct: 2,
+      exp: 'Volani thread.join() zpusobi, ze volajici vlakno se zablokuje a ceka, dokud dano vlakno neskonci svoji metodu run(). Pouziva se kdyz potrebujeme zarucit, ze vlakno dokoncilo svou praci pred pokracovanim.'
+    }
+  ];
+
+  // ---- State ----
+  var questions = [];
+  var current = 0;
+  var score = 0;
+  var answered = 0;
+
+  // per-question state
+  var qState = []; // {answeredIdx: null|number, shuffledAnswers: [...], correct: bool|null}
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function init() {
+    questions = shuffle(ALL_QUESTIONS);
+    current = 0;
+    score = 0;
+    answered = 0;
+    qState = [];
+    for (var i = 0; i < questions.length; i++) {
+      var q = questions[i];
+      // build shuffled answers: [{text, origIdx}]
+      var orig = q.answers.map(function(a, idx) { return {text: a, origIdx: idx}; });
+      var shuffled = shuffle(orig);
+      qState.push({
+        answeredIdx: null,
+        shuffledAnswers: shuffled,
+        isCorrect: null
+      });
+    }
+    document.getElementById('quiz-card').style.display = 'block';
+    document.getElementById('results').classList.remove('visible');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    var q = questions[current];
+    var st = qState[current];
+    var cat = CATEGORIES[q.cat];
+    var total = questions.length;
+
+    // progress
+    var pct = Math.round((answered / total) * 100);
+    document.getElementById('prog-label').textContent = 'Otazka ' + (current + 1) + ' z ' + total;
+    document.getElementById('prog-pct').textContent = pct + ' %';
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('score-badge').textContent = 'Skore: ' + score + ' / ' + answered;
+
+    // badge
+    var badge = document.getElementById('cat-badge');
+    badge.textContent = cat.label;
+    badge.style.background = cat.color;
+
+    document.getElementById('q-number').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('q-text').textContent = q.q;
+
+    // answers
+    var container = document.getElementById('answers');
+    container.innerHTML = '';
+    for (var i = 0; i < st.shuffledAnswers.length; i++) {
+      (function(idx) {
+        var item = st.shuffledAnswers[idx];
+        var btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = item.text;
+
+        if (st.answeredIdx !== null) {
+          btn.disabled = true;
+          if (item.origIdx === q.correct) {
+            btn.classList.add('correct');
+          } else if (idx === st.answeredIdx && item.origIdx !== q.correct) {
+            btn.classList.add('wrong');
+          }
+        } else {
+          btn.addEventListener('click', function() { selectAnswer(idx); });
+        }
+        container.appendChild(btn);
+      })(i);
+    }
+
+    // explanation
+    var expEl = document.getElementById('explanation');
+    if (st.answeredIdx !== null) {
+      expEl.innerHTML = q.exp;
+      expEl.classList.add('visible');
+    } else {
+      expEl.innerHTML = '';
+      expEl.classList.remove('visible');
+    }
+
+    // navigation
+    var btnBack = document.getElementById('btn-back');
+    var btnNext = document.getElementById('btn-next');
+
+    btnBack.disabled = (current === 0);
+
+    if (st.answeredIdx !== null) {
+      if (current === questions.length - 1) {
+        btnNext.textContent = 'Vysledky';
+        btnNext.disabled = false;
+      } else {
+        btnNext.textContent = 'Dalsi \u2192';
+        btnNext.disabled = false;
+      }
+    } else {
+      btnNext.textContent = 'Dalsi \u2192';
+      btnNext.disabled = true;
+    }
+  }
+
+  function selectAnswer(shuffledIdx) {
+    var q = questions[current];
+    var st = qState[current];
+    if (st.answeredIdx !== null) return;
+
+    st.answeredIdx = shuffledIdx;
+    var chosenOrigIdx = st.shuffledAnswers[shuffledIdx].origIdx;
+    st.isCorrect = (chosenOrigIdx === q.correct);
+
+    answered++;
+    if (st.isCorrect) score++;
+
+    renderQuestion();
+  }
+
+  document.getElementById('btn-back').addEventListener('click', function() {
+    if (current > 0) { current--; renderQuestion(); }
+  });
+
+  document.getElementById('btn-next').addEventListener('click', function() {
+    if (current < questions.length - 1) {
+      current++;
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  });
+
+  document.getElementById('btn-restart').addEventListener('click', function() {
+    init();
+  });
+
+  function showResults() {
+    document.getElementById('quiz-card').style.display = 'none';
+    var results = document.getElementById('results');
+    results.classList.add('visible');
+
+    var pct = Math.round((score / questions.length) * 100);
+    document.getElementById('res-score').textContent = pct + '%';
+    document.getElementById('res-label').textContent = score + ' spravnych z ' + questions.length + ' otazek';
+
+    var emoji, text;
+    if (pct >= 90) {
+      emoji = '\uD83C\uDF1F';
+      text = 'Vynikajici! Mate latku pevne v rukach. Java se vas neboji.';
+    } else if (pct >= 75) {
+      emoji = '\uD83D\uDE04';
+      text = 'Skvely vysledek! Drobne mezery jeste zbyvaji, ale zaklad mate solidni.';
+    } else if (pct >= 55) {
+      emoji = '\uD83D\uDE10';
+      text = 'Dobry pokrok. Doporucuji projet otazky, u nichz jste chyboval, a projit si prednaskove materialy.';
+    } else {
+      emoji = '\uD83D\uDCDA';
+      text = 'Nevzdavejte to! Projdete si materialy a zkuste kviz znovu &ndash; kazdym pokusem se zlepsujete.';
+    }
+    document.getElementById('res-emoji').textContent = emoji;
+    document.getElementById('res-text').innerHTML = text;
+
+    // update progress to 100%
+    document.getElementById('prog-label').textContent = 'Hotovo &ndash; ' + questions.length + ' otazek';
+    document.getElementById('prog-pct').textContent = '100 %';
+    document.getElementById('prog-fill').style.width = '100%';
+    document.getElementById('score-badge').textContent = 'Skore: ' + score + ' / ' + questions.length;
+  }
+
+  init();
+});
+</script>
+</body>
+</html>

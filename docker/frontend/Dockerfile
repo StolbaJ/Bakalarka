@@ -20,6 +20,9 @@ COPY . .
 # NEXT_PUBLIC_* se vkládá při buildu – na prod prázdné = same origin (nginx proxy /api)
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+# Proxy /api z Next serveru (SSR) – v Dockeru backend:8080, lokálně localhost:8080
+ARG API_PROXY_TARGET=http://localhost:8080
+ENV API_PROXY_TARGET=$API_PROXY_TARGET
 
 # Next.js collects completely anonymous telemetry data about general usage.
 ENV NEXT_TELEMETRY_DISABLED 1

@@ -65,7 +65,8 @@
     "apiDocs": "API dokumentace",
     "logout": "Odhlásit",
     "login": "Přihlášení",
-    "appName": "Ski Inventory"
+    "appName": "Ski Inventory",
+    "statniZkousky": "Státnicové kvízy"
   },
   "home": {
     "welcome": "Vítejte na servisu",
@@ -74,9 +75,11 @@
     "title": "Ski Inventory Management",
     "subtitle": "Moderní systém pro evidenci a správu inventáře lyží s využitím principů Industry 4.0",
     "statsTotalSkis": "Celkem lyží",
+    "statsInDatabase": "V databázi",
     "statsInService": "V servisu",
-    "statsDoneToday": "Dokončeno dnes",
+    "statsDoneWeek": "Dokončeno",
     "statsAvgTime": "Průměrná doba",
+    "statsLast7d": "Posledních 7 dní",
     "quickActions": "Rychlé akce",
     "scanQr": "Skenovat QR kód",
     "scanQrDesc": "Rychlá identifikace lyží pomocí QR kódu",

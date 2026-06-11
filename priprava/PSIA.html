@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSIA Kviz - Pocitacove site</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    background: #e5e7eb;
+    border-radius: 999px;
+    height: 10px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+
+  /* Card */
+  .card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    color: #111827;
+  }
+
+  .category-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+
+  .cat-osi       { background: #7c3aed; }
+  .cat-fyzicka   { background: #0891b2; }
+  .cat-linkova   { background: #0d9488; }
+  .cat-sitova    { background: #059669; }
+  .cat-transport { background: #d97706; }
+  .cat-arq       { background: #dc2626; }
+  .cat-tcpip     { background: #2563eb; }
+  .cat-ethernet  { background: #db2777; }
+  .cat-wifi      { background: #7c3aed; }
+  .cat-vlan      { background: #65a30d; }
+
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .answer-btn {
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #1a1a2e;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.4;
+  }
+  .answer-btn:hover:not(:disabled) {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1a1a2e;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #14532d;
+  }
+  .answer-btn.wrong {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #7f1d1d;
+  }
+
+  .explanation {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    color: #1e3a5f;
+    line-height: 1.5;
+    display: none;
+  }
+  .explanation.show { display: block; }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .nav-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .nav-btn:hover:not(:disabled) { background: #2563eb; }
+  .nav-btn:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+    cursor: default;
+  }
+  .nav-btn.secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+  }
+  .nav-btn.secondary:hover:not(:disabled) {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  /* Results */
+  .results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #111827;
+  }
+  .results h2 {
+    font-size: 1.6rem;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+  .score-big {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin: 16px 0;
+    color: #111827;
+  }
+  .score-big.great { color: #16a34a; }
+  .score-big.ok    { color: #d97706; }
+  .score-big.low   { color: #dc2626; }
+
+  .result-msg {
+    font-size: 1.05rem;
+    color: #374151;
+    margin-bottom: 28px;
+  }
+  .restart-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .restart-btn:hover { background: #2563eb; }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #111827;
+      color: #f9fafb;
+    }
+    h1 { color: #f9fafb; }
+    .subtitle { color: #9ca3af; }
+    .progress-wrap { background: #374151; }
+    .progress-info { color: #9ca3af; }
+
+    .card {
+      background: #1f2937;
+      color: #f9fafb;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .question-text { color: #f9fafb; }
+
+    .answer-btn {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+    .answer-btn:hover:not(:disabled) {
+      background: #1e3a5f;
+      border-color: #60a5fa;
+      color: #f3f4f6;
+    }
+    .answer-btn.correct {
+      background: #14532d;
+      border-color: #22c55e;
+      color: #dcfce7;
+    }
+    .answer-btn.wrong {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      color: #fee2e2;
+    }
+
+    .explanation {
+      background: #1e3a5f;
+      border-color: #60a5fa;
+      color: #bfdbfe;
+    }
+
+    .nav-btn.secondary {
+      background: #374151;
+      color: #f3f4f6;
+      border-color: #4b5563;
+    }
+    .nav-btn.secondary:hover:not(:disabled) {
+      background: #4b5563;
+      color: #f3f4f6;
+    }
+    .nav-btn:disabled {
+      background: #374151;
+      color: #6b7280;
+    }
+
+    .results { color: #f9fafb; }
+    .results h2 { color: #f9fafb; }
+    .result-msg { color: #d1d5db; }
+    .score-big { color: #f9fafb; }
+    .score-big.great { color: #4ade80; }
+    .score-big.ok    { color: #fbbf24; }
+    .score-big.low   { color: #f87171; }
+  }
+
+  @media (max-width: 520px) {
+    .card { padding: 20px 16px; }
+    h1 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>PSIA Kviz</h1>
+  <p class="subtitle">Pocitacove site a protokoly &mdash; B4B38PSIA</p>
+
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="progress-info">
+    <span id="qCounter">Otazka 1 / 25</span>
+    <span id="scoreCounter">Skore: 0 / 0</span>
+  </div>
+
+  <div class="card" id="quizCard"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var ALL_QUESTIONS = [
+    {
+      cat: 'cat-osi',
+      catLabel: 'ISO/OSI model',
+      q: 'Kolik vrstev ma model ISO/OSI?',
+      answers: [
+        { text: '5', correct: false },
+        { text: '7', correct: true },
+        { text: '4', correct: false },
+        { text: '6', correct: false }
+      ],
+      explanation: 'Model ISO/OSI ma presne 7 vrstev: fyzicka, spojova, sitova, transportni, relacni, prezentacni a aplikacni.'
+    },
+    {
+      cat: 'cat-osi',
+      catLabel: 'ISO/OSI model',
+      q: 'Co je PDU (Protocol Data Unit)?',
+      answers: [
+        { text: 'Data predana vrstvou N+1 vrstvam nize bez jakekoliv upravy', correct: false },
+        { text: 'Datova jednotka vytvorena vrstvou N, ktera obsahuje SDU obalene vlastni hlavickou', correct: true },
+        { text: 'Adresa pro komunikaci mezi dvema sousednimi vrstvami', correct: false },
+        { text: 'Ridici informace ulozene v payloadu ramce', correct: false }
+      ],
+      explanation: 'PDU je datova jednotka vrstvy N, ktera obsahuje SDU (data z N+1) obalene vlastni hlavickou (PCI). Vztah: PDU = PCI + SDU.'
+    },
+    {
+      cat: 'cat-osi',
+      catLabel: 'ISO/OSI model',
+      q: 'Co je multiplexing v kontextu ISO/OSI modelu?',
+      answers: [
+        { text: 'Jedno spojeni vrstvy N je rozdeleno mezi vice spojeni vrstvy N-1', correct: false },
+        { text: 'Velka SDU je rozdelena na vice PDU prenesene oddelene', correct: false },
+        { text: 'Jedno spojeni vrstvy N-1 nese vice spojeni vrstvy N', correct: true },
+        { text: 'Vrstva N pridava hlavicku ke kazdemu bitu dat', correct: false }
+      ],
+      explanation: 'Multiplexing znamena, ze jedno spojeni nizsi vrstvy (N-1) nese vice spojeni vrstvy N. Priklad: vice TCP spojeni bezici pres jednu IP adresu rozlisena porty.'
+    },
+    {
+      cat: 'cat-fyzicka',
+      catLabel: 'Fyzicka vrstva',
+      q: 'Co zajistuje fyzicka vrstva ISO/OSI modelu?',
+      answers: [
+        { text: 'Smerovani paketu mezi sitemi', correct: false },
+        { text: 'Spravni relaci mezi aplikacemi', correct: false },
+        { text: 'Samotny prenos bitu po fyzickem mediu bez interpretace obsahu', correct: true },
+        { text: 'Spolehlivy prenos ramcu mezi primo propojenymi uzly', correct: false }
+      ],
+      explanation: 'Fyzicka vrstva zajistuje fyzicky prenos bitu (symbolu) po mediu - vodicich, optickych vlaknech nebo radiovymi vlnami. Neinterpretuje prenasen data, resuje kodovani, casovani a elektricke parametry.'
+    },
+    {
+      cat: 'cat-fyzicka',
+      catLabel: 'Fyzicka vrstva',
+      q: 'Jaky je rozdil mezi zakladnim pasmem (baseband) a prelozenim pasmem (broadband)?',
+      answers: [
+        { text: 'Baseband prenasi data modulaci na vyssi frekvence, broadband primo jako 0/1', correct: false },
+        { text: 'Baseband prenasi data primo jako 0/1 (napr. Ethernet), broadband moduluje data na vyssi frekvence (napr. Wi-Fi)', correct: true },
+        { text: 'Baseband pouziva opticke vlakno, broadband metalicke kabely', correct: false },
+        { text: 'Baseband je synchronni prenos, broadband je asynchronni', correct: false }
+      ],
+      explanation: 'Zakladni pasmo (baseband) prenasi data primo jako diskretni napetove urovne 0/1, napriklad Ethernet. Prelozene pasmo (broadband) moduluje data na vyssi nosne frekvence, napriklad Wi-Fi.'
+    },
+    {
+      cat: 'cat-linkova',
+      catLabel: 'Spojova vrstva',
+      q: 'Ktera vrstva ISO/OSI pouziva MAC adresy?',
+      answers: [
+        { text: 'Fyzicka vrstva (vrstva 1)', correct: false },
+        { text: 'Sitova vrstva (vrstva 3)', correct: false },
+        { text: 'Transportni vrstva (vrstva 4)', correct: false },
+        { text: 'Spojova vrstva (vrstva 2)', correct: true }
+      ],
+      explanation: 'Spojova vrstva pouziva fyzicke MAC adresy (48bitove) pro adresaci v ramci jednoho fyzickeho segmentu site.'
+    },
+    {
+      cat: 'cat-linkova',
+      catLabel: 'Spojova vrstva',
+      q: 'Jaky je rozdil mezi CSMA/CD a CSMA/CA?',
+      answers: [
+        { text: 'CSMA/CD je pro Wi-Fi, CSMA/CA je pro Ethernet', correct: false },
+        { text: 'CSMA/CD detekuje kolize (Ethernet), CSMA/CA jim predchazi (Wi-Fi)', correct: true },
+        { text: 'CSMA/CD i CSMA/CA jsou jen jina jmena pro stejny protokol', correct: false },
+        { text: 'CSMA/CD se pouziva pro opticka vlakna, CSMA/CA pro metalicke kabely', correct: false }
+      ],
+      explanation: 'CSMA/CD (Collision Detection) pouziva Ethernet - po detekci kolize vysila back-off signal a ceka nahodny cas. CSMA/CA (Collision Avoidance) pouziva Wi-Fi - koliziim se predchazi rezervacnimi mechanismy (RTS/CTS), protoze zarizeni se nemuseji navzajem syset.'
+    },
+    {
+      cat: 'cat-sitova',
+      catLabel: 'Sitova vrstva',
+      q: 'Co je ukolem sitove vrstvy ISO/OSI modelu?',
+      answers: [
+        { text: 'Zajistit spravou relaci mezi aplikacemi', correct: false },
+        { text: 'Preneset ramce mezi dvema primo propojenymi uzly', correct: false },
+        { text: 'Prenest pakety od zdroje k cili, i pres vice ruznych siti', correct: true },
+        { text: 'Zajistit spolehlivy prenos dat pro aplikacni vrstvu', correct: false }
+      ],
+      explanation: 'Sitova vrstva prenasi pakety od zdroje k cili, i kdyz jsou v ruznych sitich a neni mezi nimi prime spojeni. Musi hledat vhodnou cestu pres mezilehla zarizeni (routery). Nejbeznejsim protokolem je IP.'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'Kolika bitova je IPv4 adresa?',
+      answers: [
+        { text: '16 bitu', correct: false },
+        { text: '64 bitu', correct: false },
+        { text: '128 bitu', correct: false },
+        { text: '32 bitu', correct: true }
+      ],
+      explanation: 'IPv4 adresa ma 32 bitu a zapisuje se jako ctyri desetinna cisla oddelena teckami, napr. 192.168.1.1.'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'Co je NAT a proc se pouziva?',
+      answers: [
+        { text: 'Protokol pro auto-konfiguraci IPv6 adres', correct: false },
+        { text: 'Mechanismus pro prenos dat pres vice routeru', correct: false },
+        { text: 'Preklad sit a portu umoznujici vice zarizenim sdilet jednu verejnou IPv4 adresu', correct: true },
+        { text: 'Standard pro sifrovani sit ove komunikace', correct: false }
+      ],
+      explanation: 'NAT (Network Address Translation) se pouziva kvuli vycerpani IPv4 adres. Umoznuje vice zarizenim v interni siti sdilet jednu verejnou IP adresu. NAPT navic prelozi i porty, napr. interni 192.168.1.42:12345 je zvenku viditelna jako 88.1.2.3:50001.'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'Kolika bitova je IPv6 adresa?',
+      answers: [
+        { text: '32 bitu', correct: false },
+        { text: '64 bitu', correct: false },
+        { text: '128 bitu', correct: true },
+        { text: '48 bitu', correct: false }
+      ],
+      explanation: 'IPv6 adresa ma 128 bitu, coz umoznuje pridelit mnohem vice unikatnich adres nez IPv4 (32 bitu). Zapisuje se jako 8 bloku po 4 hexadecimalnich cislicich oddelenymi dvojteckami.'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'K cemu slouzi protokol ARP?',
+      answers: [
+        { text: 'K sifrovani IP komunikace na linkove vrstve', correct: false },
+        { text: 'K prekladu domenowych jmen na IP adresy', correct: false },
+        { text: 'K ziskani MAC adresy z IP adresy v IPv4 siti', correct: true },
+        { text: 'K dynamickemu pridelovani IP adres klientum', correct: false }
+      ],
+      explanation: 'ARP (Address Resolution Protocol) slouzi ke zjisteni MAC adresy k zname IP adrese na linkove vrstve IPv4 siti. Funguje jen v ramci jedne fyzicke site - odesilaji se ARP requesty (broadcast) a cilovy uzel odpoví ARP reply (unicast).'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'Jaky protokol nahrazuje ARP v IPv6 siti?',
+      answers: [
+        { text: 'DHCP', correct: false },
+        { text: 'ICMPv6', correct: false },
+        { text: 'NDP (Neighbor Discovery Protocol)', correct: true },
+        { text: 'DNS', correct: false }
+      ],
+      explanation: 'NDP (Neighbor Discovery Protocol) je IPv6 ekvivalent ARP. Implementuje se pres ICMPv6 zpravy (Router/Neighbor Solicitation a Advertisement) a zajistuje zjisteni linkove adresy souseda, detekci duplicitnich adres a dalsi funkce.'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'Jaka je funkce protokolu ICMP?',
+      answers: [
+        { text: 'Spolehlivy prenos dat pro aplikacni vrstvu', correct: false },
+        { text: 'Diagnostika a hlasen problemu pri zpracovani IP paketu', correct: true },
+        { text: 'Pridelovani IP adres zarizenem v siti', correct: false },
+        { text: 'Preklad domenowych jmen na IP adresy', correct: false }
+      ],
+      explanation: 'ICMP slouzi k hlasen problemu pri zpracovani IP paketu a diagnostice site. Nezajistuje spolehlivost. Pouziti: ping (Echo Request/Reply), traceroute (Time Exceeded), Destination Unreachable apod.'
+    },
+    {
+      cat: 'cat-transport',
+      catLabel: 'Transportni vrstva',
+      q: 'Jaky je hlavni rozdil mezi TCP a UDP?',
+      answers: [
+        { text: 'TCP pracuje na sitove vrstve, UDP na transportni', correct: false },
+        { text: 'TCP garantuje spolehlivy prenos s potvrzovanim, UDP je best-effort bez zaruk', correct: true },
+        { text: 'UDP je novejsi a rychlejsi nahradu TCP pro vsechny ulohy', correct: false },
+        { text: 'TCP nepouziva porty, UDP ano', correct: false }
+      ],
+      explanation: 'TCP je spojovany, spolehlivy protokol - zajistuje sekvencni cislovani, potvrzovani (ACK), opakovan prenosu a rizeni toku. UDP je nespojovany a best-effort, vhodny, kde je dulezita rychlost a nizka latence (VoIP, DNS, streaming).'
+    },
+    {
+      cat: 'cat-transport',
+      catLabel: 'Transportni vrstva',
+      q: 'Co je 3-way handshake v TCP?',
+      answers: [
+        { text: 'Algoritmus pro rizeni zahlceni v TCP siti', correct: false },
+        { text: 'Postup pro ukonceni TCP spojeni', correct: false },
+        { text: 'Mechanismus pro vyber optimalni cesty v siti', correct: false },
+        { text: 'Tri-krokovy postup pro navazani TCP spojeni: SYN, SYN+ACK, ACK', correct: true }
+      ],
+      explanation: '3-way handshake slouzi k navazani TCP spojeni: klient posle SYN, server odpovi SYN+ACK, klient potvrdil ACK. Teprve pak je spojeni navazano a muze probihat prenos dat.'
+    },
+    {
+      cat: 'cat-transport',
+      catLabel: 'Transportni vrstva',
+      q: 'Co dela TCP mechanismus "slow start"?',
+      answers: [
+        { text: 'Pomalu zacinaji novy TCP spojeni, aby nezatezovaly sit', correct: false },
+        { text: 'Exponencialne zvetsuje okno od maleho zacatku pro rychle nalezeni kapacity linky', correct: true },
+        { text: 'Omezuje prenos po detekci 3 duplicitnich ACK', correct: false },
+        { text: 'Linearni zvysovani okna pro vyhnutí se zahlceni', correct: false }
+      ],
+      explanation: 'Slow start zacina s malym oknem, ktere exponencialne roste. Cil je rychle zjistit maximalni prenosovou kapacitu. Po dosazeni prahu (ssthresh) se prepne do congestion avoidance (linearni rust).'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'K cemu slouzi DNS?',
+      answers: [
+        { text: 'K dynamickemu pridelovani IP adres zarizenem v siti', correct: false },
+        { text: 'K prenosu e-mailu pres internet', correct: false },
+        { text: 'K prekladu domenowych jmen na IP adresy a zpet', correct: true },
+        { text: 'K sifrovani sit ove komunikace', correct: false }
+      ],
+      explanation: 'DNS (Domain Name System) zajistuje preklad domenowych jmen (napr. google.com) na IP adresy a zpet. Funguje jako hierarchicky distribuovany system, kde kazda cast domeny je obsluhov ana jinym serverem.'
+    },
+    {
+      cat: 'cat-tcpip',
+      catLabel: 'TCP/IP protokoly',
+      q: 'Co je DHCP a k cemu slouzi?',
+      answers: [
+        { text: 'Protokol pro preklad domenowych jmen na IP adresy', correct: false },
+        { text: 'Protokol pro automaticke pridelovani sit ovych parametru klientum v siti', correct: true },
+        { text: 'Smerovaci protokol pro dynamicke aktualizovani smerovacich tabulek', correct: false },
+        { text: 'Protokol pro bezpecnou autentizaci uzivatelu v siti', correct: false }
+      ],
+      explanation: 'DHCP (Dynamic Host Configuration Protocol) automaticky prideluje sit ove parametry klientum: IP adresu, masku podsit e, vychozi branu, DNS server apod. Bezi nad UDP a pouziva broadcast zpravy.'
+    },
+    {
+      cat: 'cat-arq',
+      catLabel: 'ARQ / Chyby',
+      q: 'Co je Stop-and-Wait ARQ?',
+      answers: [
+        { text: 'Odesilatel udrzuje okno N ramcu; pri ztrate skoci zpet a opakuje od chybneho ramce', correct: false },
+        { text: 'Odesilatel posle jediny ramec a ceka na ACK, nez posle dalsi', correct: true },
+        { text: 'Kazdy ramec se potvrzuje samostatne, odesilatel opakuje jen chybejici kusy', correct: false },
+        { text: 'Redundantni bity umoznuji prijimaci opravit chybu bez opakovan i prenosu', correct: false }
+      ],
+      explanation: 'Stop-and-Wait ARQ: odesilatel posle jeden ramec, zastavi se a ceka na ACK. Pokud neprijde (timeout), posle ramec znovu. Propustnost eta = T(frame) / (T_frame + 2*RTT). Jednoducha implementace, ale nize vyuzit i linky na delsich spojich.'
+    },
+    {
+      cat: 'cat-arq',
+      catLabel: 'ARQ / Chyby',
+      q: 'Co je hlavni nevyhoda Go-back-N ARQ oproti Selective Repeat?',
+      answers: [
+        { text: 'Go-back-N potrebuje vice pameti nez Selective Repeat', correct: false },
+        { text: 'Go-back-N nepouziva potvrzovani, zatimco Selective Repeat ano', correct: false },
+        { text: 'Go-back-N pri ztrate jednoho ramce zbytecne opakuje i ramce, ktere dorazily spravne', correct: true },
+        { text: 'Go-back-N funguje pouze s IPv4, Selective Repeat s IPv6', correct: false }
+      ],
+      explanation: 'Go-back-N: pokud se ztrati ramec i, prijimac zahodi vsechny nasledujici a odesilatel "skoci zpet" a opakuje vse od i dal - i ramce, ktere dorazily spravne. Selective Repeat opakuje pouze skutecne ztracene ramce.'
+    },
+    {
+      cat: 'cat-arq',
+      catLabel: 'ARQ / Chyby',
+      q: 'Kdy se preferuje FEC (Forward Error Correction) pred ARQ?',
+      answers: [
+        { text: 'Kdyz je na linku malo chyb a zalezi na rychlosti', correct: false },
+        { text: 'Kdyz prenosove medium nema zpetny kanal nebo je RTT velmi velke (satelity, DVB)', correct: true },
+        { text: 'Kdyz je sit prehlcena a nelze pouzivat broadcast', correct: false },
+        { text: 'Vzdy, protoze FEC je efektivnejsi nez ARQ', correct: false }
+      ],
+      explanation: 'FEC prida redundantni bity, ktere umoznuji prijimaci opravit chybu bez opakovan i prenosu. Hodi se tam, kde neni zpetny kanal nebo kde je RTT velke (satelity, DVB, streamy). ARQ vyzaduje zpetny kanal pro ACK/NACK.'
+    },
+    {
+      cat: 'cat-ethernet',
+      catLabel: 'Ethernet / LAN',
+      q: 'Jaky je rozdil mezi rozbocovace m (hub) a prepinace m (switch)?',
+      answers: [
+        { text: 'Hub pracuje na linkove vrstve, switch na fyzicke', correct: false },
+        { text: 'Hub i switch fungujuji stejne, lisi se jen rychlosti', correct: false },
+        { text: 'Hub vysila data na vsechny porty (broadcast), switch cilenate posila jen na cilovy port podle MAC adresy', correct: true },
+        { text: 'Switch je zastaraly, hub se dnes pouziva v modernych sitich', correct: false }
+      ],
+      explanation: 'Hub pracuje na fyzicke vrstve a posiladata vsem portum - nevytvari oddelene kolizni domeny, snizuje efektivitu a bezpecnost. Switch pracuje na linkove vrstve, preposila ramce cilenate podle MAC tabulky, oddeli kolizni domeny.'
+    },
+    {
+      cat: 'cat-wifi',
+      catLabel: 'Wi-Fi',
+      q: 'Proc Wi-Fi pouziva CSMA/CA misto CSMA/CD?',
+      answers: [
+        { text: 'Wi-Fi ma vetsi prenosove pasmo, ktere vyzaduje pokrocilejsi protokol', correct: false },
+        { text: 'Bezdraten zarizeni se nemuseji navzajem slyset, takze detekce kolize nefunguje spolehlive', correct: true },
+        { text: 'CSMA/CA je levnejsi na implementaci nez CSMA/CD', correct: false },
+        { text: 'Regulatorni pozadavky EU vyzaduji CSMA/CA pro bezdraten site', correct: false }
+      ],
+      explanation: 'V bezdraten sitich nemusi zarizeni navzajem slyset (problem skrytych uzlu), takze nemohou detekovat kolize spolehlivate jako Ethernet. CSMA/CA proto koliziim predchazi pomoci rezervacnich mechanismu (RTS/CTS) a potvrzovani.'
+    },
+    {
+      cat: 'cat-vlan',
+      catLabel: 'VLAN / Technologie',
+      q: 'Co umoznuje technologie VLAN?',
+      answers: {
+        answers: [
+          { text: 'Fyzicke oddeleni site do vice segmentu pomoci extra kabelaze', correct: false },
+          { text: 'Logicke oddeleni provozu na sdilene fyzicke infrastrukture bez nutnosti fyzickeho oddeleni', correct: true },
+          { text: 'Automaticke pridelovani IP adres v bezdraten sitich', correct: false },
+          { text: 'Zvyseni rychlosti prenosu dat na optickych vlaknech', correct: false }
+        ]
+      }.answers,
+      explanation: 'VLAN (Virtual LAN) umoznuje logicke oddeleni provozu na sdilene fyzicke infrastrukture pomoci VLAN tagu (IEEE 802.1Q). Napr. v jedne firme lze oddelit sit pro zamestnance, tiskarny a navstevniky na stejnem fyzickem prepinaci.'
+    }
+  ];
+
+  // State
+  var questions = [];
+  var current = 0;
+  var score = 0;
+  var answered = 0;
+
+  // Per-question state: { selectedIndex, shuffledAnswers, wasCorrect }
+  var qState = [];
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function init() {
+    questions = shuffle(ALL_QUESTIONS);
+    current = 0;
+    score = 0;
+    answered = 0;
+    qState = new Array(questions.length).fill(null).map(function() {
+      return { selectedIndex: -1, shuffledAnswers: null, wasCorrect: false };
+    });
+    // Pre-shuffle answers for all questions
+    for (var i = 0; i < questions.length; i++) {
+      qState[i].shuffledAnswers = shuffle(questions[i].answers);
+    }
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    var card = document.getElementById('quizCard');
+    var total = questions.length;
+    var q = questions[current];
+    var state = qState[current];
+    var isAnswered = state.selectedIndex >= 0;
+
+    // Update progress
+    document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('qCounter').textContent = 'Otazka ' + (current + 1) + ' / ' + total;
+    document.getElementById('scoreCounter').textContent = 'Skore: ' + score + ' / ' + answered;
+
+    // Build HTML
+    var html = '';
+    html += '<span class="category-badge ' + q.cat + '">' + q.catLabel + '</span>';
+    html += '<div class="question-text">' + escHtml(q.q) + '</div>';
+    html += '<div class="answers" id="answersDiv">';
+    var shuffled = state.shuffledAnswers;
+    for (var i = 0; i < shuffled.length; i++) {
+      var cls = 'answer-btn';
+      if (isAnswered) {
+        if (shuffled[i].correct) cls += ' correct';
+        else if (i === state.selectedIndex) cls += ' wrong';
+      }
+      html += '<button class="' + cls + '"' + (isAnswered ? ' disabled' : '') + ' data-idx="' + i + '">' + escHtml(shuffled[i].text) + '</button>';
+    }
+    html += '</div>';
+    html += '<div class="explanation' + (isAnswered ? ' show' : '') + '" id="explanationDiv">' + escHtml(q.explanation) + '</div>';
+
+    // Navigation buttons
+    html += '<div class="nav-row">';
+    html += '<button class="nav-btn secondary" id="prevBtn"' + (current === 0 ? ' disabled' : '') + '>&larr; Zpet</button>';
+    if (isAnswered && current < questions.length - 1) {
+      html += '<button class="nav-btn" id="nextBtn">Dalsi &rarr;</button>';
+    } else if (isAnswered && current === questions.length - 1) {
+      html += '<button class="nav-btn" id="nextBtn">Zobrazit vysledky</button>';
+    } else {
+      // Not yet answered: next disabled or hidden
+      html += '<button class="nav-btn" id="nextBtn" disabled>Dalsi &rarr;</button>';
+    }
+    html += '</div>';
+
+    card.innerHTML = html;
+
+    // Attach listeners
+    var btns = card.querySelectorAll('.answer-btn');
+    for (var j = 0; j < btns.length; j++) {
+      if (!isAnswered) {
+        btns[j].addEventListener('click', onAnswerClick);
+      }
+    }
+    document.getElementById('prevBtn').addEventListener('click', onPrev);
+    document.getElementById('nextBtn').addEventListener('click', onNext);
+  }
+
+  function onAnswerClick(e) {
+    var idx = parseInt(e.currentTarget.getAttribute('data-idx'), 10);
+    var q = questions[current];
+    var state = qState[current];
+    state.selectedIndex = idx;
+    var correct = state.shuffledAnswers[idx].correct;
+    state.wasCorrect = correct;
+    answered++;
+    if (correct) score++;
+    renderQuestion();
+  }
+
+  function onPrev() {
+    if (current > 0) {
+      current--;
+      renderQuestion();
+    }
+  }
+
+  function onNext() {
+    if (current < questions.length - 1) {
+      current++;
+      renderQuestion();
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults() {
+    var pct = Math.round(score / questions.length * 100);
+    var cls = pct >= 80 ? 'great' : pct >= 50 ? 'ok' : 'low';
+    var msg = pct >= 80 ? 'Vyborne! Materii zvladate skvele.' : pct >= 50 ? 'Dobry vykon! Nektere oblasti si jeste procvicte.' : 'Je co zlepshovat. Projdete si studijni material znovu.';
+
+    var card = document.getElementById('quizCard');
+    var html = '<div class="results">';
+    html += '<h2>Kviz dokoncen!</h2>';
+    html += '<div class="score-big ' + cls + '">' + pct + '%</div>';
+    html += '<div class="result-msg">' + msg + '<br>' + score + ' ze ' + questions.length + ' spravne.</div>';
+    html += '<button class="restart-btn" id="restartBtn">Zkusit znovu</button>';
+    html += '</div>';
+    card.innerHTML = html;
+
+    document.getElementById('progressBar').style.width = '100%';
+    document.getElementById('qCounter').textContent = 'Hotovo!';
+    document.getElementById('scoreCounter').textContent = 'Skore: ' + score + ' / ' + questions.length;
+
+    document.getElementById('restartBtn').addEventListener('click', init);
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  init();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APO Kvíz — Architektura počítače</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #e0ddd5;
+    --text: #1a1916;
+    --text-muted: #6b6860;
+    --accent: #2563c4;
+    --accent-light: #dbeafe;
+    --correct: #15803d;
+    --correct-bg: #dcfce7;
+    --correct-border: #86efac;
+    --wrong: #b91c1c;
+    --wrong-bg: #fee2e2;
+    --wrong-border: #fca5a5;
+    --highlight: #1d4ed8;
+    --progress-bg: #e5e2d8;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141310;
+      --surface: #1e1c19;
+      --surface2: #252320;
+      --border: #2e2c28;
+      --text: #f0ede6;
+      --text-muted: #8a8780;
+      --accent: #4f8df7;
+      --accent-light: #1e3a6e;
+      --correct: #4ade80;
+      --correct-bg: #052e16;
+      --correct-border: #166534;
+      --wrong: #f87171;
+      --wrong-bg: #2d0a0a;
+      --wrong-border: #7f1d1d;
+      --highlight: #93c5fd;
+      --progress-bg: #2e2c28;
+      --shadow: 0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
+    }
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+  }
+
+  .quiz-header {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .quiz-title {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .quiz-subtitle {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -.3px;
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+  }
+
+  .score-display {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .score-display strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 20px;
+  }
+
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--progress-bg);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    transition: width .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* Card */
+  .card {
+    width: 100%;
+    max-width: 720px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .category-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+
+  .tag-arch   { background: #fef9c3; color: #713f12; }
+  .tag-cpu    { background: #fce7f3; color: #831843; }
+  .tag-branch { background: #ede9fe; color: #4c1d95; }
+  .tag-cache  { background: #dbeafe; color: #1e3a8a; }
+  .tag-io     { background: #dcfce7; color: #14532d; }
+
+  @media (prefers-color-scheme: dark) {
+    .tag-arch   { background: #3b2c00; color: #fde68a; }
+    .tag-cpu    { background: #3b0a1f; color: #fbcfe8; }
+    .tag-branch { background: #2e1a5e; color: #ddd6fe; }
+    .tag-cache  { background: #0f2645; color: #bfdbfe; }
+    .tag-io     { background: #052e16; color: #bbf7d0; }
+  }
+
+  .q-number {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .question-text {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.45;
+    margin-bottom: 22px;
+    letter-spacing: -.1px;
+  }
+
+  /* Answer buttons */
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .answer-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-size: 14.5px;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: background .12s, border-color .12s, transform .1s;
+    line-height: 1.4;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .answer-btn:disabled {
+    cursor: default;
+  }
+
+  .answer-btn.correct {
+    background: var(--correct-bg);
+    border-color: var(--correct-border);
+    color: var(--correct);
+    font-weight: 600;
+  }
+
+  .answer-btn.wrong {
+    background: var(--wrong-bg);
+    border-color: var(--wrong-border);
+    color: var(--wrong);
+  }
+
+  .answer-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: var(--border);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    flex-shrink: 0;
+  }
+
+  .answer-btn.correct .answer-letter { background: var(--correct); color: #fff; }
+  .answer-btn.wrong   .answer-letter { background: var(--wrong);   color: #fff; }
+
+  /* Explanation */
+  .explanation {
+    display: none;
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+
+  .explanation.visible { display: block; }
+
+  .explanation strong { color: var(--text); }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    letter-spacing: -.1px;
+  }
+
+  .next-btn.visible { display: inline-flex; align-items: center; gap: 6px; }
+  .next-btn:hover { opacity: .88; transform: translateY(-1px); }
+
+  /* Result screen */
+  .result-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 0 4px;
+  }
+
+  .result-screen.visible { display: flex; }
+
+  .result-emoji { font-size: 56px; margin-bottom: 16px; }
+
+  .result-pct {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .result-label {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+  }
+
+  .result-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 22px;
+    min-width: 100px;
+  }
+
+  .stat-val { font-size: 28px; font-weight: 700; }
+  .stat-lbl { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .stat-box.good .stat-val { color: var(--correct); }
+  .stat-box.bad  .stat-val { color: var(--wrong); }
+
+  .restart-btn {
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .12s;
+  }
+
+  .restart-btn:hover { background: var(--border); }
+
+  /* Question area vs result */
+  #question-area { width: 100%; }
+
+  @media (max-width: 480px) {
+    .card { padding: 20px 16px; }
+    .question-text { font-size: 16px; }
+    .answer-btn { font-size: 13.5px; padding: 11px 13px; }
+    .result-pct { font-size: 44px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-header">
+  <div class="quiz-title">B0B35APO · Kvíz</div>
+  <div class="quiz-subtitle">Architektura počítače; CPU, paměti, subsystémy</div>
+  <div class="meta-row">
+    <div class="score-display">Skóre: <strong id="score-val">0</strong> / <span id="score-total">0</span></div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-labels">
+    <span id="prog-label">Otázka 1 ze 25</span>
+    <span id="prog-pct">0 %</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<div class="card">
+  <div id="question-area">
+    <div class="card-top">
+      <span class="category-tag" id="cat-tag">Architektura</span>
+      <span class="q-number" id="q-number">1 / 25</span>
+    </div>
+    <div class="question-text" id="q-text"></div>
+    <div class="answers" id="answers"></div>
+    <div class="explanation" id="explanation"></div>
+    <button class="next-btn" id="next-btn">Další otázka →</button>
+  </div>
+
+  <div class="result-screen" id="result-screen">
+    <div class="result-emoji" id="result-emoji">🎓</div>
+    <div class="result-pct" id="result-pct">—</div>
+    <div class="result-label" id="result-label">výsledek</div>
+    <div class="result-stats">
+      <div class="stat-box good"><div class="stat-val" id="res-correct">0</div><div class="stat-lbl">Správně</div></div>
+      <div class="stat-box bad"><div class="stat-val" id="res-wrong">0</div><div class="stat-lbl">Špatně</div></div>
+      <div class="stat-box"><div class="stat-val" id="res-total">0</div><div class="stat-lbl">Celkem</div></div>
+    </div>
+    <button class="restart-btn" id="restart-btn">🔄 Spustit znovu</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const ALL_QUESTIONS = [
+  // === ARCHITEKTURA ===
+  {
+    cat: "arch", catLabel: "Architektura",
+    q: "Jaký je hlavní rozdíl mezi von Neumannovou a Harvardskou architekturou?",
+    a: [
+      "Von Neumann má oddělenou paměť pro instrukce a data, Harvardská sdílenou.",
+      "Harvardská architektura má oddělenou paměť pro instrukce a data, von Neumannova sdílenou.",
+      "Von Neumannova architektura nepoužívá sběrnice, Harvardská ano.",
+      "Obě architektury mají identické zapojení, liší se pouze rychlostí."
+    ],
+    correct: 1,
+    exp: "Von Neumannova architektura používá <strong>jednu sdílenou paměť</strong> pro instrukce i data (i jednu sběrnici), což způsobuje bottleneck. Harvardská architektura má fyzicky oddělené paměti i sběrnice, umožňuje paralelní přístup."
+  },
+  {
+    cat: "arch", catLabel: "Architektura",
+    q: "Co je tzv. von Neumannův bottleneck?",
+    a: [
+      "Omezení způsobené tím, že CPU nemůže paralelně číst instrukci a pracovat s daty přes sdílenou sběrnici.",
+      "Přetečení zásobníku při volání rekurzivních funkcí.",
+      "Nedostatek registrů pro zpracování komplexních instrukcí.",
+      "Omezení maximální frekvence procesoru kvůli tepelnému vyzařování."
+    ],
+    correct: 0,
+    exp: "Von Neumannův bottleneck vzniká proto, že instrukce i data sdílí <strong>jednu sběrnici</strong> — CPU musí čekat, protože nemůže zároveň načítat instrukci a přistupovat k datům."
+  },
+  {
+    cat: "arch", catLabel: "Architektura",
+    q: "Co je endianita (byte order)?",
+    a: [
+      "Způsob kódování záporných čísel v binární soustavě.",
+      "Pořadí, ve kterém jsou bajty vícebajtového čísla uloženy v paměti.",
+      "Počet bitů používaných pro mantisu v IEEE 754.",
+      "Mechanismus přístupu k paměti v RISC architektuře."
+    ],
+    correct: 1,
+    exp: "Endianita určuje <strong>pořadí bajtů</strong> při ukládání vícebajtových hodnot. Big endian ukládá nejvýznamnější bajt na nejnižší adresu, little endian naopak. Například hodnota 0x12345678 se v little endian uloží jako 0x78 0x56 0x34 0x12."
+  },
+  {
+    cat: "arch", catLabel: "Architektura",
+    q: "Jaký rozsah hodnot má 8bitový datový typ se znaménkem (signed) v doplňkovém kódu?",
+    a: [
+      "0 až 255",
+      "-127 až 127",
+      "-128 až 127",
+      "-128 až 128"
+    ],
+    correct: 2,
+    exp: "Pro k-bitové two's complement platí rozsah <strong>[−2^(k−1), 2^(k−1)−1]</strong>. Pro k=8 tedy [−128, 127]. Asymetrie vzniká proto, že nula leží v kladné části."
+  },
+  {
+    cat: "arch", catLabel: "Architektura",
+    q: "Jak se v IEEE 754 (32bit float) ukládá exponent?",
+    a: [
+      "Přímo jako číslo v two's complement.",
+      "V aditivním (excess-127) kódu — k skutečnému exponentu se přičte 127.",
+      "Jako absolutní hodnota s extra znaménkovým bitem.",
+      "Jen ve dvojkové soustavě bez jakéhokoli posunu."
+    ],
+    correct: 1,
+    exp: "Exponent se ukládá v <strong>excess-127 kódu</strong>: uložená hodnota = skutečný exponent + 127. Například exponent −1 se uloží jako 126. To umožňuje srovnávat float čísla jako celá čísla unsigned."
+  },
+  {
+    cat: "arch", catLabel: "Architektura",
+    q: "Co reprezentuje hodnota exponentu 11111111 s nenulovou mantisou v IEEE 754?",
+    a: [
+      "Kladné nebo záporné nekonečno podle znaménkového bitu.",
+      "Denormalizované číslo blízké nule.",
+      "NaN — Not a Number, výsledek nedefinované operace.",
+      "Nulu."
+    ],
+    correct: 2,
+    exp: "<strong>Exponent samých jedniček (0xFF) s nenulovou mantisou</strong> označuje NaN (Not a Number) — tedy výsledek operací jako 0/0 nebo odmocnina záporného čísla. Exponent 0xFF s nulovou mantisou je ±∞."
+  },
+  {
+    cat: "arch", catLabel: "Architektura",
+    q: "Jak se v two's complement (doplňkový kód) vytvoří záporné číslo z kladného?",
+    a: [
+      "Pouze se nastaví nejvyšší bit na 1.",
+      "Invertují se všechny bity a výsledek se vydělí dvěma.",
+      "Invertují se všechny bity a přičte se 1.",
+      "Číslo se zapíše zrcadlově bit po bitu."
+    ],
+    correct: 2,
+    exp: "Postup pro two's complement: <strong>invertuj všechny bity</strong> (one's complement) a pak <strong>přičti 1</strong>. Například 6 = 00000110, ~6 = 11111001, +1 = 11111010 = −6."
+  },
+
+  // === CPU ===
+  {
+    cat: "cpu", catLabel: "CPU",
+    q: "Co je hlavní charakteristika RISC architektury oproti CISC?",
+    a: [
+      "RISC má více instrukcí a složitější adresní módy.",
+      "RISC má pevnou délku instrukcí, menší instrukční sadu a ALU operuje pouze s registry.",
+      "RISC umožňuje ALU operacím přistupovat přímo do paměti.",
+      "RISC je označení pro procesory s proměnlivou délkou instrukcí jako x86."
+    ],
+    correct: 1,
+    exp: "RISC (Reduced Instruction Set Computer) se vyznačuje <strong>pevnou délkou instrukcí</strong> (např. 32 bitů), menší sadou jednoduchých instrukcí a tím, že ALU pracuje pouze s registry — žádný přímý přístup do paměti z ALU."
+  },
+  {
+    cat: "cpu", catLabel: "CPU",
+    q: "Jaké jsou fáze klasické pětistupňové pipeline procesoru (v pořadí)?",
+    a: [
+      "IF → EX → ID → MEM → WB",
+      "ID → IF → EX → WB → MEM",
+      "IF → ID → EX → MEM → WB",
+      "IF → ID → MEM → EX → WB"
+    ],
+    correct: 2,
+    exp: "Pětistupňová pipeline: <strong>IF</strong> (Instruction Fetch) → <strong>ID</strong> (Instruction Decode) → <strong>EX</strong> (Execute) → <strong>MEM</strong> (Memory access) → <strong>WB</strong> (Write Back). Toto pořadí je kanonické."
+  },
+  {
+    cat: "cpu", catLabel: "CPU",
+    q: "Co je datový hazard v pipeline procesoru?",
+    a: [
+      "Situace, kdy dvě instrukce přistupují ke stejné paměťové adrese různými typy sběrnic.",
+      "Instrukce potřebuje výsledek předchozí instrukce, který ještě není zapsán do registru.",
+      "Skok, jehož cíl nelze určit dříve než v pozdní fázi pipeline.",
+      "Kolize v cache způsobená dvěma různými procesy."
+    ],
+    correct: 1,
+    exp: "<strong>Datový hazard</strong> nastane, když instrukce závisí na výsledku instrukce před ní, ale výsledek ještě nebyl zapsán. Řeší se buď zastavením pipeline (stall) nebo přeposíláním výsledku (forwarding)."
+  },
+  {
+    cat: "cpu", catLabel: "CPU",
+    q: "Co je forwarding (přeposílání) v pipeline procesoru?",
+    a: [
+      "Přesun instrukce na začátek fronty, aby se zpracovala dříve.",
+      "Předání výsledku přímo z výstupní fáze (EX/MEM/WB) do vstupní fáze příští instrukce bez čekání na zápis do registru.",
+      "Mechanismus pro predikci nepodmíněných skoků.",
+      "Kopírování dat z L1 cache do L2 cache preventivně."
+    ],
+    correct: 1,
+    exp: "<strong>Forwarding</strong> řeší datový hazard tím, že výsledek z fáze EX nebo MEM je předán přímo na vstup fáze EX další instrukce — bez čekání na jeho zápis do registru (WB). Výrazně zrychluje pipeline."
+  },
+  {
+    cat: "cpu", catLabel: "CPU",
+    q: "K čemu slouží registr PC (Program Counter)?",
+    a: [
+      "Uchovává příznak přetečení a výsledek porovnání.",
+      "Uchovává adresu právě prováděné (nebo následující) instrukce.",
+      "Uchovává obsah naposledy přečtené paměťové buňky.",
+      "Slouží jako ukazatel na vrchol zásobníku."
+    ],
+    correct: 1,
+    exp: "<strong>Program Counter (PC)</strong> obsahuje adresu instrukce, která se právě provádí nebo bude provedena jako příští. Po každé instrukci se automaticky inkrementuje (nebo nastaví na adresu skoku)."
+  },
+  {
+    cat: "cpu", catLabel: "CPU",
+    q: "Co je řídicí hazard v pipeline procesoru?",
+    a: [
+      "Hazard způsobený přetečením zásobníku při volání funkcí.",
+      "Situace, kdy nelze v pipe rozhodnout, zda podmíněný skok bude nebo nebude proveden.",
+      "Kolize více instrukcí čekajících na přístup do L1 cache.",
+      "Konflikt při zápisu do stejného registru dvěma instrukcemi najednou."
+    ],
+    correct: 1,
+    exp: "<strong>Řídicí hazard</strong> vzniká u podmíněných skoků — dokud se nespočítá podmínka, nevíme, zda skok nastane. Pipeline mezitím mohla načíst &#8222;špatné&#8220; instrukce. Řeší se predikcí skoků nebo brzkou evaluací podmínky."
+  },
+
+  // === PREDIKCE SKOKŮ ===
+  {
+    cat: "branch", catLabel: "Predikce skoků",
+    q: "Jakou úspěšnost predikce má prediktor BTFNT (Backwards Taken, Forwards Not Taken) oproti prediktoru 'vždy taken'?",
+    a: [
+      "BTFNT má nižší úspěšnost, protože ignoruje historii skoků.",
+      "Obě metody mají stejnou úspěšnost ~60 %.",
+      "BTFNT dosahuje ~73 % oproti ~60 % u 'vždy taken'.",
+      "BTFNT dosahuje ~83 % oproti ~73 % u 'vždy taken'."
+    ],
+    correct: 2,
+    exp: "Prediktor 'vždy taken' dosahuje ~<strong>60 %</strong> úspěšnosti. BTFNT (zpětné skoky = taken, dopředné = not taken) využívá znalost, že zpětné skoky jsou téměř vždy v cyklech, a dosahuje ~<strong>73 %</strong> správných predikcí."
+  },
+  {
+    cat: "branch", catLabel: "Predikce skoků",
+    q: "Co je 2-bitový Smithův prediktor a proč je lepší než 1-bitový?",
+    a: [
+      "Používá 2 bity pro index do tabulky prediktorů, nikoliv 1 bit.",
+      "Má 4 stavy (silně/slabě taken, slabě/silně not taken) a nezmění predikci po jediné chybě.",
+      "Kombinuje dva různé typy statických prediktorů.",
+      "Ukládá 2 poslední adresy skoků místo jedné."
+    ],
+    correct: 1,
+    exp: "2-bitový Smithův prediktor má <strong>4 stavy</strong> jistoty (silně taken, slabě taken, slabě not taken, silně not taken). Po jedné chybné predikci se pouze posune do slabšího stavu, ale nezmění stranu — je tak odolnější vůči výjimkám a dosahuje ~83 % úspěšnosti."
+  },
+  {
+    cat: "branch", catLabel: "Predikce skoků",
+    q: "Co je Branch History Register (BHR) a jak se používá?",
+    a: [
+      "Je to registr uchovávající adresy posledních 8 skoků.",
+      "Registr uchovávající historii výsledků posledních n skoků (0 = neskočilo, 1 = skočilo) pro výběr prediktoru.",
+      "Speciální cache pro instrukce skoků, aby se rychleji dekódovaly.",
+      "Čítač počítající chybné predikce od posledního resetu."
+    ],
+    correct: 1,
+    exp: "<strong>BHR</strong> (Branch History Register) uchovává výsledky posledních n podmíněných skoků jako posuvný registr bitů (1 = taken, 0 = not taken). Spolu s adresou instrukce určuje, který prediktor se použije — korelované prediktory tak reagují na vzorce v chování skoků."
+  },
+  {
+    cat: "branch", catLabel: "Predikce skoků",
+    q: "Jak funguje Gshare prediktor?",
+    a: [
+      "Vybírá mezi dvěma prediktory a pamatuje si, který byl naposledy úspěšnější.",
+      "Index do predikční tabulky se počítá jako XOR mezi BHR a nižšími bity adresy skoku.",
+      "Vždy předpokládá, že skok bude proveden, pokud byl proveden v posledních třech případech.",
+      "Používá neuronovou síť s vahami odvozenými z BHR."
+    ],
+    correct: 1,
+    exp: "<strong>Gshare</strong> počítá index jako <code>BHR XOR PC_lower_bits</code>. XOR rovnoměrněji rozloží přístupy do predikční tabulky a snižuje kolize — různé skoky se stejnou adresou ale různou historií budou mapovány do různých slotů."
+  },
+  {
+    cat: "branch", catLabel: "Predikce skoků",
+    q: "Co je spekulativní vykonávání instrukcí?",
+    a: [
+      "Technika, kdy procesor vykonává instrukce ještě před rozhodnutím o výsledku podmíněného skoku, přičemž v případě chybné predikce je efekt zrušen.",
+      "Předčasné ukládání výsledků do cache před dokončením instrukce.",
+      "Technika, kdy se instrukce přeskakují, pokud pravděpodobnost jejich provedení je pod 50 %.",
+      "Paralelní vykonávání jedné instrukce na více ALU jednotkách pro ověření výsledku."
+    ],
+    correct: 0,
+    exp: "<strong>Spekulativní vykonávání</strong> je technika, kdy procesor provede instrukce za podmíněným skokem ještě než zná výsledek podmínky. Pokud predikce byla správná, výsledky se potvrdí. Pokud chybná, pipeline se vyprázdní (flush) a začne se od správné adresy."
+  },
+
+  // === PAMĚTI / CACHE ===
+  {
+    cat: "cache", catLabel: "Paměti a cache",
+    q: "Jaký je správný pořadník paměťové hierarchie od nejrychlejší po nejpomalejší?",
+    a: [
+      "RAM → L1 cache → Registry → L2 cache → HDD",
+      "Registry → L1 cache → L2 cache → L3 cache → RAM → Disk",
+      "L1 cache → Registry → L2 cache → RAM → L3 cache → Disk",
+      "Registry → RAM → L1 → L2 → L3 → Disk"
+    ],
+    correct: 1,
+    exp: "Správné pořadí od nejrychlejší/nejmenší: <strong>Registry → L1 cache → L2 cache → L3 cache → RAM → Disk</strong>. Čím blíže k procesoru, tím rychlejší, menší a dražší paměť."
+  },
+  {
+    cat: "cache", catLabel: "Paměti a cache",
+    q: "Co je cache miss a jaký je vzorec pro Average Memory Access Time (AMAT)?",
+    a: [
+      "Cache miss = data nejsou v cache; AMAT = HitTime × MissRate",
+      "Cache miss = data nejsou v cache; AMAT = HitTime + MissRate × MissPenalty",
+      "Cache miss = data jsou v cache ale neplatná; AMAT = MissRate / HitTime",
+      "Cache miss = zápisová kolize; AMAT = HitTime − MissPenalty"
+    ],
+    correct: 1,
+    exp: "<strong>Cache miss</strong> nastane, když hledaná data nejsou v cache a musí se načíst z pomalejší paměti. <strong>AMAT = HitTime + MissRate × MissPenalty</strong> — průměrný čas přístupu zahrnuje jak dobu hitu, tak penalizaci za miss škálovanou pravděpodobností."
+  },
+  {
+    cat: "cache", catLabel: "Paměti a cache",
+    q: "Jaký je hlavní rozdíl mezi plně asociativní cache a přímo mapovanou cache?",
+    a: [
+      "Plně asociativní cache je levnější a používá se u HDD řadičů, přímo mapovaná je drahá a jen v CPU.",
+      "V plně asociativní cache může být blok uložen kamkoli; v přímo mapované má každý blok právě jedno místo.",
+      "Přímo mapovaná cache porovnává všechny tagy paralelně, plně asociativní jen jeden.",
+      "Plně asociativní cache nepoužívá tag, přímo mapovaná ano."
+    ],
+    correct: 1,
+    exp: "<strong>Plně asociativní cache</strong>: jakýkoli blok může být uložen kamkoli → maximální flexibilita, ale porovnávání všech tagů je drahé. <strong>Přímo mapovaná cache</strong>: každý blok z RAM má právě jedno místo → levná, ale náchylná na kolize."
+  },
+  {
+    cat: "cache", catLabel: "Paměti a cache",
+    q: "Co je write-back strategie cache a čím se liší od write-through?",
+    a: [
+      "Write-back zapíše data pouze do cache a do RAM až při vyřazení bloku; write-through zapisuje do cache i RAM zároveň.",
+      "Write-back ignoruje zápisové operace; write-through je zpracovává okamžitě.",
+      "Write-back ukládá data na disk; write-through jen do RAM.",
+      "Obě strategie jsou totožné, liší se jen latencí."
+    ],
+    correct: 0,
+    exp: "<strong>Write-back</strong>: data se zapíší pouze do cache, označí se dirty bit, do RAM se propíší až při vyřazení bloku — méně zápisů do RAM. <strong>Write-through</strong>: každý zápis jde do cache i do RAM okamžitě — jednodušší konzistence, ale více provozu na sběrnici."
+  },
+  {
+    cat: "cache", catLabel: "Paměti a cache",
+    q: "Co je N-cestná asociativní cache (N-way set-associative)?",
+    a: [
+      "Cache rozdělená na N fyzicky oddělených bloků bez společného řadiče.",
+      "Cache, kde každý set obsahuje N bloků — blok se mapuje do konkrétního setu, ale uvnitř setu může být v libovolném ze N slotů.",
+      "Cache, která replikuje data N-krát pro odolnost proti chybám.",
+      "Označení pro cache s N různými replacement politikami aktivními současně."
+    ],
+    correct: 1,
+    exp: "<strong>N-cestná asociativní cache</strong> kombinuje výhody obou extrémů: adresa určí, do kterého <em>setu</em> blok patří (jako u přímo mapované), ale uvnitř setu může být v libovolném z N slotů (jako u plně asociativní). Snižuje kolize bez plné ceny plné asociativity."
+  },
+  {
+    cat: "cache", catLabel: "Paměti a cache",
+    q: "Proč jsou denormalizovaná čísla v IEEE 754 pomalá na zpracování?",
+    a: [
+      "Mají dvakrát více bitů mantisy, a tedy delší výpočetní čas.",
+      "Vyžadují speciální hardwarové operace — nemají implicitní skrytou jedničku — a mnoho procesorů je zpracovává v softwaru.",
+      "Jsou uložena v jiné části paměti než normalizovaná čísla.",
+      "Pomalost je způsobena pouze tím, že mají záporný exponent."
+    ],
+    correct: 1,
+    exp: "<strong>Denormalizovaná čísla</strong> (exponent = 0, mantisa ≠ 0) nemají implicitní vedoucí jedničku mantisy (tvar 0.xxxx místo 1.xxxx). Speciální zpracování vyžaduje dodatečné hardwarové nebo softwarové kroky — výpočty s nimi mohou trvat stovky taktů víc než s normalizovanými."
+  },
+
+  // === I/O ===
+  {
+    cat: "io", catLabel: "I/O periferie",
+    q: "Co znamená, že periferie jsou mapované do paměti (memory-mapped I/O)?",
+    a: [
+      "Periferie mají vlastní instrukce (IN/OUT) oddělené od paměťového prostoru.",
+      "Přístup k periferiím se provádí čtením/zápisem na vyhrazené adresy v paměťovém prostoru, nikoli speciálními instrukcemi.",
+      "Data z periferií se automaticky ukládají do L2 cache.",
+      "Každá periferie musí mít vlastní adresovou sběrnici oddělenou od RAM."
+    ],
+    correct: 1,
+    exp: "Memory-mapped I/O: periferie dostane přiřazený rozsah adres v paměťovém prostoru. CPU čte/zapisuje na tyto adresy standardními load/store instrukcemi. Address Decoder pak rozhoduje, ke které periferii přístup patří. RISC-V tento přístup preferuje — nemá speciální I/O instrukce."
+  },
+  {
+    cat: "io", catLabel: "I/O periferie",
+    q: "Jaký je rozdíl mezi half-duplex a full-duplex přenosem?",
+    a: [
+      "Half-duplex přenáší data paralelně, full-duplex sériově.",
+      "Half-duplex umožňuje přenos pouze v jednom směru najednou; full-duplex umožňuje současný přenos v obou směrech.",
+      "Half-duplex je synchronní, full-duplex asynchronní.",
+      "Full-duplex používá dvakrát více vodičů a tedy dvakrát vyšší propustnost než half-duplex vždy."
+    ],
+    correct: 1,
+    exp: "<strong>Half-duplex</strong>: v daný okamžik přenáší data buď jen odesílatel, nebo jen příjemce (nikoli oba najednou) — příklad: klasická PCI sběrnice. <strong>Full-duplex</strong>: obousměrný přenos současně — příklad: PCIe, kde každý link má oddělené TX a RX linky."
+  },
+  {
+    cat: "io", catLabel: "I/O periferie",
+    q: "Jaké jsou hlavní nevýhody paralelní sběrnice PCI oproti sériové PCIe?",
+    a: [
+      "PCI je dražší a rychlejší, zatímco PCIe je levnější a pomalejší.",
+      "PCI je half-duplex, sdílená sběrnice; pomalá periferie brzdí všechny. PCIe je point-to-point full-duplex s mnohem vyšší propustností.",
+      "PCI nepodporuje přerušení, PCIe ano.",
+      "PCI vyžaduje speciální ovladače, PCIe funguje nativně bez ovladačů."
+    ],
+    correct: 1,
+    exp: "Klasická PCI je <strong>paralelní, half-duplex, sdílená sběrnice</strong> (33/66 MHz, max ~528 MB/s). Pomalé zařízení blokuje ostatní. <strong>PCIe</strong> je sériová, point-to-point, full-duplex — každé zařízení má vlastní linky, propustnost se škáluje s počtem linek (×1, ×4, ×8, ×16)."
+  },
+  {
+    cat: "io", catLabel: "I/O periferie",
+    q: "Co je UART a jaký způsob přenosu používá?",
+    a: [
+      "Universal Asynchronous Receiver/Transmitter — asynchronní sériový přenos bez společného hodinového signálu, přijímač a vysílač musí mít shodný baud rate.",
+      "Universal Analog Radio Transmitter — bezdrátový přenos dat krátkého dosahu.",
+      "Synchronní paralelní sběrnice pro propojení procesoru s pamětí.",
+      "Protokol pro přenos dat přes ethernet s chybovou korekcí."
+    ],
+    correct: 0,
+    exp: "<strong>UART</strong> (Universal Asynchronous Receiver/Transmitter) je jedno z nejstarších rozhraní — přenos probíhá sériově, asynchronně (bez hodinového signálu), přes dvě linky TX a RX. Obě strany musí být nastaveny na stejný baud rate (např. 9600 nebo 115200 Bd)."
+  }
+];
+
+// ── State ──────────────────────────────────────────────────────────────────
+let questions = [];
+let current = 0;
+let score = 0;
+let answered = false;
+
+// ── DOM refs ───────────────────────────────────────────────────────────────
+const catTag      = document.getElementById('cat-tag');
+const qNumber     = document.getElementById('q-number');
+const qText       = document.getElementById('q-text');
+const answersEl   = document.getElementById('answers');
+const explanEl    = document.getElementById('explanation');
+const nextBtn     = document.getElementById('next-btn');
+const progressFill= document.getElementById('progress-fill');
+const progLabel   = document.getElementById('prog-label');
+const progPct     = document.getElementById('prog-pct');
+const scoreVal    = document.getElementById('score-val');
+const scoreTotal  = document.getElementById('score-total');
+const questionArea= document.getElementById('question-area');
+const resultScreen= document.getElementById('result-screen');
+const resultPct   = document.getElementById('result-pct');
+const resultLabel = document.getElementById('result-label');
+const resultEmoji = document.getElementById('result-emoji');
+const resCorrect  = document.getElementById('res-correct');
+const resWrong    = document.getElementById('res-wrong');
+const resTotal    = document.getElementById('res-total');
+const restartBtn  = document.getElementById('restart-btn');
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function prepareQuestions() {
+  return shuffle(ALL_QUESTIONS).map(q => {
+    const indexed = q.a.map((text, i) => ({ text, isCorrect: i === q.correct }));
+    const shuffled = shuffle(indexed);
+    return { ...q, shuffled };
+  });
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+const LETTERS = ['A', 'B', 'C', 'D'];
+
+function renderQuestion() {
+  const q = questions[current];
+  answered = false;
+
+  // Category tag
+  catTag.textContent = q.catLabel;
+  catTag.className = 'category-tag tag-' + q.cat;
+
+  // Number
+  qNumber.textContent = `${current + 1} / ${questions.length}`;
+
+  // Question text
+  qText.textContent = q.q;
+
+  // Answers
+  answersEl.innerHTML = '';
+  q.shuffled.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.innerHTML = `<span class="answer-letter">${LETTERS[i]}</span>${opt.text}`;
+    btn.addEventListener('click', () => handleAnswer(opt.isCorrect, i, q));
+    answersEl.appendChild(btn);
+  });
+
+  // Explanation + next btn hidden
+  explanEl.textContent = '';
+  explanEl.className = 'explanation';
+  nextBtn.className = 'next-btn';
+
+  // Progress
+  const pct = Math.round((current / questions.length) * 100);
+  progressFill.style.width = pct + '%';
+  progLabel.textContent = `Otázka ${current + 1} ze ${questions.length}`;
+  progPct.textContent = pct + ' %';
+
+  // Score
+  scoreVal.textContent = score;
+  scoreTotal.textContent = current;
+}
+
+function handleAnswer(isCorrect, clickedIdx, q) {
+  if (answered) return;
+  answered = true;
+
+  if (isCorrect) score++;
+
+  const btns = answersEl.querySelectorAll('.answer-btn');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (q.shuffled[i].isCorrect) {
+      btn.classList.add('correct');
+      btn.querySelector('.answer-letter').textContent = '✓';
+    } else if (i === clickedIdx && !isCorrect) {
+      btn.classList.add('wrong');
+      btn.querySelector('.answer-letter').textContent = '✗';
+    }
+  });
+
+  // Explanation
+  explanEl.innerHTML = q.exp;
+  explanEl.className = 'explanation visible';
+
+  // Next button
+  const isLast = current === questions.length - 1;
+  nextBtn.textContent = isLast ? 'Zobrazit výsledky →' : 'Další otázka →';
+  nextBtn.className = 'next-btn visible';
+
+  // Score
+  scoreVal.textContent = score;
+  scoreTotal.textContent = current + 1;
+
+  // Progress to filled for this question
+  const pct = Math.round(((current + 1) / questions.length) * 100);
+  progressFill.style.width = pct + '%';
+  progPct.textContent = pct + ' %';
+}
+
+function showResult() {
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+
+  questionArea.style.display = 'none';
+  resultScreen.className = 'result-screen visible';
+
+  resultPct.textContent = pct + ' %';
+  resCorrect.textContent = score;
+  resWrong.textContent = total - score;
+  resTotal.textContent = total;
+
+  let emoji, label;
+  if (pct >= 90)      { emoji = '🏆'; label = 'Výborně! Máš to perfektně zvládnuté.'; }
+  else if (pct >= 75) { emoji = '🎓'; label = 'Dobrá práce! Pár mezer ještě zbývá.'; }
+  else if (pct >= 55) { emoji = '📚'; label = 'Slušný základ — zopakuj si slabší oblasti.'; }
+  else                { emoji = '💡'; label = 'Je co dohánět — projdi si materiál znovu.'; }
+
+  resultEmoji.textContent = emoji;
+  resultLabel.textContent = label;
+
+  progLabel.textContent = `Hotovo! ${total} otázek`;
+  progPct.textContent = pct + ' %';
+}
+
+function startQuiz() {
+  questions = prepareQuestions();
+  current = 0;
+  score = 0;
+  answered = false;
+
+  questionArea.style.display = '';
+  resultScreen.className = 'result-screen';
+  scoreVal.textContent = '0';
+  scoreTotal.textContent = '0';
+
+  renderQuestion();
+}
+
+// ── Events ─────────────────────────────────────────────────────────────────
+nextBtn.addEventListener('click', () => {
+  current++;
+  if (current >= questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+});
+
+restartBtn.addEventListener('click', startQuiz);
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+startQuiz();
+}); // DOMContentLoaded
+</script>
+</body>
+</html>

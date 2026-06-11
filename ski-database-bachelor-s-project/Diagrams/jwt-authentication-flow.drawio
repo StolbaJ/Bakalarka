@@ -1,0 +1,216 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0.1 Safari/605.1.15" version="28.2.5">
+  <diagram name="JWT Authentication Flow" id="jwt-flow">
+    <mxGraphModel dx="1426" dy="799" grid="1" gridSize="9" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="frontend" value="Frontend" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+          <mxGeometry x="50" y="50" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="authController" value="AuthController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="200" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="authService" value="AuthService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="360" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="jwtUtils" value="JwtUtils" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="520" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="userDetailsService" value="UserDetailsService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="680" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="userRepository" value="UserRepository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+          <mxGeometry x="840" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="authTokenFilter" value="AuthTokenFilter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="skiController" value="SkiController" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4edda;strokeColor=#28a745;" parent="1" vertex="1">
+          <mxGeometry x="1160" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="JWT Authentication Flow - Spring Boot Backend" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="500" y="10" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="msg1" value="1. POST /api/auth/signin&#xa;{username, password}" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="99" y="153" as="sourcePoint" />
+            <mxPoint x="219" y="153" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg2" value="2. authenticateUser(username, password)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="288" y="180" as="sourcePoint" />
+            <mxPoint x="388" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg3" value="3. loadUserByUsername(username)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;entryX=0.15;entryY=0.091;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" edge="1" target="userDetailsService-activation1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="420" y="210" as="sourcePoint" />
+            <mxPoint x="680" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg4" value="4. findByUsername(username)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="740" y="240" as="sourcePoint" />
+            <mxPoint x="840" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg5" value="5. User entity" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="840" y="270" as="sourcePoint" />
+            <mxPoint x="740" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg6" value="6. UserDetails" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="680" y="300" as="sourcePoint" />
+            <mxPoint x="420" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg7" value="7. generateJwtToken(authentication)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="420" y="330" as="sourcePoint" />
+            <mxPoint x="520" y="330" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg8" value="8. JWT Token" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="520" y="360" as="sourcePoint" />
+            <mxPoint x="420" y="360" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg9" value="9. JWT Token" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="360" y="390" as="sourcePoint" />
+            <mxPoint x="260" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg10" value="10. JWT Response&#xa;{token, user, roles}" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2F5233;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="200" y="420" as="sourcePoint" />
+            <mxPoint x="80" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg11" value="11. GET /api/skis/my-skis&#xa;Authorization: Bearer &lt;token&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry x="0.0356" y="29" width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="80" y="480" as="sourcePoint" />
+            <mxPoint x="1008" y="468" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="513" y="480" />
+              <mxPoint x="513" y="488" />
+              <mxPoint x="972" y="488" />
+              <mxPoint x="972" y="486" />
+              <mxPoint x="1008" y="486" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg12" value="12. parseJwt(request)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="1060" y="510" as="sourcePoint" />
+            <mxPoint x="520" y="510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg13" value="13. validateJwtToken(token)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="520" y="540" as="sourcePoint" />
+            <mxPoint x="1060" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg14" value="14. getUserNameFromJwtToken(token)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="1060" y="570" as="sourcePoint" />
+            <mxPoint x="520" y="570" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg15" value="15. username" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="520" y="600" as="sourcePoint" />
+            <mxPoint x="1060" y="600" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg16" value="16. loadUserByUsername(username)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="1060" y="630" as="sourcePoint" />
+            <mxPoint x="680" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg17" value="17. findByUsername(username)" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="740" y="660" as="sourcePoint" />
+            <mxPoint x="840" y="660" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg18" value="18. User entity" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="840" y="690" as="sourcePoint" />
+            <mxPoint x="740" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg19" value="19. setAuthentication()" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="680" y="720" as="sourcePoint" />
+            <mxPoint x="1060" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg20" value="20. getMySkis()" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="1060" y="750" as="sourcePoint" />
+            <mxPoint x="1160" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg21" value="21. List&lt;Ski&gt;" style="html=1;verticalAlign=bottom;endArrow=block;edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#DC3545;strokeWidth=2;dashed=1;" parent="1" edge="1">
+          <mxGeometry width="200" height="20" relative="1" as="geometry">
+            <mxPoint x="1160" y="780" as="sourcePoint" />
+            <mxPoint x="80" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="frontend-activation1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="60" y="130" width="20" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="authController-activation" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="250" y="140" width="20" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="authService-activation" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="410" y="170" width="20" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="jwtUtils-activation1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="570" y="320" width="20" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="userDetailsService-activation1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="730" y="200" width="20" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="userRepository-activation1" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="890" y="230" width="20" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="frontend-activation2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="60" y="470" width="20" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="authTokenFilter-activation" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="1050" y="470" width="20" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="jwtUtils-activation2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="570" y="500" width="20" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="userDetailsService-activation2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="730" y="620" width="20" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="userRepository-activation2" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="890" y="650" width="20" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="skiController-activation" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d4edda;strokeColor=#28a745;opacity=30;" parent="1" vertex="1">
+          <mxGeometry x="1210" y="740" width="20" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="authSection" value="1. AUTENTIFIKACE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#2F5233;" parent="1" vertex="1">
+          <mxGeometry x="100" y="10" width="150" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="authzSection" value="2. AUTORIZACE A API CALL" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#DC3545;" parent="1" vertex="1">
+          <mxGeometry x="90" y="435" width="200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="note1" value="Poznámky:&lt;br&gt;• JWT token má 24h expiraci&lt;br&gt;• Spring Security automaticky ověřuje tokeny&lt;br&gt;• Všechny API endpointy jsou chráněné&lt;br&gt;• Role-based autorizace (ADMIN, CUSTOMER, TEchnician)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;verticalAlign=top;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="50" y="820" width="300" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

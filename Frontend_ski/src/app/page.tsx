@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { 
   QrCode, 
   Database, 
@@ -13,20 +14,75 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLanguage } from '@/contexts/LanguageContext'
 import OrderLookup from '@/components/OrderLookup'
+import { apiClient, DashboardSummaryResponse } from '@/lib/api'
+
+function formatCount(value: number, locale: string): string {
+  return value.toLocaleString(locale === 'cs' ? 'cs-CZ' : 'en-US')
+}
 
 export default function Home() {
   const { user, loginCustomer, logout } = useAuth()
-  const { t } = useLanguage()
+  const { t, locale } = useLanguage()
+  const [dashboard, setDashboard] = useState<DashboardSummaryResponse | null>(null)
+  const [dashboardLoading, setDashboardLoading] = useState(false)
 
   const handleOrderLookup = async (orderNumberInput: string, phoneInput: string): Promise<boolean> => {
     return loginCustomer(orderNumberInput, phoneInput)
   }
 
+  const isStaff = user?.role === 'ADMIN' || user?.role === 'TECHNICIAN'
+
+  useEffect(() => {
+    if (!isStaff) return
+    let cancelled = false
+    setDashboardLoading(true)
+    apiClient
+      .getDashboardSummary()
+      .then((data) => {
+        if (!cancelled) setDashboard(data)
+      })
+      .catch(() => {
+        if (!cancelled) setDashboard(null)
+      })
+      .finally(() => {
+        if (!cancelled) setDashboardLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [isStaff])
+
   const stats = [
-    { label: t('home.statsTotalSkis'), value: '1,247', icon: Database, color: 'bg-blue-500' },
-    { label: t('home.statsInService'), value: '23', icon: Wrench, color: 'bg-yellow-500' },
-    { label: t('home.statsDoneToday'), value: '15', icon: CheckCircle, color: 'bg-green-500' },
-    { label: t('home.statsAvgTime'), value: '2.5h', icon: Clock, color: 'bg-purple-500' },
+    {
+      label: t('home.statsTotalSkis'),
+      value: dashboardLoading ? '…' : dashboard != null ? formatCount(dashboard.totalSkis, locale) : '–',
+      hint: t('home.statsInDatabase'),
+      icon: Database,
+      color: 'bg-blue-500',
+    },
+    {
+      label: t('home.statsInService'),
+      value: dashboardLoading ? '…' : dashboard != null ? formatCount(dashboard.inService, locale) : '–',
+      hint: t('home.statsLast7d'),
+      icon: Wrench,
+      color: 'bg-yellow-500',
+    },
+    {
+      label: t('home.statsDoneWeek'),
+      value: dashboardLoading ? '…' : dashboard != null ? formatCount(dashboard.completed, locale) : '–',
+      hint: t('home.statsLast7d'),
+      icon: CheckCircle,
+      color: 'bg-green-500',
+    },
+    {
+      label: t('home.statsAvgTime'),
+      value: dashboardLoading
+        ? '…'
+        : dashboard?.averageCompletionHours != null
+          ? `${dashboard.averageCompletionHours} h`
+          : '–',
+      hint: t('home.statsLast7d'),
+      icon: Clock,
+      color: 'bg-purple-500',
+    },
   ]
 
   const quickActions = [
@@ -118,6 +174,9 @@ export default function Home() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">{stat.label}</p>
                     <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    {'hint' in stat && stat.hint && (
+                      <p className="text-xs text-gray-500 mt-0.5">{stat.hint}</p>
+                    )}
                   </div>
                 </div>
               </div>

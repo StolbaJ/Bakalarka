@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kviz B0B36PRP – Programovani v C</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .progress-wrap {
+    width: 100%;
+    max-width: 700px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .progress-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #d1d5db;
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #4f46e5;
+    border-radius: 99px;
+    transition: width 0.3s ease;
+  }
+
+  .progress-label {
+    font-size: 0.82rem;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+
+  .score-bar {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: #374151;
+  }
+
+  .score-val { font-weight: 700; color: #111827; }
+
+  .card {
+    width: 100%;
+    max-width: 700px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    color: #111827;
+  }
+
+  .category-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+
+  .cat-ridici   { background: #7c3aed; }
+  .cat-dekomp   { background: #0891b2; }
+  .cat-typy     { background: #b45309; }
+  .cat-pole     { background: #be185d; }
+  .cat-adt      { background: #166534; }
+  .cat-stromy   { background: #b91c1c; }
+  .cat-halda    { background: #0f766e; }
+  .cat-dijkstra { background: #1d4ed8; }
+  .cat-pamet    { background: #9333ea; }
+
+  .question-text {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .answer-btn {
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: border-color 0.15s, background 0.15s;
+    line-height: 1.45;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    border-color: #a5b4fc;
+    background: #eef2ff;
+  }
+
+  .answer-btn:disabled {
+    cursor: default;
+  }
+
+  .answer-btn.correct {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #14532d;
+  }
+
+  .answer-btn.wrong {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #7f1d1d;
+  }
+
+  .explanation {
+    background: #f0f9ff;
+    border-left: 4px solid #38bdf8;
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    color: #0c4a6e;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .explanation.visible { display: block; }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .nav-btn {
+    padding: 10px 22px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: opacity 0.15s;
+  }
+
+  .nav-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .btn-back  { background: #6b7280; color: #ffffff; }
+  .btn-next  { background: #4f46e5; color: #ffffff; }
+  .btn-finish { background: #10b981; color: #ffffff; }
+
+  .nav-btn:not(:disabled):hover { opacity: 0.85; }
+
+  /* Result screen */
+  .result-screen {
+    width: 100%;
+    max-width: 700px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 36px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    text-align: center;
+    color: #111827;
+    display: none;
+  }
+
+  .result-screen.visible { display: block; }
+
+  .result-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+
+  .result-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  .result-pct {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #4f46e5;
+    margin-bottom: 6px;
+  }
+
+  .result-sub {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 24px;
+  }
+
+  .restart-btn {
+    padding: 12px 32px;
+    background: #4f46e5;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .restart-btn:hover { opacity: 0.88; }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    body { background: #111827; color: #f9fafb; }
+    h1 { color: #f9fafb; }
+    .subtitle { color: #9ca3af; }
+    .progress-bar-bg { background: #374151; }
+    .progress-label { color: #9ca3af; }
+    .score-bar { color: #d1d5db; }
+    .score-val { color: #f9fafb; }
+    .card { background: #1f2937; box-shadow: 0 2px 16px rgba(0,0,0,0.4); color: #f9fafb; }
+    .question-text { color: #f9fafb; }
+    .answer-btn {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+    .answer-btn:hover:not(:disabled) {
+      border-color: #818cf8;
+      background: #312e81;
+      color: #e0e7ff;
+    }
+    .answer-btn.correct { background: #14532d; border-color: #22c55e; color: #dcfce7; }
+    .answer-btn.wrong   { background: #7f1d1d; border-color: #ef4444; color: #fee2e2; }
+    .explanation { background: #0c4a6e; border-color: #38bdf8; color: #bae6fd; }
+    .btn-back  { background: #4b5563; color: #f9fafb; }
+    .btn-next  { background: #4f46e5; color: #ffffff; }
+    .btn-finish { background: #059669; color: #ffffff; }
+    .result-screen { background: #1f2937; color: #f9fafb; }
+    .result-title { color: #f9fafb; }
+    .result-sub { color: #9ca3af; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Kviz – B0B36PRP</h1>
+<p class="subtitle">Programovani v C · Abstraktni datove typy a spojove struktury</p>
+
+<div class="progress-wrap">
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <span class="progress-label" id="progressLabel">0 / 30</span>
+</div>
+
+<div class="score-bar">
+  <span>Spravnych odpovedi: <span class="score-val" id="scoreDisplay">0</span></span>
+  <span id="questionCounter" style="color:#6b7280;">Otazka 1 z 30</span>
+</div>
+
+<div class="card" id="quizCard">
+  <div id="categoryBadge" class="category-badge"></div>
+  <div class="question-text" id="questionText"></div>
+  <div class="answers" id="answersContainer"></div>
+  <div class="explanation" id="explanation"></div>
+  <div class="nav-row">
+    <button class="nav-btn btn-back" id="btnBack">&#8592; Zpet</button>
+    <button class="nav-btn btn-next" id="btnNext" style="display:none;">Dalsi &#8594;</button>
+    <button class="nav-btn btn-finish" id="btnFinish" style="display:none;">Zobrazit vysledek</button>
+  </div>
+</div>
+
+<div class="result-screen" id="resultScreen">
+  <div class="result-emoji" id="resultEmoji"></div>
+  <div class="result-title" id="resultTitle"></div>
+  <div class="result-pct" id="resultPct"></div>
+  <div class="result-sub" id="resultSub"></div>
+  <button class="restart-btn" id="restartBtn">Zkusit znovu</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var ALL_QUESTIONS = [
+    {
+      cat: 'ridici',
+      catLabel: 'Ridici struktury',
+      q: 'Ktery cyklus v jazyce C vzdy provede telo alespon jednou, bez ohledu na podmínku?',
+      answers: [
+        'for',
+        'while',
+        'do...while',
+        'loop'
+      ],
+      correct: 2,
+      expl: 'Cyklus do...while nejprve provede telo a az pote vyhodnotí podmínku. Proto se telo provede vzdycky alespon jednou, i kdyz je podmínka od pocatku nepravdiva.'
+    },
+    {
+      cat: 'ridici',
+      catLabel: 'Ridici struktury',
+      q: 'Co zpusobí prikaz continue uvnitr cyklu?',
+      answers: [
+        'Ukonci cely cyklus',
+        'Skoci zpet na zacatek cyklu a zacne dalsí iteraci',
+        'Preskocí zbyvajicí cast funkce',
+        'Zpusobí nekonecnou smycku'
+      ],
+      correct: 1,
+      expl: 'Prikaz continue preskocí zbytek tela aktualni iterace a skoci na zacatek cyklu (u for cyklu na krok inkrementace), cimz spustí dalsí iteraci.'
+    },
+    {
+      cat: 'ridici',
+      catLabel: 'Ridici struktury',
+      q: 'Co je nedefinovane chovani (undefined behavior) v C?',
+      answers: [
+        'Chovani, ktere je presne definovano v dokumentaci compileru',
+        'Chovani, ktere zavisí na verzi jazyka C',
+        'Chovani, ktere muze byt ruzne v zavislosti na compileru, OS nebo architekture',
+        'Chovani, ktere zpusobí vzdy chybu za behu programu'
+      ],
+      correct: 2,
+      expl: 'Nedefinovane chovani znamena, ze vysledek neni zarucenou standardem a muze se lisit mezi compilery, platformami nebo dokonce behy programu. Prikladem je pretecení signed integeru nebo dereference NULL pointeru.'
+    },
+    {
+      cat: 'ridici',
+      catLabel: 'Ridici struktury',
+      q: 'Ktery z nasledujicich prikladu je prikladem nedefinovaneho chovani v C?',
+      answers: [
+        'int a = 5; int b = a + 3;',
+        'int a = 0; int b = 10 / a;',
+        'int a = 5; int b = a * 2;',
+        'unsigned int a = 0; a--;'
+      ],
+      correct: 1,
+      expl: 'Delení nulou je klasickym prikladem nedefinovaneho chovani. Pretecení unsigned integeru (a--) je naopak definovane – wrappuje se modulo 2^n. Aritmeticke operace s platnymi hodnotami jsou v poradku.'
+    },
+    {
+      cat: 'dekomp',
+      catLabel: 'Dekompozice',
+      q: 'Co se stane, kdyz v C deklarujeme funkci jako int nazev_funkce() misto int nazev_funkce(void)?',
+      answers: [
+        'Program se neprelozi',
+        'Funkce muze prijímat libovolny pocet argumentu bez varovani compileru',
+        'Funkce bude vzdy vracet 0',
+        'Funkce automaticky dostane argumenty z hlavní funkce main'
+      ],
+      correct: 1,
+      expl: 'V C prazdny seznam parametru () nerika, ze funkce nema parametry – to rika az void. Kdyz pouzijeme (), compiler nas nemusi varovat ani kdyz funkci zavolame s argumenty. Pouziti (void) vynuci, ze funkce zadne argumenty nebere.'
+    },
+    {
+      cat: 'dekomp',
+      catLabel: 'Dekompozice',
+      q: 'Jaky je hlavní rozdíl mezi predanim argumentu hodnotou (by value) a odkazem (by reference) v C?',
+      answers: [
+        'By value je rychlejsí, by reference je pomalejsí u vsech datovych typu',
+        'By value zkopiruje hodnotu, by reference predava adresu – zmeny uvnitr funkce se propísou i mimo ni',
+        'By reference funguje pouze pro primitivní typy',
+        'V C neexistuje predavani by reference'
+      ],
+      correct: 1,
+      expl: 'Pri by value se vytvori kopie hodnoty – zmeny uvnitr funkce se nepropísou. Pri by reference se predava ukazatel (adresa), takze funkce muze menit puvodnni promennou. Pro vetší struktury je by reference take rychlejsí kvuli mensi kopii.'
+    },
+    {
+      cat: 'dekomp',
+      catLabel: 'Dekompozice',
+      q: 'Co je base case v rekurzivní funkci?',
+      answers: [
+        'Prvni volani rekurzivní funkce',
+        'Maximalni hloubka rekurze dana compilerem',
+        'Zakladní prípad, ktery rekurzi ukoncí bez dalsího rekurzivního volani',
+        'Posledni radek rekurzivní funkce'
+      ],
+      correct: 2,
+      expl: 'Base case je podmínka, pri ktere funkce vrati vysledek bez toho, aby zavolala sama sebe. Bez base case by rekurze pokracovala donekonecna a zpusobila pretecení zasobniku (stack overflow).'
+    },
+    {
+      cat: 'typy',
+      catLabel: 'Datove typy',
+      q: 'Co je specialního na datovem typu void* v C?',
+      answers: [
+        'Muze ukazovat na libovolny typ dat',
+        'Je to typ pro prazdne funkce',
+        'Automaticky uvolní pamет po pouzití',
+        'Muze byt pouze konstantní'
+      ],
+      correct: 0,
+      expl: 'void* je genericky ukazatel, ktery muze drzet adresu libovolneho datoveho typu. Je bezne pouzivan pro obecne funkce (napr. malloc vraci void*). Pred pouzitím je nutne ho pretypovat na spravny typ.'
+    },
+    {
+      cat: 'typy',
+      catLabel: 'Datove typy',
+      q: 'Jaky je rozdil mezi const int *p a int * const p?',
+      answers: [
+        'Zadny rozdil – obe deklarace jsou ekvivalentni',
+        'const int *p: nelze menit hodnotu, int * const p: nelze menit ukazatel samotny',
+        'const int *p: nelze menit ukazatel, int * const p: nelze menit hodnotu',
+        'Obe deklarace zpusobí chybu prekladu'
+      ],
+      correct: 1,
+      expl: 'const int *p je ukazatel na konstantní hodnotu – hodnotu na ktere ukazuje nelze menit, ale ukazatel samotny lze presmerovat. int * const p je konstantní ukazatel – ukazatel nelze presmerovat, ale hodnota na ktere ukazuje menit lze.'
+    },
+    {
+      cat: 'typy',
+      catLabel: 'Datove typy',
+      q: 'Jak se v C reprezentuje textovy retezec?',
+      answers: [
+        'Jako specialní typ string',
+        'Jako pole znaku zakoncene specialním znakem \\0',
+        'Jako pole celych cisel',
+        'Jako ukazatel na double'
+      ],
+      correct: 1,
+      expl: 'C nema zabudovany typ string. Textove retezce jsou pole typu char zakoncene nulovym znakem (\\0, ASCII hodnota 0), ktery znaci konec retezce. Funkce jako printf nebo strlen toto zakoncení ocekavaji.'
+    },
+    {
+      cat: 'pole',
+      catLabel: 'Pole a ukazatele',
+      q: 'Kde je v pameti ulozeno dynamicky alokovane pole (malloc)?',
+      answers: [
+        'Na zasobniku (stack)',
+        'Ve staticke pameti',
+        'Na halde (heap)',
+        'V registrech procesoru'
+      ],
+      correct: 2,
+      expl: 'Dynamicka alokace pomocí malloc rezervuje misto na halde (heap). Haldova pamet zustava alokovana dokud neni explicitne uvolnena pomocí free. Staticke pole naopak zije na zasobniku a je automaticky uvolneno po opustení scope.'
+    },
+    {
+      cat: 'pole',
+      catLabel: 'Pole a ukazatele',
+      q: 'Jak zapíseme pristup ke ctvrtem prvku pole x pomocí pointer aritmetiky?',
+      answers: [
+        'x[4]',
+        '*(x + 3)',
+        '*(x + 4)',
+        'x->4'
+      ],
+      correct: 1,
+      expl: 'Indexovani v C zacína od nuly. Ctvrty prvek je na indexu 3, tedy x[3] nebo ekvivalentne *(x + 3). Operator * dereferencuje ukazatel na dane misto v pameti.'
+    },
+    {
+      cat: 'adt',
+      catLabel: 'ADT',
+      q: 'Co je abstraktní datovy typ (ADT)?',
+      answers: [
+        'Konkretní implementace datove struktury v jazyce C',
+        'Konceptualni model definujici operace bez ohledu na konkretní implementaci',
+        'Typ promenne, ktery nelze pouzit v C',
+        'Datova struktura ulozena v externím souboru'
+      ],
+      correct: 1,
+      expl: 'ADT definuje chovani (operace a jejich semantiku) bez toho, aby ríkal, jak je implementace konkretne realizovana. Napriklad zasobník definuje operace push, pop a peek – ale neriká, zda je implementovany polem nebo spojovym seznamem.'
+    },
+    {
+      cat: 'adt',
+      catLabel: 'ADT',
+      q: 'Na jakem principu funguje zasobník (Stack)?',
+      answers: [
+        'FIFO – prvni vlozeny prvek je prvni odebrany',
+        'LIFO – posledni vlozeny prvek je prvni odebrany',
+        'Prvek s nejvyssí prioritou je prvni odebrany',
+        'Nahodne poradí odebirani'
+      ],
+      correct: 1,
+      expl: 'Zasobník pracuje na principu LIFO (Last In, First Out). Posledni vlozeny prvek je prvni odebrany – jako vrchol zasobniku kosiku. Pouziva se napriklad pri rekurzi (call stack) nebo parsovani výrazu.'
+    },
+    {
+      cat: 'adt',
+      catLabel: 'ADT',
+      q: 'Ktera operace zasobniku vraci hodnotu vrcholu bez odebrání prvku?',
+      answers: [
+        'push',
+        'pop',
+        'peek (top)',
+        'isEmpty'
+      ],
+      correct: 2,
+      expl: 'Operace peek (nebo top) vrati hodnotu na vrcholu zasobniku, ale prvek neodstranuje. Pop naopak prvek jak vrati, tak odebere. Push vlozi novy prvek na vrchol.'
+    },
+    {
+      cat: 'adt',
+      catLabel: 'ADT',
+      q: 'Co dela operace enqueue u fronty (Queue)?',
+      answers: [
+        'Odebere prvek z cela fronty',
+        'Vlozi prvek na konec fronty',
+        'Zkontroluje zda je fronta prazdna',
+        'Vrati prvek z cela bez odebrání'
+      ],
+      correct: 1,
+      expl: 'Fronta funguje na principu FIFO (First In, First Out). Enqueue vlozi novy prvek na konec fronty. Dequeue pak odebere prvek z cela fronty. Tím je zachovano poradí.'
+    },
+    {
+      cat: 'adt',
+      catLabel: 'ADT',
+      q: 'Jaky je hlavní rozdíl mezi jednosmernym a obousmernym spojovm seznamem?',
+      answers: [
+        'Jednosmerny uklada vice dat nez obousmerny',
+        'Obousmerny ma v kazdem uzlu take ukazatel na predchazejici prvek',
+        'Jednosmerny je vzdy rychlejsí nez obousmerny',
+        'Obousmerny muze mit pouze jeden prvek'
+      ],
+      correct: 1,
+      expl: 'V obousmernem spojovem seznamu kazdy uzel obsahuje navic ukazatel prev na predchazejici prvek. To umoznuje prochazení obouma smerymi. Jednosmerny seznam ma pouze ukazatel next.'
+    },
+    {
+      cat: 'stromy',
+      catLabel: 'Stromy a BST',
+      q: 'Jaka je casova slozitost hledani v binarním vyhledavacim stromu (BST) v prumernem prípade?',
+      answers: [
+        'O(1)',
+        'O(n)',
+        'O(log n)',
+        'O(n^2)'
+      ],
+      correct: 2,
+      expl: 'V prumeru ma BST hloubku log n, takze hledani probehne v O(log n) krocích. V nejhorsím prípade (nevyvazeny strom – napriklad vsechny uzly pouze vlevo nebo vpravo) degeneruje na O(n).'
+    },
+    {
+      cat: 'stromy',
+      catLabel: 'Stromy a BST',
+      q: 'Jaka je vlastnost levého potomka v binarním vyhledavacim stromu (BST)?',
+      answers: [
+        'Leve dite je vzdy vetsí nez rodic',
+        'Leve dite je vzdy mensí nez rodic',
+        'Leve dite ma vzdy dve deti',
+        'Leve dite je vzdycky list'
+      ],
+      correct: 1,
+      expl: 'Zakladní vlastnost BST: levy potomek ma hodnotu mensí nez rodic, pravy potomek ma hodnotu vetsí nez rodic. Tato vlastnost umoznuje efektivní hledani – v kazdem kroku eliminujeme polovinu stromu.'
+    },
+    {
+      cat: 'stromy',
+      catLabel: 'Stromy a BST',
+      q: 'Ktery zpusob prochazení stromu (DFS) zpracuje koren jako posední?',
+      answers: [
+        'Preorder',
+        'Inorder',
+        'Postorder',
+        'BFS'
+      ],
+      correct: 2,
+      expl: 'Postorder prochazí levý podstrom, pak pravy, a teprve nakonec zpracuje samotny koren. Preorder zpracuje koren jako první. Inorder zpracuje koren mezi levym a pravym podstromem.'
+    },
+    {
+      cat: 'stromy',
+      catLabel: 'Stromy a BST',
+      q: 'Jak se vypocíta index leveho potomka prvku na indexu i v poli reprezentujícím haldu?',
+      answers: [
+        '2 * i',
+        '2 * i + 1',
+        '2 * i + 2',
+        '(i - 1) / 2'
+      ],
+      correct: 1,
+      expl: 'V poli reprezentujícím haldu plati: levy potomek je na indexu 2*i+1, pravy potomek na 2*i+2 a rodic na (i-1)/2. Toto indexovani umoznuje efektivní reprezentaci plneho binarniho stromu bez explicitnich ukazatelu.'
+    },
+    {
+      cat: 'halda',
+      catLabel: 'Halda a prioritní fronta',
+      q: 'Jaka je casova slozitost operaci insert a pop u haldy (heap)?',
+      answers: [
+        'O(1) pro obe',
+        'O(n) pro obe',
+        'O(log n) pro obe',
+        'O(log n) pro insert, O(1) pro pop'
+      ],
+      correct: 2,
+      expl: 'Halda zaruci O(log n) pro insert i pop, protoze maximalne prochazí vsechny urovne stromu (hloubka je log n). Peek je O(1), protoze minimum/maximum je vzdy na koreni (index 0).'
+    },
+    {
+      cat: 'halda',
+      catLabel: 'Halda a prioritní fronta',
+      q: 'Jaka je vlastnost min-heap?',
+      answers: [
+        'Koren je vzdy nejvetší prvek',
+        'Koren je vzdy nejmenší prvek',
+        'Vsechny uzly na leve strane jsou mensi nez na prave',
+        'Halda je serazeny seznam'
+      ],
+      correct: 1,
+      expl: 'V min-heap plati, ze kazdy rodic je mensí nebo roven svym potomkum. Koren tedy obsahuje nejmensi prvek cele struktury. Max-heap ma opacnou vlastnost – koren je nejvetší.'
+    },
+    {
+      cat: 'halda',
+      catLabel: 'Halda a prioritní fronta',
+      q: 'Proc je halda lepší implementaci prioritní fronty nez prostý setrizeny seznam?',
+      answers: [
+        'Halda je vzdy rychlejsí ve vsech operacich',
+        'Halda ma O(log n) pro insert i pop, zatímco seznam ma O(n) pro jeden z nich',
+        'Halda pouziva mene pameti',
+        'Halda umozní uklazt duplicitní priority'
+      ],
+      correct: 1,
+      expl: 'Spojovy seznam nebo pole umoznuje bud rychle vkladani O(1) a pomalé vybírání O(n), nebo naopak. Halda dosahuje O(log n) pro obe operace, coz je v praxi podstatne lepší pri velkych datovych sadach.'
+    },
+    {
+      cat: 'dijkstra',
+      catLabel: 'Dijkstra a A*',
+      q: 'Jaka je casova slozitost Dijkstrova algoritmu s haldou?',
+      answers: [
+        'O(V^2)',
+        'O(V + E)',
+        'O((V + E) * log V)',
+        'O(E^2)'
+      ],
+      correct: 2,
+      expl: 'S prioritní frontou implementovanou haldou ma Dijkstruv algoritmus slozitost O((V + E) * log V), kde V je pocet uzlu a E pocet hran. Kazdy uzel je zpracovan jednou (log V pro priority queue) a kazda hrana je prozkoumana jednou.'
+    },
+    {
+      cat: 'dijkstra',
+      catLabel: 'Dijkstra a A*',
+      q: 'Jaky je hlavní rozdíl mezi Dijkstrovym algoritmem a algoritmem A*?',
+      answers: [
+        'A* pracuje pouze na ohodnocenych grafech, Dijkstra ne',
+        'A* pouziva heuristiku (odhad vzdalenosti do cíle), Dijkstra ne',
+        'Dijkstra je vzdy rychlejsí nez A*',
+        'A* nenajde vzdy nejkratsí cestu'
+      ],
+      correct: 1,
+      expl: 'A* je modifikace Dijkstrova algoritmu, ktery pouziva heuristickou funkci odhadujíci vzdalenost do cíle. Díky tomu prozkouma mene uzlu a je v praxi rychlejsí. Dijkstra prozkoumava uzly pouze podle dosazene vzdalenosti, bez znalosti smeru k cíli.'
+    },
+    {
+      cat: 'pamet',
+      catLabel: 'Pamet: stack a heap',
+      q: 'Kde v pameti zije lokalni promenna deklarovana uvnitr funkce (napr. int x = 5;)?',
+      answers: [
+        'Na halde (heap) – je tam natrvalo az do konce programu',
+        'Na zasobniku (stack) – automaticky se uvolni po navratu z funkce',
+        'Ve staticke pameti – sdili ji vsechna volani te funkce',
+        'V registrech procesoru – nelze ji adresovat'
+      ],
+      correct: 1,
+      expl: 'Lokalni promenne ziji na zasobniku (stack). Stack si predstav jako slozku papiru – kdyz zavolass funkci, polozis na vrch novy list s jejimi promennymi (stack frame). Kdyz funkce skonci, list se strhne a pamet se automaticky uvolni. Proto neni treba volat free() pro lokalni promenne.'
+    },
+    {
+      cat: 'pamet',
+      catLabel: 'Pamet: stack a heap',
+      q: 'Kde je ulozena pamet alokovana pomoci malloc()?',
+      answers: [
+        'Na zasobniku (stack) – uvolni se po opusteni scope',
+        'Ve staticke pameti – existuje po celou dobu behu programu',
+        'Na halde (heap) – existuje dokud nezavolass free()',
+        'V cache procesoru – je extrémne rychla'
+      ],
+      correct: 2,
+      expl: 'malloc() rezervuje pamet na halde (heap). Halda je velky spolocny bazen pameti, ze ktereho si program muze brat kusy libovolne velikosti. Klic: pamet na halde se automaticky NEUVOLNI – musis sam zavolat free(). Zapomenes-li, vznika memory leak (program postupne zere vic a vic pameti).'
+    },
+    {
+      cat: 'pamet',
+      catLabel: 'Pamet: stack a heap',
+      q: 'Funkce vraci ukazatel na lokalni promennou: int* spatne() { int x = 42; return &x; }. Co je na tom spatne?',
+      answers: [
+        'Nic – ukazatel na lokalni promennou je vzdy platny',
+        'Funkce by mela vracet hodnotu, ne ukazatel',
+        'Po navratu z funkce je stack frame zrusen, pamet po x je neplatna – dangling pointer',
+        'Lokalni promenne nelze adresovat operatorem &'
+      ],
+      correct: 2,
+      expl: 'Lokalni promenna x zije na stacku v ramci (frame) funkce spatne(). Jakmile funkce skonci, jeji stack frame se zrusi a misto po x muze byt okamzite prepsan necim jinym. Vracet adresu takoveto promenne je klasicka chyba – vznika dangling pointer (ukazatel do neplatne pameti). Reseni: alokuj x na halde pomoci malloc, nebo vrat hodnotu primo.'
+    },
+    {
+      cat: 'pamet',
+      catLabel: 'Pamet: stack a heap',
+      q: 'Ktery z nasledujicich popisu nejlepe vystihuje rozdil mezi stackem a heapem?',
+      answers: [
+        'Stack je rychlejsi a spravuje se automaticky, heap je flexibilnejsi ale spravuje se rucne',
+        'Stack je vetsi nez heap, heap je mensi a rychlejsi',
+        'Stack pouzivaji funkce, heap pouziva pouze operacni system',
+        'Stack a heap jsou dva nazvy pro totez misto v pameti'
+      ],
+      correct: 0,
+      expl: 'Stack: rychly (jen posun registru), omezena velikost (typicky par MB), automaticka sprava – promenne zanikaji s koncem funkce. Heap: vetsi prostor, libovolna velikost alokovanych bloku, ale pomalejsi (OS musi hledat volne misto) a rucni sprava – ty rozhodujes kdy vznikne (malloc) a kdy zanikne (free) kazdy blok.'
+    },
+    {
+      cat: 'pamet',
+      catLabel: 'Pamet: stack a heap',
+      q: 'Co se stane kdyz zavolame free() na ukazatel, ktery uz byl jednou uvolnen (double free)?',
+      answers: [
+        'Nic – free() si s tim poradi',
+        'Nedefinovane chovani – muze zpusobit pad programu nebo bezpecnostni diru',
+        'Pamet se uvolni dvakrat, ale program bezi dale bez problemu',
+        'Compiler to zachytí a vyhodi chybu pri prekladu'
+      ],
+      correct: 1,
+      expl: 'Double free je vazna chyba. Po prvnim free() je blok vracen zpet do bazenu volne pameti a muze byt pridelén jine casti programu. Druhe free() pak poskozuje datove struktury spravce pameti (heap metadata), coz vede k nedefinovanemu chovani – pad programu, poskozeni dat, nebo v horsim pripade zneuzitelna bezpecnostni zranitelnost. Reseni: po free() vzdy nastav ukazatel na NULL.'
+    }
+  ];
+
+  // State
+  var questions = [];
+  var currentIndex = 0;
+  var score = 0;
+  var answered = []; // per question: null or { chosen: idx, shuffledOrder: [0,1,2,3] }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function initQuiz() {
+    questions = shuffle(ALL_QUESTIONS);
+    currentIndex = 0;
+    score = 0;
+    answered = [];
+    for (var i = 0; i < questions.length; i++) {
+      answered.push(null);
+    }
+    document.getElementById('quizCard').style.display = '';
+    document.getElementById('resultScreen').classList.remove('visible');
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    var q = questions[currentIndex];
+    var total = questions.length;
+
+    // Progress
+    var answered_count = answered.filter(function(a){ return a !== null; }).length;
+    document.getElementById('progressFill').style.width = (answered_count / total * 100) + '%';
+    document.getElementById('progressLabel').textContent = answered_count + ' / ' + total;
+    document.getElementById('scoreDisplay').textContent = score;
+    document.getElementById('questionCounter').textContent = 'Otazka ' + (currentIndex + 1) + ' z ' + total;
+
+    // Category badge
+    var badge = document.getElementById('categoryBadge');
+    badge.textContent = q.catLabel;
+    badge.className = 'category-badge cat-' + q.cat;
+
+    // Question text
+    document.getElementById('questionText').textContent = q.q;
+
+    // Answers
+    var container = document.getElementById('answersContainer');
+    container.innerHTML = '';
+
+    var state = answered[currentIndex];
+    var shuffledOrder;
+    if (state) {
+      shuffledOrder = state.shuffledOrder;
+    } else {
+      shuffledOrder = shuffle([0, 1, 2, 3]);
+    }
+
+    for (var i = 0; i < 4; i++) {
+      var origIdx = shuffledOrder[i];
+      var btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = q.answers[origIdx];
+      btn.dataset.origIdx = origIdx;
+
+      if (state) {
+        btn.disabled = true;
+        if (origIdx === q.correct) {
+          btn.classList.add('correct');
+        } else if (origIdx === state.chosen) {
+          btn.classList.add('wrong');
+        }
+      } else {
+        (function(capturedOrigIdx, capturedShuffled) {
+          btn.addEventListener('click', function() {
+            handleAnswer(capturedOrigIdx, capturedShuffled);
+          });
+        })(origIdx, shuffledOrder);
+      }
+      container.appendChild(btn);
+    }
+
+    // Explanation
+    var expl = document.getElementById('explanation');
+    if (state) {
+      expl.textContent = q.expl;
+      expl.classList.add('visible');
+    } else {
+      expl.textContent = '';
+      expl.classList.remove('visible');
+    }
+
+    // Navigation buttons
+    var btnBack = document.getElementById('btnBack');
+    var btnNext = document.getElementById('btnNext');
+    var btnFinish = document.getElementById('btnFinish');
+
+    btnBack.disabled = (currentIndex === 0);
+
+    if (state !== null) {
+      // Already answered – show navigation
+      if (currentIndex < total - 1) {
+        btnNext.style.display = '';
+        btnFinish.style.display = 'none';
+      } else {
+        btnNext.style.display = 'none';
+        btnFinish.style.display = '';
+      }
+    } else {
+      // Not yet answered – hide forward navigation
+      btnNext.style.display = 'none';
+      btnFinish.style.display = 'none';
+    }
+  }
+
+  function handleAnswer(chosenOrigIdx, shuffledOrder) {
+    var q = questions[currentIndex];
+    var isCorrect = (chosenOrigIdx === q.correct);
+
+    if (isCorrect) { score++; }
+
+    answered[currentIndex] = { chosen: chosenOrigIdx, shuffledOrder: shuffledOrder };
+
+    // Update buttons
+    var btns = document.querySelectorAll('.answer-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].disabled = true;
+      var oi = parseInt(btns[i].dataset.origIdx);
+      if (oi === q.correct) {
+        btns[i].classList.add('correct');
+      } else if (oi === chosenOrigIdx) {
+        btns[i].classList.add('wrong');
+      }
+    }
+
+    // Show explanation
+    var expl = document.getElementById('explanation');
+    expl.textContent = q.expl;
+    expl.classList.add('visible');
+
+    // Update progress label immediately
+    var answered_count = answered.filter(function(a){ return a !== null; }).length;
+    document.getElementById('progressFill').style.width = (answered_count / questions.length * 100) + '%';
+    document.getElementById('progressLabel').textContent = answered_count + ' / ' + questions.length;
+    document.getElementById('scoreDisplay').textContent = score;
+
+    // Show navigation
+    var btnNext = document.getElementById('btnNext');
+    var btnFinish = document.getElementById('btnFinish');
+    if (currentIndex < questions.length - 1) {
+      btnNext.style.display = '';
+      btnFinish.style.display = 'none';
+    } else {
+      btnNext.style.display = 'none';
+      btnFinish.style.display = '';
+    }
+  }
+
+  document.getElementById('btnBack').addEventListener('click', function() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderQuestion();
+    }
+  });
+
+  document.getElementById('btnNext').addEventListener('click', function() {
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      renderQuestion();
+    }
+  });
+
+  document.getElementById('btnFinish').addEventListener('click', function() {
+    showResult();
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', function() {
+    initQuiz();
+  });
+
+  function showResult() {
+    document.getElementById('quizCard').style.display = 'none';
+    var rs = document.getElementById('resultScreen');
+    rs.classList.add('visible');
+
+    var pct = Math.round(score / questions.length * 100);
+
+    var emoji, title;
+    if (pct >= 90) { emoji = '🏆'; title = 'Vynikající vykon!'; }
+    else if (pct >= 75) { emoji = '🎉'; title = 'Skvely vysledek!'; }
+    else if (pct >= 55) { emoji = '👍'; title = 'Dobrá prace!'; }
+    else if (pct >= 40) { emoji = '📚'; title = 'Jeste trochu zapasit...'; }
+    else { emoji = '💪'; title = 'Nevzdavej to!'; }
+
+    document.getElementById('resultEmoji').textContent = emoji;
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultPct').textContent = pct + '%';
+    document.getElementById('resultSub').textContent = 'Spravne: ' + score + ' z ' + questions.length + ' otazek';
+  }
+
+  // Start
+  initQuiz();
+
+});
+</script>
+</body>
+</html>

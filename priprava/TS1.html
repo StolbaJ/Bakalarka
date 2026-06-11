@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kvíz — B6B36TS1 Testování softwaru</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    background: #f5f5f3;
+    color: #1a1a1a;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 1.5rem;
+  }
+
+  .meta {
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .prog-bg {
+    background: #e0dfd8;
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .prog-fill {
+    background: #7F77DD;
+    height: 6px;
+    border-radius: 4px;
+    transition: width 0.4s;
+  }
+
+  .qcard {
+    background: #ffffff;
+    border: 1px solid #e0dfd8;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: #EEEDFE;
+    color: #3C3489;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+
+  .qtxt {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a1a1a;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  .opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #f5f5f3;
+    border: 1px solid #e0dfd8;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #1a1a1a;
+    line-height: 1.45;
+    font-family: inherit;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .opt:hover:not(:disabled) {
+    background: #ebebea;
+    border-color: #c8c7bf;
+  }
+
+  .opt:disabled { cursor: default; }
+
+  .opt.correct {
+    background: #EAF3DE;
+    border-color: #639922;
+    color: #27500A;
+  }
+
+  .opt.wrong {
+    background: #FCEBEB;
+    border-color: #E24B4A;
+    color: #791F1F;
+  }
+
+  .opt.reveal {
+    background: #EAF3DE;
+    border-color: #639922;
+    color: #27500A;
+  }
+
+  .expl {
+    font-size: 13px;
+    color: #555;
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: #f5f5f3;
+    border-radius: 8px;
+    line-height: 1.55;
+    border-left: 3px solid #c8c7bf;
+  }
+
+  .expl strong {
+    font-weight: 500;
+  }
+
+  .next-btn {
+    margin-top: 1rem;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: 1px solid #c8c7bf;
+    background: transparent;
+    color: #1a1a1a;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+
+  .next-btn:hover { background: #ebebea; }
+
+  .score-card {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: #ffffff;
+    border: 1px solid #e0dfd8;
+    border-radius: 12px;
+  }
+
+  .score-num {
+    font-size: 52px;
+    font-weight: 500;
+    color: #1a1a1a;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .score-pct {
+    font-size: 22px;
+    color: #555;
+    margin-bottom: 0.25rem;
+  }
+
+  .score-lbl {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 2rem;
+  }
+
+  .restart-btn {
+    padding: 10px 28px;
+    border-radius: 8px;
+    border: 1px solid #c8c7bf;
+    background: transparent;
+    color: #1a1a1a;
+    cursor: pointer;
+    font-size: 15px;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+
+  .restart-btn:hover { background: #ebebea; }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #1a1a18; color: #e8e8e4; }
+    h1 { color: #e8e8e4; }
+    .qcard, .score-card { background: #252523; border-color: #3a3a38; }
+    .qtxt { color: #e8e8e4; }
+    .opt { background: #2e2e2c; border-color: #3a3a38; color: #e8e8e4; }
+    .opt:hover:not(:disabled) { background: #363634; border-color: #4a4a48; }
+    .opt.correct { background: #17340A; border-color: #97C459; color: #C0DD97; }
+    .opt.wrong { background: #3a1010; border-color: #E24B4A; color: #F7C1C1; }
+    .opt.reveal { background: #17340A; border-color: #97C459; color: #C0DD97; }
+    .expl { background: #2e2e2c; color: #aaa; border-left-color: #4a4a48; }
+    .prog-bg { background: #3a3a38; }
+    .meta { color: #888; }
+    .next-btn, .restart-btn { border-color: #4a4a48; color: #e8e8e4; }
+    .next-btn:hover, .restart-btn:hover { background: #2e2e2c; }
+    .score-pct { color: #aaa; }
+    .score-lbl { color: #666; }
+    .score-num { color: #e8e8e4; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>Kvíz — B6B36TS1 Testování softwaru</h1>
+  <div id="qc"></div>
+</div>
+
+<script>
+const QS = [
+  { q: "Co říká princip 'Pesticidní paradox'?", opts: ["Testování vždy dokazuje absenci defektů", "Opakované spouštění stejných testů časem nenajde nové defekty", "Chyby se nejčastěji vyskytují ve fázi požadavků", "Vyčerpávající testování je v praxi možné"], c: 1, cat: "Principy testování", e: "Pesticidní paradox říká, že stejná sada testů přestane časem nacházet nové chyby — testy je třeba pravidelně revidovat a přidávat nové." },
+  { q: "Jaký je hlavní nedostatek V-modelu ve vztahu k Bohémově zákonu?", opts: ["V-model neumožňuje integrační testy", "Chyby z fáze požadavků se odhalí až při pozdním testování, kdy jsou opravy nejdražší", "V-model ignoruje uživatelské akceptační testy", "V-model nefunguje u agilního vývoje"], c: 1, cat: "V-model / W-model", e: "Bohémův zákon: chyby jsou nejčastější v požadavcích a návrhu a čím později je odhalíme, tím jsou dražší. V-model je odhaluje až ke konci." },
+  { q: "Jak se liší W-model od V-modelu?", opts: ["W-model neobsahuje systémové testy", "W-model každé fázi přípravy přiřazuje odpovídající kontrolní fázi — testuje průběžně", "W-model testuje pouze funkční požadavky", "W-model je levnější na implementaci"], c: 1, cat: "V-model / W-model", e: "W-model přiřazuje každé vývojové fázi kontrolní fázi. Je levnější než pozdní opravy, ale vyžaduje větší počáteční investici." },
+  { q: "Co jsou třídy ekvivalence (Equivalence Classes)?", opts: ["Skupiny testů se stejnou prioritou", "Podmnožiny vstupních hodnot, pro které se systém dle specifikace chová stejně", "Kombinace vstupů pokrývající všechny páry", "Datové entity sdílené více funkcemi"], c: 1, cat: "Třídy ekvivalence", e: "Třídy ekvivalence rozdělují vstupní hodnoty na podmnožiny — systém se má pro všechny hodnoty z jedné třídy chovat stejně. Snižuje to počet potřebných testů." },
+  { q: "Které pravidlo konzistence při určování tříd ekvivalence platí?", opts: ["Každá třída musí obsahovat alespoň 10 hodnot", "Třídy se smí překrývat, pokud jde o hraniční hodnoty", "Žádné dvě třídy nesmí mít neprázdný průnik a jejich sjednocení musí pokrýt celý vstupní prostor", "Nevalidní třídy se do klasifikačního stromu nezahrnují"], c: 2, cat: "Třídy ekvivalence", e: "Třídy nesmí být prázdné, nesmí se překrývat a jejich sjednocení musí pokrývat celý původní interval nebo množinu." },
+  { q: "Co jsou mezní podmínky (Boundary Conditions)?", opts: ["Technické limity databázových datových typů", "Hodnoty tvořící hranici mezi třídami ekvivalence nebo posunuté o nejmenší možný inkrement", "Podmínky pro smazání entity v CRUD matici", "Kritéria pokrytí v procesním testování"], c: 1, cat: "Mezní podmínky", e: "Testujeme M (mezní hodnotu), M+I a M-I, kde I je nejmenší nenulová uložitelná hodnota. Váže se na intervalové třídy ekvivalence." },
+  { q: "Na jakém poznatku stojí párové testování (Pairwise Testing)?", opts: ["Většina chyb se aktivuje kombinací tří a více vstupů", "Defekty jsou rovnoměrně rozloženy po všech kombinacích vstupů", "Většina chyb vzniká na základě jedné hodnoty nebo kombinace dvou vstupů", "Testování všech kombinací je nutné pro pokrytí > 80 %"], c: 2, cat: "Párové testování", e: "Statistika ukazuje, že defekty se nejčastěji aktivují hodnotou jednoho vstupu nebo kombinací dvou vstupů. Trojice a výše jsou vzácné." },
+  { q: "Jaký je hlavní přínos párového testování oproti úplnému pokrytí (MCC)?", opts: ["Párové testování odhaluje více chyb než MCC", "Výrazně snižuje počet kombinací, přičemž statisticky stále odchytí většinu chyb", "Párové testování nevyžaduje klasifikační strom", "Párové testování se používá pouze pro diskrétní hodnoty"], c: 1, cat: "Párové testování", e: "Místo všech kombinací (např. 12) stačí pokrýt všechny páry (např. 6 variant). Šetří kapacitu při zachování vysoké pravděpodobnosti odhalení defektů." },
+  { q: "Co testuje MC/DC (Modified Condition/Decision Coverage)?", opts: ["Všechny možné kombinace výsledků podmínek — nejvyšší úroveň pokrytí", "Každou podmínku nezávisle ovlivňující výsledek výrazu, při fixaci ostatních", "Jen výstupní hodnoty rozhodovacích uzlů (TRUE/FALSE)", "Všechny hrany grafu procesního modelu"], c: 1, cat: "Kombinatorické testování", e: "MC/DC vyžaduje, aby každý výsledek každé podmínky byl otestován a zároveň každá podmínka nezávisle ovlivnila výsledek celého výrazu." },
+  { q: "Co je 'Test Depth Level' (TDL) v procesním testování?", opts: ["Počet vrstev architektury, které test pokrývá", "Hloubka pokrytí grafu — TDL 2 = pro každý uzel všechny kombinace vstupní a výstupní akce", "Úroveň priority testu v BDTM metodě", "Počet podmínek v logickém výrazu uzlu"], c: 1, cat: "Procesní testy", e: "TDL 1 = každá hrana jednou, TDL 2 = všechny kombinace vstupní+výstupní akce uzlu, TDL 3+ jdou hlouběji do navazujících akcí." },
+  { q: "Jak vypadá správná struktura testovacího scénáře pro testy konzistence dat?", opts: ["Libovolná posloupnost CRUD operací bez omezení", "Začíná Create, obsahuje kombinace Read/Update, končí Delete — po každé C/U/D se doporučuje Read", "Vždy jen jedna operace — buď Create, nebo Delete", "Začíná Read, aby se ověřilo počáteční prázdné prostředí"], c: 1, cat: "Testy konzistence dat", e: "Scénář sleduje životní cyklus dat: C → R/U/... → D. Po každé změně se doporučuje Read pro ověření stavu. Kompletní pokrytí testuje čtení přes více funkcí." },
+  { q: "K čemu slouží CRUD matice?", opts: ["K definici databázového schématu a integritních omezení", "K přehledu, které funkce provádějí které CRUD operace nad kterými entitami", "K určení pořadí testů v regresním balíku", "K výpočtu testovacího pokrytí kódu"], c: 1, cat: "Testy konzistence dat", e: "CRUD matice: řádky = funkce, sloupce = entity, buňky = písmena C/R/U/D. Umožňuje statickou kontrolu i základ pro dynamické testy." },
+  { q: "Jaká jsou klíčová pravidla pro psaní unit testů?", opts: ["Test smí záviset na výsledku jiného testu pro výkon", "Nezávislost testů, jedna funkcionalita = jeden test, přiměřený počet assertů, srozumitelný název", "Unit testy musí spouštět reálnou databázi pro věrohodnost", "Unit a integrační testy mají stejné vlastnosti"], c: 1, cat: "Unit testy", e: "Unit testy musí být nezávislé, testovat jednu věc, mít jasný název a přiměřený počet assertů. Jsou určeny pro kód, ne konfiguraci." },
+  { q: "Jaký je zásadní rozdíl mezi E2E (UI) testy a unit testy?", opts: ["E2E testy jsou rychlejší a stabilnější než unit testy", "Unit testy testují celý systém, E2E jen izolované funkce", "E2E testy simulují reálného uživatele přes celý systém; unit testy testují izolované bloky kódu", "E2E testy nelze automatizovat, unit testy ano"], c: 2, cat: "E2E testy", e: "E2E jsou pomalejší, náchylné na změny UI, ale ověřují celý průchod systémem. Unit testy jsou rychlé, stabilní, pokrývají malou izolovanou část kódu." },
+  { q: "Co je cílem metody BDTM (Business Driven Test Management)?", opts: ["Definovat strukturu databázových testů pro výkonnostní analýzu", "Přímo propojit cíle byznysu s přípravou a prováděním testů pomocí analýzy rizik a prioritizace", "Automatizovat generování unit testů z business specifikace", "Nahradit V-model agilním přístupem k testování"], c: 1, cat: "BDTM", e: "BDTM z rámce TMAP Next propojuje test goals, popis systému, analýzu rizik, test levels a intenzitu testování do jedné přehledné řídicí tabulky." },
+  { q: "Co znamená 'shlukování defektů' (Defect Clustering)?", opts: ["Defekty jsou rovnoměrně rozloženy ve všech modulech", "Malé množství modulů obsahuje většinu defektů zjištěných při testování", "Defekty vznikají výhradně v databázové vrstvě", "Defekty vznikají pouze kombinací tří a více vstupů"], c: 1, cat: "Principy testování", e: "4. princip testování dle ISTQB: malé množství modulů bývá zodpovědné za většinu defektů. Umožňuje efektivní prioritizaci testování." },
+  { q: "Jaké riziko přináší kopie produkčních dat bez úpravy?", opts: ["Data jsou vždy neaktuální a nereprezentují reálný stav", "Vysoké právní a regulační riziko — reálná data mohou obsahovat citlivé osobní údaje", "Kopie produkčních dat nelze importovat do testovacího prostředí", "Produkční data nemají správný formát pro automatické testy"], c: 1, cat: "Testovací data", e: "Přímé použití produkčních dat nese vysoké riziko (GDPR a podobné předpisy). Řešením je anonymizace nebo zmenšený vzorek s odstraněním citlivých informací." },
+  { q: "Která technika kombinatorického testování nabízí nejvyšší úroveň pokrytí?", opts: ["DC — Decision Coverage", "C/DC — Condition/Decision Coverage", "MC/DC — Modified Condition/Decision Coverage", "MCC — Multiple Condition Coverage"], c: 3, cat: "Kombinatorické testování", e: "MCC testuje všechny možné kombinace výsledků podmínek. Nejvyšší pokrytí, ale exponenciálně roste počet kombinací — hodí se pro kritický SW." },
+  { q: "Co znamená 'validace' v kontextu testování softwaru (dle ISTQB)?", opts: ["Kontrola, zda jsou testovací data správně načtena", "Ověření, že produkt odpovídá požadavkům definovaným na začátku vývojové fáze (to je verifikace)", "Vyhodnocení softwaru, zda odpovídá zadaným požadavkům zákazníka — v průběhu nebo na konci vývoje", "Automatická kontrola syntaxe kódu před spuštěním testů"], c: 2, cat: "Základy testování", e: "Validace = odpovídá SW tomu, co zákazník chce? Verifikace = odpovídá produkt dané fáze požadavkům pro tuto fázi? Obojí je v ISTQB přesně odlišeno." },
+  { q: "Proč je neřízený přístup ke sdílení testovacích dat rizikový?", opts: ["Data jsou příliš velká pro testovací prostředí", "Různí testeři si mohou navzájem přepisovat data a způsobovat nečekané chyby v testech ostatních", "Neřízený přístup porušuje GDPR bez výjimky", "Automatické testy nemohou fungovat bez řízeného přístupu k datům"], c: 1, cat: "Testovací data", e: "Bez řízení hrozí kolize — jeden tester může přepsat data, na která se spoléhá jiný test. Řešením je rozdělení entit podle ID, prefixů nebo správy přes skripty." }
+];
+
+let order = [], cur = 0, score = 0, answered = false, shuffledOpts = [];
+
+function shuffle(a) {
+  const b = [...a];
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function start() {
+  order = shuffle([...Array(QS.length).keys()]);
+  cur = 0; score = 0;
+  render();
+}
+
+function render() {
+  const el = document.getElementById('qc');
+  if (cur >= order.length) {
+    const pct = Math.round((score / order.length) * 100);
+    const msg = pct >= 80 ? 'Výborně, jsi připraven!' : pct >= 60 ? 'Dobré, ale pár věcí zopakuj.' : 'Doporučuji projít materiály znovu.';
+    el.innerHTML =
+      '<div class="score-card">' +
+      '<div class="score-num">' + score + ' / ' + order.length + '</div>' +
+      '<div class="score-pct">' + pct + ' %</div>' +
+      '<div class="score-lbl">' + msg + '</div>' +
+      '<button class="restart-btn" id="rb">Zkusit znovu</button>' +
+      '</div>';
+    document.getElementById('rb').addEventListener('click', start);
+    return;
+  }
+
+  answered = false;
+  const q = QS[order[cur]];
+  shuffledOpts = shuffle(q.opts.map((o, i) => ({ text: o, origIdx: i })));
+
+  let optsHtml = '';
+  shuffledOpts.forEach((o, i) => {
+    optsHtml += '<button class="opt" id="o' + i + '">' + o.text + '</button>';
+  });
+
+  el.innerHTML =
+    '<div class="meta"><span>Otázka ' + (cur + 1) + ' / ' + order.length + '</span><span>Skóre: ' + score + '</span></div>' +
+    '<div class="prog-bg"><div class="prog-fill" id="pf" style="width:' + Math.round((cur / order.length) * 100) + '%"></div></div>' +
+    '<div class="qcard">' +
+    '<div class="badge">' + q.cat + '</div>' +
+    '<div class="qtxt">' + q.q + '</div>' +
+    optsHtml +
+    '<div class="expl" id="expl" style="display:none"></div>' +
+    '</div>' +
+    '<button class="next-btn" id="nb" style="display:none">Další otázka &rarr;</button>';
+
+  shuffledOpts.forEach((o, i) => {
+    document.getElementById('o' + i).addEventListener('click', function() { pick(i); });
+  });
+  document.getElementById('nb').addEventListener('click', function() { cur++; render(); });
+}
+
+function pick(btnIdx) {
+  if (answered) return;
+  answered = true;
+  const q = QS[order[cur]];
+  const chosen = shuffledOpts[btnIdx].origIdx;
+
+  shuffledOpts.forEach((o, i) => {
+    const btn = document.getElementById('o' + i);
+    btn.disabled = true;
+    if (o.origIdx === q.c) {
+      btn.className = 'opt ' + (chosen === q.c ? 'correct' : 'reveal');
+    } else if (i === btnIdx) {
+      btn.className = 'opt wrong';
+    }
+  });
+
+  if (chosen === q.c) score++;
+
+  const expl = document.getElementById('expl');
+  expl.style.display = 'block';
+  expl.innerHTML = '<strong>' + (chosen === q.c ? '✓ Správně' : '✗ Špatně') + '</strong> — ' + q.e;
+  document.getElementById('nb').style.display = 'inline-block';
+}
+
+start();
+</script>
+</body>
+</html>

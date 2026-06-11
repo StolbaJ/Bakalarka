@@ -1,0 +1,100 @@
+spring:
+  application:
+    name: ski-inventory-api
+  
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:ski_inventory}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production-minimum-32-characters}
+  expiration: ${JWT_EXPIRATION:86400000} # 24 hours in milliseconds
+
+app:
+  auth:
+    # HttpOnly JWT cookie – path /api (stejná hodnota musí být u vymazání cookie)
+    cookie-name: ${APP_AUTH_COOKIE_NAME:access_token}
+    cookie-secure: ${APP_AUTH_COOKIE_SECURE:true}
+    # Lax = stejný web přes Next proxy; u přímého volání API z jiné domény použij None + Secure
+    cookie-same-site: ${APP_AUTH_COOKIE_SAME_SITE:Lax}
+  swagger:
+    # Secure cookie pro Swagger vstup (HTTPS v produkci). V dev profilu je false kvůli lokálnímu HTTP.
+    cookie-secure: ${APP_SWAGGER_COOKIE_SECURE:true}
+  mail:
+    enabled: true
+    from: "BezkyServis <no-reply@bezkyservis.xyz>"
+  # Základní URL webu pro odkazy v e-mailech (např. https://bezkyservis.xyz)
+  frontend-base-url: ${FRONTEND_BASE_URL:https://bezkyservis.xyz}
+  # Interval cronu pro doplnění e-mailů „objednávka založena“ (ms). Default 5 min.
+  order-created-email-cron-interval-ms: ${ORDER_CREATED_EMAIL_CRON_INTERVAL_MS:300000}
+
+logging:
+  level:
+    com.ski.inventory: ${LOG_LEVEL:INFO}
+    org.springframework.security: ${SECURITY_LOG_LEVEL:WARN}
+    org.flywaydb: INFO
+
+# Actuator – health (veřejný pro LB), ostatní metriky jen pro admin přes /api/admin/monitoring
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+    metrics:
+      enabled: true
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+  metrics:
+    enable:
+      jvm: true
+      process: true
+      system: true
+      http: true
+      jdbc: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+# Swagger / OpenAPI (vypnout v produkci např. springdoc.api-docs.enabled=false)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha

@@ -60,6 +60,7 @@ const Navigation = () => {
   }, [])
 
   const getNavigation = () => {
+    const quizItem = { name: t('nav.statniZkousky'), href: '/priprava', icon: GraduationCap }
     if (user?.role === 'ADMIN') {
       return [
         { name: t('nav.home'), href: '/', icon: Home },
@@ -69,6 +70,7 @@ const Navigation = () => {
         { name: t('nav.statistics'), href: '/statistics', icon: BarChart3 },
         { name: t('nav.settings'), href: '/settings', icon: Settings },
         { name: t('nav.userManagement'), href: '/users', icon: Users },
+        quizItem,
       ]
     } else if (user?.role === 'TECHNICIAN') {
       return [
@@ -76,15 +78,18 @@ const Navigation = () => {
         { name: t('nav.qrScanner'), href: '/scanner', icon: QrCode },
         { name: t('nav.skiDatabase'), href: '/database', icon: Database },
         { name: t('nav.orders'), href: '/orders', icon: Package },
+        quizItem,
       ]
     } else if (user?.role === 'CUSTOMER') {
       return [
         { name: t('nav.home'), href: '/', icon: Home },
         { name: t('nav.myOrders'), href: '/customer', icon: User },
+        quizItem,
       ]
     } else {
       return [
         { name: t('nav.home'), href: '/', icon: Home },
+        quizItem,
       ]
     }
   }
@@ -128,7 +133,7 @@ const Navigation = () => {
             <div className="hidden md:flex space-x-1">
               {navigation.map((item) => {
                 const Icon = item.icon
-                const isActive = pathname === item.href
+                const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
                 return (
                   <Link
                     key={item.name}
@@ -252,7 +257,7 @@ const Navigation = () => {
             <div className="container mx-auto px-4 py-2 space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon
-                const isActive = pathname === item.href
+                const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
                 return (
                   <Link
                     key={item.name}

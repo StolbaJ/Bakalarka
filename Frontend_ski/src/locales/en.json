@@ -65,7 +65,8 @@
     "apiDocs": "API documentation",
     "logout": "Log out",
     "login": "Log in",
-    "appName": "Ski Inventory"
+    "appName": "Ski Inventory",
+    "statniZkousky": "State exam quizzes"
   },
   "home": {
     "welcome": "Welcome to the service",
@@ -74,9 +75,11 @@
     "title": "Ski Inventory Management",
     "subtitle": "Modern system for ski inventory management using Industry 4.0 principles",
     "statsTotalSkis": "Total skis",
+    "statsInDatabase": "In database",
     "statsInService": "In service",
-    "statsDoneToday": "Completed today",
+    "statsDoneWeek": "Completed",
     "statsAvgTime": "Average time",
+    "statsLast7d": "Last 7 days",
     "quickActions": "Quick actions",
     "scanQr": "Scan QR code",
     "scanQrDesc": "Quick ski identification via QR code",

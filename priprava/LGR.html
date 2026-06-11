@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LGR Kviz - Logika a Teorie Grafu</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f0f4f8;
+    color: #111827;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    color: #4b5563;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+  }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: #d1d5db;
+    border-radius: 999px;
+    height: 10px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    background: #3b82f6;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.35s ease;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-bottom: 20px;
+  }
+  .score-badge {
+    font-weight: 600;
+    color: #1d4ed8;
+  }
+
+  /* Card */
+  .card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 28px 28px 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    color: #111827;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .q-number {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+
+  .category-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  .cat-vl  { background: #7c3aed; }
+  .cat-pl  { background: #0891b2; }
+  .cat-gr  { background: #059669; }
+
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
+  /* Answer buttons */
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .answer-btn {
+    background: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.95rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.45;
+  }
+  .answer-btn:not(:disabled):hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e40af;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct {
+    background: #dcfce7;
+    border-color: #22c55e;
+    color: #14532d;
+  }
+  .answer-btn.wrong {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #7f1d1d;
+  }
+
+  /* Explanation */
+  .explanation {
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    color: #166534;
+    line-height: 1.5;
+    display: none;
+    margin-bottom: 16px;
+  }
+  .explanation.show { display: block; }
+  .explanation.wrong-exp {
+    background: #fff7ed;
+    border-color: #f97316;
+    color: #7c2d12;
+  }
+
+  /* Navigation */
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .nav-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.92rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s, opacity 0.15s;
+    display: none;
+  }
+  .nav-btn:hover:not(:disabled) { background: #2563eb; }
+  .nav-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .nav-btn.show { display: inline-block; }
+  .nav-btn.secondary {
+    background: #6b7280;
+  }
+  .nav-btn.secondary:hover:not(:disabled) { background: #4b5563; }
+
+  /* Results screen */
+  .results {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 36px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    text-align: center;
+    color: #111827;
+    display: none;
+  }
+  .results.show { display: block; }
+  .result-emoji { font-size: 3rem; margin-bottom: 12px; }
+  .result-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+  .result-percent {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #3b82f6;
+    margin: 12px 0;
+  }
+  .result-sub {
+    font-size: 0.95rem;
+    color: #4b5563;
+    margin-bottom: 24px;
+  }
+  .result-breakdown {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .breakdown-item {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 12px 20px;
+    min-width: 100px;
+    color: #111827;
+  }
+  .breakdown-num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #111827;
+  }
+  .breakdown-num.green { color: #16a34a; }
+  .breakdown-num.red   { color: #dc2626; }
+  .breakdown-label {
+    font-size: 0.78rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+  .restart-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 32px;
+    font-size: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .restart-btn:hover { background: #2563eb; }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+    h1 { color: #f1f5f9; }
+    .subtitle { color: #94a3b8; }
+    .progress-wrap { background: #334155; }
+    .progress-label { color: #94a3b8; }
+    .score-badge { color: #60a5fa; }
+    .card {
+      background: #1e293b;
+      color: #f1f5f9;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .q-number { color: #94a3b8; }
+    .question-text { color: #f1f5f9; }
+    .answer-btn {
+      background: #293548;
+      border-color: #374151;
+      color: #e2e8f0;
+    }
+    .answer-btn:not(:disabled):hover {
+      background: #1e3a5f;
+      border-color: #60a5fa;
+      color: #93c5fd;
+    }
+    .answer-btn.correct {
+      background: #14532d;
+      border-color: #22c55e;
+      color: #dcfce7;
+    }
+    .answer-btn.wrong {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      color: #fee2e2;
+    }
+    .explanation {
+      background: #14532d;
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+    .explanation.wrong-exp {
+      background: #431407;
+      border-color: #f97316;
+      color: #fed7aa;
+    }
+    .nav-btn { background: #3b82f6; color: #ffffff; }
+    .nav-btn.secondary { background: #4b5563; color: #ffffff; }
+    .results {
+      background: #1e293b;
+      color: #f1f5f9;
+    }
+    .result-title { color: #f1f5f9; }
+    .result-percent { color: #60a5fa; }
+    .result-sub { color: #94a3b8; }
+    .breakdown-item { background: #293548; color: #f1f5f9; }
+    .breakdown-num { color: #f1f5f9; }
+    .breakdown-num.green { color: #4ade80; }
+    .breakdown-num.red   { color: #f87171; }
+    .breakdown-label { color: #94a3b8; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>LGR Kviz</h1>
+  <p class="subtitle">Logika a teorie grafu &mdash; B0B01LGR</p>
+
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="progress-label">
+    <span id="progressLabel">Otazka 1 z 25</span>
+    <span class="score-badge" id="scoreLabel">Skore: 0</span>
+  </div>
+
+  <div class="card" id="questionCard">
+    <div class="card-header">
+      <span class="q-number" id="qNumber">1 / 25</span>
+      <span class="category-badge" id="catBadge"></span>
+    </div>
+    <div class="question-text" id="questionText"></div>
+    <div class="answers" id="answersContainer"></div>
+    <div class="explanation" id="explanationBox"></div>
+    <div class="nav-row">
+      <button class="nav-btn secondary" id="prevBtn">&#8592; Zpet</button>
+      <button class="nav-btn" id="nextBtn">Dalsi &#8594;</button>
+    </div>
+  </div>
+
+  <div class="results" id="resultsScreen">
+    <div class="result-emoji" id="resultEmoji"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-percent" id="resultPercent"></div>
+    <div class="result-sub" id="resultSub"></div>
+    <div class="result-breakdown">
+      <div class="breakdown-item">
+        <div class="breakdown-num green" id="bdCorrect">0</div>
+        <div class="breakdown-label">Spravne</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num red" id="bdWrong">0</div>
+        <div class="breakdown-label">Spatne</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="bdTotal">0</div>
+        <div class="breakdown-label">Celkem</div>
+      </div>
+    </div>
+    <button class="restart-btn" id="restartBtn">Spustit znovu</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var ALL_QUESTIONS = [
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Co je to tautologie?',
+      answers: [
+        'Formule pravdiva ve vsech ohodnoceních.',
+        'Formule nepravdiva ve vsech ohodnoceních.',
+        'Formule pravdiva alespon v jednom ohodnocení.',
+        'Formule, ktera nema zadne logicke promenne.'
+      ],
+      correct: 0,
+      exp: 'Tautologie je formule, ktera je pravdiva pro vsechna mozna ohodnoceni promennych. Priklad: (a OR NOT a) je tautologie.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Implikace (a => b) je nepravdiva prave tehdy, kdyz:',
+      answers: [
+        'a = 0 a b = 0',
+        'a = 1 a b = 0',
+        'a = 0 a b = 1',
+        'a = 1 a b = 1'
+      ],
+      correct: 1,
+      exp: 'Implikace je nepravdiva jen v pripade, kdy predpoklad je pravdivy (a=1) a zaver je nepravdivy (b=0). Ve vsech ostatnich prikladech je pravdiva.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Ktera z nasledujicich mnozin logickych spojek tvori uplny system?',
+      answers: [
+        '{AND, OR}',
+        '{NOT, AND}',
+        '{OR, =>}',
+        '{AND, =>'
+      ],
+      correct: 1,
+      exp: '{NOT, AND} je uplny system, protoze OR lze vyjadrit jako NOT(NOT a AND NOT b). Samotne {AND, OR} bez NOT uplne nejsou.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Formule (a AND NOT a) je:',
+      answers: [
+        'Tautologie',
+        'Kontradikce',
+        'Splnitelna, ale ne tautologie',
+        'Ani tautologie, ani kontradikce'
+      ],
+      correct: 1,
+      exp: '(a AND NOT a) je vzdy nepravdiva bez ohledu na hodnotu a. Tedy je to kontradikce.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'De Morganovo pravidlo rika, ze NOT(a AND b) je ekvivalentni s:',
+      answers: [
+        'NOT a AND NOT b',
+        'NOT a OR NOT b',
+        'a OR b',
+        'NOT a => NOT b'
+      ],
+      correct: 1,
+      exp: 'Podle de Morganova pravidla: NOT(a AND b) = NOT a OR NOT b. Druhe pravidlo je: NOT(a OR b) = NOT a AND NOT b.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Co je to CNF (konjunktivni normalni forma)?',
+      answers: [
+        'Disjunkce maxttermu (klausuli)',
+        'Konjunkce maxttermu (klausuli)',
+        'Disjunkce mintermu',
+        'Konjunkce mintermu'
+      ],
+      correct: 1,
+      exp: 'CNF je konjunkce (AND) klausuli, kde kazda klausule je disjunkce (OR) literalu. DNF je naopak disjunkce konjunkci literalu.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Formule fi je semantickym dusledkem mnoziny S (S |= fi), kdyz:',
+      answers: [
+        'fi je pravdiva ve vsech ohodnoceních.',
+        'Kazde ohodnoceni, ktere splnuje S, splnuje i fi.',
+        'Existuje ohodnoceni splnujici S i fi zaroven.',
+        'S a fi jsou tautologicky ekvivalentni.'
+      ],
+      correct: 1,
+      exp: 'Semanticky dusledek S |= fi znamena, ze v kazdem ohodnoceni, kde jsou vsechny formule S pravdive, je pravdiva i fi.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Ktera z nasledujicich tvrzenimoznosti je pravdiva: fi a psi jsou tautologicky ekvivalentni, prave kdyz:',
+      answers: [
+        'fi => psi je tautologie.',
+        'fi <=> psi je tautologie.',
+        'fi OR psi je tautologie.',
+        'NOT fi AND NOT psi je kontradikce.'
+      ],
+      correct: 1,
+      exp: 'fi |=| psi (tautologicka ekvivalence) plati prave kdyz fi <=> psi je tautologie, tzn. maji ve vsech ohodnoceních stejnou pravdivostni hodnotu.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Literalem v logice nazveme:',
+      answers: [
+        'Libovolnou formuli v CNF.',
+        'Logickou promennou nebo jeji negaci.',
+        'Konjunkci alespon dvou promennych.',
+        'Podformuli hlavni spojky.'
+      ],
+      correct: 1,
+      exp: 'Literal je logicka promenna (napr. a) nebo negace logicke promenne (napr. NOT a). Je to zakladni stavebni kamen minttermu a klausuli.'
+    },
+    {
+      cat: 'vl',
+      catLabel: 'Vyrokova logika',
+      q: 'Mnozina formulí S je nesplnitelna, kdyz:',
+      answers: [
+        'Existuje ohodnoceni, ve kterem jsou vsechny formule S pravdive.',
+        'Pro kazde ohodnoceni existuje formule ze S, ktera je v nem nepravdiva.',
+        'Vsechny formule S jsou tautologie.',
+        'Zadna formule S neni tautologie.'
+      ],
+      correct: 1,
+      exp: 'Nesplnitelna mnozina nema zadny model - tedy neexistuje ohodnoceni, ve kterem by byly vsechny formule pravdive. Pro kazde ohodnoceni neco z S porusi.'
+    },
+    {
+      cat: 'pl',
+      catLabel: 'Predikatova logika',
+      q: 'Co je to sentence v predikatove logice?',
+      answers: [
+        'Formule, ktera ma alespon jednu volnou promennou.',
+        'Formule bez volnych vyskytu promennych (vsechny promenne jsou vazane).',
+        'Formule obsahujici pouze existencni kvantifikatory.',
+        'Atomicka formule bez kvantifikatoru.'
+      ],
+      correct: 1,
+      exp: 'Sentence (uzavrena formule) je formule, kde kazdy vyskyt promenne je vazan nekterym kvantifikatorem. Otavrena formule ma naopak alespon jeden volny vyskyt.'
+    },
+    {
+      cat: 'pl',
+      catLabel: 'Predikatova logika',
+      q: 'Ktera z nasledujicich sentenci predikatove logiky je tautologie?',
+      answers: [
+        'EXISTS y FORALL x (x = y)',
+        'FORALL x FORALL y (x = y)',
+        'FORALL x EXISTS y (x = y)',
+        'EXISTS x EXISTS y NOT(x = y)'
+      ],
+      correct: 2,
+      exp: 'FORALL x EXISTS y (x = y) je tautologie, protoze pro kazde x muzeme zvolit update [y := x], takze x = x vzdy plati. EXISTS y FORALL x (x = y) neplati v univerzu s vice nez jednim prvkem.'
+    },
+    {
+      cat: 'pl',
+      catLabel: 'Predikatova logika',
+      q: 'Co znaci vázany vyskyt promenne?',
+      answers: [
+        'Promenna se v druhe formuli nevyskytuje.',
+        'Vyskyt promenne je ridicen (omezovan) nekterym kvantifikatorem v dane formuli.',
+        'Promenna ma fixni hodnotu danou interpretaci.',
+        'Promenna je ve formuli nahrazena termem.'
+      ],
+      correct: 1,
+      exp: 'Vyskyt promenne x je vazany, pokud pri pruchodu syntaktickym stromem od daneho listu ke koreni narazime na kvantifiktor s touto promennou (FORALL x nebo EXISTS x).'
+    },
+    {
+      cat: 'pl',
+      catLabel: 'Predikatova logika',
+      q: 'Plati, ze FORALL x EXISTS y M(x,y) |= EXISTS y FORALL x M(x,y)?',
+      answers: [
+        'Ano, jde o ekvivalenci.',
+        'Ne, tento dusledek neplati.',
+        'Ano, ale pouze v konecnych univerzech.',
+        'Ano, to je specialni pripad tautologie.'
+      ],
+      correct: 1,
+      exp: 'Tento dusledek neplati. Priklad: M(x,y) = "x < y" na prirozených číslech. Pro kazde x existuje vetsi y, ale neexistuje jedno y vetsi nez vsechna x.'
+    },
+    {
+      cat: 'pl',
+      catLabel: 'Predikatova logika',
+      q: 'Veta o uplnosti predikatove logiky rika:',
+      answers: [
+        'Kazda sentence je bud tautologie nebo kontradikce.',
+        'S |= fi prave tehdy, kdyz S |- fi (semanticky dusledek = syntakticky dusledek).',
+        'Kazdy uplny system spojek dokazuje vsechny tautologie.',
+        'Prirozenou dedukci nelze v predikatove logice pouzit.'
+      ],
+      correct: 1,
+      exp: 'Veta o uplnosti rika, ze semanticky a syntakticky dusledek se shodují: S |= fi prave tehdy, kdyz existuje formalni odvozeni S |- fi. Prirozenou dedukci lze dokazat cokoli semanticky platneho.'
+    },
+    {
+      cat: 'pl',
+      catLabel: 'Predikatova logika',
+      q: 'Co je Skolemizace?',
+      answers: [
+        'Prevedeni formule do prenexniho tvaru s existencnimi kvantifikatory vpredku.',
+        'Odstraneni existencnich kvantifikatoru nahrazenim konstantou nebo funkci.',
+        'Postup, jak dokazat splnitelnost CNF formule.',
+        'Prejmenovani vazanych promennych v formuli.'
+      ],
+      correct: 1,
+      exp: 'Skolemizace odstrannuje existencni kvantifikatory: FORALL x EXISTS y P(x,y) se stane FORALL x P(x, f(x)), kde f je Skolemova funkce. Zachovava ekvisplnitelnost, ne tautologickou ekvivalenci.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Strom s n vrcholy ma vzdycky:',
+      answers: [
+        'n hran',
+        'n - 1 hran',
+        'n + 1 hran',
+        'Pocet hran zavisi na konkretnim stromu.'
+      ],
+      correct: 1,
+      exp: 'Strom je souvisly graf bez kruznic a ma vzdy presne n-1 hran, kde n je pocet vrcholu. Tato vlastnost je ekvivalentni definici stromu.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Uplny graf Kn ma kolik hran?',
+      answers: [
+        'n',
+        'n * (n - 1)',
+        'n * (n - 1) / 2',
+        '2n - 1'
+      ],
+      correct: 2,
+      exp: 'V uplnem grafu Kn je kazdy vrchol spojen s kazdym jinym. Pocet hran je kombinace C(n,2) = n*(n-1)/2. Napr. K4 ma 6 hran, K5 ma 10 hran.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Eulerovský tah existuje v neorientovanem grafu prave tehdy, kdyz:',
+      answers: [
+        'Vsechny vrcholy maji stupen 2.',
+        'Graf je souvisly a ma nejvyse 2 vrcholy licheho stupne.',
+        'Graf je uplny bipartitni.',
+        'Graf je strom.'
+      ],
+      correct: 1,
+      exp: 'Eulerovský tah (prechod vsemi hranami prave jednou) existuje, pokud je graf souvisly a ma 0 nebo 2 vrcholy licheho stupne. Kdyz ma 0, tah je uzavreny; kdyz ma presne 2, tah zacina a konci v techto vrcholech.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Kosarajuv algoritmus slouzi k:',
+      answers: [
+        'Hledani minimalni kostry ohodnoceneho grafu.',
+        'Hledani vsech silne souvislych komponent orientovaneho grafu.',
+        'Obarveni vrcholu grafu minimalnim poctem barev.',
+        'Hledani Hamiltonovskeho cyklu.'
+      ],
+      correct: 1,
+      exp: 'Kosarajuv algoritmus najde vsechny silne souvisle komponenty orientovaneho grafu ve slozitosti O(m+n) pomoci dvou pruchodu DFS: jednoho na puvodnm grafu a jednoho na transponovanem grafu.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Kruskaluv algoritmus pro minimalni kostru:',
+      answers: [
+        'Zacina z jednoho vrcholu a rozsiruje strom o nejlevnejsi incidentni hranu.',
+        'Seradí hrany podle ceny a pridava je, pokud netvorí cyklus.',
+        'Pouziva DFS pro hledani nejkratsi cesty.',
+        'Funguje pouze na bipartitních grafech.'
+      ],
+      correct: 1,
+      exp: 'Kruskaluv algoritmus seradi hrany vzestupne podle ohodnoceni a postupne prida kazdou hranu, ktera nespoji jiz propojene komponenty (tedy netvorí cyklus). Slozitost O(m log n).'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Co je nezavisla mnozina vrcholu grafu?',
+      answers: [
+        'Mnozina vrcholu, kde kazde dva vrcholy jsou spojeny hranou.',
+        'Mnozina vrcholu, kde zadne dva vrcholy nejsou spojeny hranou.',
+        'Podgraf obsahujici vsechny vrcholy grafu.',
+        'Mnozina vrcholu, ktera tvori kostu grafu.'
+      ],
+      correct: 1,
+      exp: 'Nezavisla mnozina (independent set) je mnozina vrcholu bez vnitrnich hran. Nezavislost grafu alfa(G) je velikost nejvetsi takove mnoziny. Plati: alfa(G) * chi(G) >= n.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Barevnost grafu chi(G) je:',
+      answers: [
+        'Maximalni pocet barev pri libovolnem obarveni.',
+        'Minimalni pocet barev potrebny k obarveni vrcholu tak, aby zadni sousedni vrcholy nemely stejnou barvu.',
+        'Pocet vrcholu v nejvetsi klike.',
+        'Pocet komponent souvislosti.'
+      ],
+      correct: 1,
+      exp: 'Barevnost chi(G) je minimalni pocet barev potrebnych pro spravne vrcholove obarveni (zadni dva sousedni vrcholy nemaji stejnou barvu). Plati: omega(G) <= chi(G) <= Delta + 1.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Pro libovolny neorientovany graf G o n vrcholech plati: alfa(G) + chi(G) <= ?',
+      answers: [
+        'n',
+        'n + 1',
+        'n - 1',
+        '2n'
+      ],
+      correct: 1,
+      exp: 'Plati alfa(G) + chi(G) <= n + 1, kde alfa(G) je nezavislost a chi(G) je barevnost grafu G s n vrcholy. Dalsi dulezita nerovnost je alfa(G) * chi(G) >= n.'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Orientovany acyklicky graf:',
+      answers: [
+        'Vzdy obsahuje alespon jeden cyklus.',
+        'Vzdy obsahuje alespon jeden vrchol s dout(v) = 0 (vylevka).',
+        'Je silne souvisly.',
+        'Musi obsahovat kostu.'
+      ],
+      correct: 1,
+      exp: 'Kazdy orientovany acyklicky graf obsahuje vylevku (vrchol s nulovym vystupnim stupnem). Dukaz: nejdelsi cesta musi nekde konci a posledni vrchol nema kam pokracovat (inak by vznikl cyklus nebo delsi cesta).'
+    },
+    {
+      cat: 'gr',
+      catLabel: 'Teorie grafu',
+      q: 'Bipartitni graf je takovy graf, kde:',
+      answers: [
+        'Kazdy vrchol ma stupen prave 2.',
+        'Vrcholy lze rozdelit na dve mnoziny tak, aby zadne hrany nevedly uvnitr jedne mnoziny.',
+        'Pocet vrcholu je sudy.',
+        'Graf neobsahuje zadnou kostu.'
+      ],
+      correct: 1,
+      exp: 'Bipartitní graf ma vrcholy rozdeleleny do dvou disjunktnich mnozin (parity) a vsechny hrany vedou mezi temi dvema skupinami - nikdy uvnitr jedne skupiny. Uplny bipartitni graf K(m,n) ma m*n hran.'
+    }
+  ];
+
+  // Fisher-Yates shuffle
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  var questions = shuffle(ALL_QUESTIONS);
+  var total = questions.length;
+
+  // State per question
+  var states = [];
+  for (var i = 0; i < total; i++) {
+    states.push({
+      answered: false,
+      chosenIndex: -1,  // index in shuffled answers
+      shuffledOrder: null  // indices into original answers array
+    });
+  }
+
+  var current = 0;
+  var score = 0;
+
+  // DOM refs
+  var progressBar = document.getElementById('progressBar');
+  var progressLabel = document.getElementById('progressLabel');
+  var scoreLabel = document.getElementById('scoreLabel');
+  var qNumber = document.getElementById('qNumber');
+  var catBadge = document.getElementById('catBadge');
+  var questionText = document.getElementById('questionText');
+  var answersContainer = document.getElementById('answersContainer');
+  var explanationBox = document.getElementById('explanationBox');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var questionCard = document.getElementById('questionCard');
+  var resultsScreen = document.getElementById('resultsScreen');
+  var restartBtn = document.getElementById('restartBtn');
+
+  function renderQuestion(idx) {
+    var q = questions[idx];
+    var st = states[idx];
+
+    // Prepare shuffled order if not yet done
+    if (!st.shuffledOrder) {
+      var order = [];
+      for (var k = 0; k < q.answers.length; k++) order.push(k);
+      st.shuffledOrder = shuffle(order);
+    }
+
+    // Progress
+    var pct = ((idx) / total) * 100;
+    progressBar.style.width = pct + '%';
+    progressLabel.textContent = 'Otazka ' + (idx + 1) + ' z ' + total;
+    scoreLabel.textContent = 'Skore: ' + score;
+    qNumber.textContent = (idx + 1) + ' / ' + total;
+
+    // Category badge
+    catBadge.textContent = q.catLabel;
+    catBadge.className = 'category-badge cat-' + q.cat;
+
+    // Question
+    questionText.textContent = q.q;
+
+    // Answers
+    answersContainer.innerHTML = '';
+    for (var ai = 0; ai < st.shuffledOrder.length; ai++) {
+      var origIdx = st.shuffledOrder[ai];
+      var btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = q.answers[origIdx];
+      btn.setAttribute('data-ai', ai);
+      if (st.answered) {
+        btn.disabled = true;
+        if (origIdx === q.correct) {
+          btn.classList.add('correct');
+        } else if (ai === st.chosenIndex) {
+          btn.classList.add('wrong');
+        }
+      } else {
+        btn.addEventListener('click', onAnswerClick);
+      }
+      answersContainer.appendChild(btn);
+    }
+
+    // Explanation
+    if (st.answered) {
+      explanationBox.textContent = q.exp;
+      var wasWrong = (st.shuffledOrder[st.chosenIndex] !== q.correct);
+      explanationBox.className = 'explanation show' + (wasWrong ? ' wrong-exp' : '');
+    } else {
+      explanationBox.className = 'explanation';
+      explanationBox.textContent = '';
+    }
+
+    // Nav buttons
+    prevBtn.className = 'nav-btn secondary' + (idx > 0 && st.answered ? ' show' : '');
+    prevBtn.disabled = (idx === 0);
+
+    if (st.answered) {
+      nextBtn.className = 'nav-btn show';
+      nextBtn.textContent = (idx === total - 1) ? 'Vysledky' : 'Dalsi \u2192';
+    } else {
+      nextBtn.className = 'nav-btn';
+    }
+  }
+
+  function onAnswerClick(e) {
+    var btn = e.currentTarget;
+    var ai = parseInt(btn.getAttribute('data-ai'), 10);
+    var q = questions[current];
+    var st = states[current];
+
+    if (st.answered) return;
+
+    st.answered = true;
+    st.chosenIndex = ai;
+
+    var origIdx = st.shuffledOrder[ai];
+    var correct = (origIdx === q.correct);
+    if (correct) score++;
+
+    // Disable all buttons and highlight
+    var btns = answersContainer.querySelectorAll('.answer-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].disabled = true;
+      var bOrigIdx = st.shuffledOrder[parseInt(btns[i].getAttribute('data-ai'), 10)];
+      if (bOrigIdx === q.correct) {
+        btns[i].classList.add('correct');
+      } else if (parseInt(btns[i].getAttribute('data-ai'), 10) === ai) {
+        btns[i].classList.add('wrong');
+      }
+    }
+
+    // Show explanation
+    explanationBox.textContent = q.exp;
+    var wasWrong = !correct;
+    explanationBox.className = 'explanation show' + (wasWrong ? ' wrong-exp' : '');
+
+    // Show nav buttons
+    prevBtn.className = 'nav-btn secondary' + (current > 0 ? ' show' : '');
+    nextBtn.className = 'nav-btn show';
+    nextBtn.textContent = (current === total - 1) ? 'Vysledky' : 'Dalsi \u2192';
+    scoreLabel.textContent = 'Skore: ' + score;
+  }
+
+  prevBtn.addEventListener('click', function() {
+    if (current > 0) {
+      current--;
+      renderQuestion(current);
+    }
+  });
+
+  nextBtn.addEventListener('click', function() {
+    if (current === total - 1) {
+      showResults();
+    } else {
+      current++;
+      renderQuestion(current);
+    }
+  });
+
+  function showResults() {
+    progressBar.style.width = '100%';
+    progressLabel.textContent = 'Kviz dokoncen!';
+    questionCard.style.display = 'none';
+    resultsScreen.classList.add('show');
+
+    var pct = Math.round((score / total) * 100);
+    document.getElementById('resultPercent').textContent = pct + ' %';
+    document.getElementById('bdCorrect').textContent = score;
+    document.getElementById('bdWrong').textContent = (total - score);
+    document.getElementById('bdTotal').textContent = total;
+
+    var emoji, title, sub;
+    if (pct >= 90) {
+      emoji = '\uD83C\uDF89'; title = 'Vynikajici!'; sub = 'Logika a grafy jsou tve silne stranky!';
+    } else if (pct >= 75) {
+      emoji = '\uD83D\uDE0A'; title = 'Dobre!'; sub = 'Solidni znalosti, jen par mezer.';
+    } else if (pct >= 50) {
+      emoji = '\uD83D\uDCDA'; title = 'Ujde to.'; sub = 'Doporucujeme zopakovat slabsi oblasti.';
+    } else {
+      emoji = '\uD83D\uDE05'; title = 'Zkus to znovu!'; sub = 'Projdi si materialy a zkus to este jednou.';
+    }
+    document.getElementById('resultEmoji').textContent = emoji;
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultSub').textContent = sub;
+  }
+
+  restartBtn.addEventListener('click', function() {
+    questions = shuffle(ALL_QUESTIONS);
+    score = 0;
+    current = 0;
+    states = [];
+    for (var i = 0; i < total; i++) {
+      states.push({ answered: false, chosenIndex: -1, shuffledOrder: null });
+    }
+    resultsScreen.classList.remove('show');
+    questionCard.style.display = '';
+    renderQuestion(0);
+  });
+
+  renderQuestion(0);
+});
+</script>
+</body>
+</html>
