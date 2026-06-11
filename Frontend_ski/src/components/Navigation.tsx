@@ -16,7 +16,8 @@ import {
   Settings,
   ChevronDown,
   BookOpen,
-  Globe
+  Globe,
+  GraduationCap
 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
