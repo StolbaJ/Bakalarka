@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kviz: B0B33OPT Optimalizace</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f0f4f8;
+    color: #111827;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
+
+  .quiz-header {
+    width: 100%;
+    max-width: 720px;
+    margin-bottom: 24px;
+    color: #111827;
+  }
+
+  .quiz-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+  }
+
+  .quiz-header p {
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 720px;
+    background: #d1d5db;
+    border-radius: 999px;
+    height: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  .score-row {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+    color: #374151;
+  }
+
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.09);
+    padding: 32px 28px 24px;
+    width: 100%;
+    max-width: 720px;
+    color: #111827;
+  }
+
+  .category-badge {
+    display: inline-block;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+
+  .question-text {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 22px;
+    line-height: 1.55;
+  }
+
+  .answers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .answer-btn {
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a1a2e;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    line-height: 1.45;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    background: #e0e7ff;
+    border-color: #6366f1;
+    transform: translateY(-1px);
+    color: #1a1a2e;
+  }
+
+  .answer-btn:disabled {
+    cursor: default;
+  }
+
+  .answer-btn.correct {
+    background: #d1fae5;
+    border-color: #10b981;
+    color: #064e3b;
+  }
+
+  .answer-btn.wrong {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #7f1d1d;
+  }
+
+  .explanation {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    color: #1e3a5f;
+    margin-bottom: 18px;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .explanation.visible {
+    display: block;
+  }
+
+  .nav-row {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+
+  .nav-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 0.93rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .nav-btn:disabled {
+    background: #9ca3af;
+    cursor: default;
+    color: #ffffff;
+  }
+
+  .nav-btn.secondary {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  .nav-btn.secondary:hover:not(:disabled) {
+    background: #d1d5db;
+    color: #374151;
+  }
+
+  .nav-btn.secondary:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+  }
+
+  /* Results screen */
+  .results-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.09);
+    padding: 40px 32px;
+    width: 100%;
+    max-width: 720px;
+    text-align: center;
+    color: #111827;
+    display: none;
+  }
+
+  .results-card.visible {
+    display: block;
+  }
+
+  .results-icon {
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+  }
+
+  .results-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  .results-pct {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #3b82f6;
+    margin-bottom: 8px;
+  }
+
+  .results-sub {
+    font-size: 1rem;
+    color: #4b5563;
+    margin-bottom: 28px;
+  }
+
+  .results-breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .breakdown-item {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .breakdown-num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .breakdown-num.green { color: #10b981; }
+  .breakdown-num.red { color: #ef4444; }
+
+  .breakdown-label {
+    font-size: 0.82rem;
+    color: #6b7280;
+    margin-top: 2px;
+  }
+
+  .grade-msg {
+    background: #eff6ff;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.95rem;
+    color: #1e3a5f;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .restart-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 32px;
+    font-size: 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .restart-btn:hover { background: #2563eb; }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #111827;
+      color: #f9fafb;
+    }
+    .quiz-header h1 { color: #f9fafb; }
+    .quiz-header p { color: #9ca3af; }
+    .progress-bar-wrap { background: #374151; }
+    .score-row { color: #d1d5db; }
+
+    .card {
+      background: #1f2937;
+      color: #f9fafb;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    }
+
+    .question-text { color: #f9fafb; }
+
+    .answer-btn {
+      background: #374151;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      background: #312e81;
+      border-color: #818cf8;
+      color: #e0e7ff;
+    }
+
+    .answer-btn.correct {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #d1fae5;
+    }
+
+    .answer-btn.wrong {
+      background: #7f1d1d;
+      border-color: #ef4444;
+      color: #fee2e2;
+    }
+
+    .explanation {
+      background: #1e3a5f;
+      border-color: #3b82f6;
+      color: #bfdbfe;
+    }
+
+    .nav-btn.secondary {
+      background: #374151;
+      color: #d1d5db;
+    }
+
+    .nav-btn.secondary:hover:not(:disabled) {
+      background: #4b5563;
+      color: #f9fafb;
+    }
+
+    .nav-btn.secondary:disabled {
+      background: #1f2937;
+      color: #6b7280;
+    }
+
+    .results-card {
+      background: #1f2937;
+      color: #f9fafb;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+    }
+
+    .results-title { color: #f9fafb; }
+    .results-sub { color: #9ca3af; }
+
+    .breakdown-item { background: #111827; }
+    .breakdown-num { color: #f9fafb; }
+    .breakdown-label { color: #9ca3af; }
+
+    .grade-msg {
+      background: #1e3a5f;
+      color: #bfdbfe;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-header">
+  <h1>B0B33OPT &mdash; Kviz z Optimalizace</h1>
+  <p>Otestuj si znalosti z linearne algebry v optimalizaci, LP a konvexnich uloh.</p>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+</div>
+
+<div class="score-row">
+  <span id="questionCounter">Otazka 1 z 22</span>
+  <span id="scoreCounter">Skore: 0 / 0</span>
+</div>
+
+<div class="card" id="quizCard">
+  <span class="category-badge" id="categoryBadge">Kategorie</span>
+  <div class="question-text" id="questionText">Otazka se nacita...</div>
+  <div class="answers-grid" id="answersGrid"></div>
+  <div class="explanation" id="explanation"></div>
+  <div class="nav-row">
+    <button class="nav-btn secondary" id="btnBack">&#8592; Zpet</button>
+    <button class="nav-btn" id="btnNext" style="display:none">Dalsi &#8594;</button>
+  </div>
+</div>
+
+<div class="results-card" id="resultsCard">
+  <div class="results-icon" id="resultsIcon">&#127941;</div>
+  <div class="results-title">Kviz dokoncen!</div>
+  <div class="results-pct" id="resultsPct">0 %</div>
+  <div class="results-sub" id="resultsSub">X spravne z Y otazek</div>
+  <div class="results-breakdown">
+    <div class="breakdown-item">
+      <div class="breakdown-num green" id="breakdownCorrect">0</div>
+      <div class="breakdown-label">Spravne</div>
+    </div>
+    <div class="breakdown-item">
+      <div class="breakdown-num red" id="breakdownWrong">0</div>
+      <div class="breakdown-label">Spatne</div>
+    </div>
+  </div>
+  <div class="grade-msg" id="gradeMsg"></div>
+  <button class="restart-btn" id="btnRestart">Zkusit znovu</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CATEGORIES = {
+    'LS': { label: 'Nejmensi ctverce', color: '#6366f1' },
+    'EIG': { label: 'Vlastni cisla', color: '#8b5cf6' },
+    'PCA': { label: 'PCA / SVD', color: '#ec4899' },
+    'EXT': { label: 'Extremy funkci', color: '#f59e0b' },
+    'LP': { label: 'Lin. programovani', color: '#10b981' },
+    'GEO': { label: 'Geometrie LP', color: '#14b8a6' },
+    'DUA': { label: 'Dualita LP', color: '#3b82f6' },
+    'CVX': { label: 'Konvexni funkce', color: '#ef4444' },
+    'NUM': { label: 'Numericke metody', color: '#f97316' },
+    'LAG': { label: 'Lagrangeovy mult.', color: '#84cc16' }
+  };
+
+  var ALL_QUESTIONS = [
+    {
+      cat: 'LS',
+      q: 'Co minimalizuje metoda nejmenssich ctvercu pri reseni preurcenych soustav?',
+      answers: [
+        'Soucet ctvercu rezidui ||Ax - b||^2',
+        'Absolutni hodnotu nejvetsiho rezidua max|Ax - b|',
+        'Normu reseni ||x||',
+        'Pocet nenulovych slozek vektoru x'
+      ],
+      correct: 0,
+      explanation: 'Metoda nejmenssich ctvercu minimalizuje soucet ctvercu rozdilu (rezidui) ||Ax - b||_2^2. Jde o specialni pripad minimalizace ||g(x)||^2, kde g(x) = Ax - b.'
+    },
+    {
+      cat: 'LS',
+      q: 'Jak se jmenuji rovnice, ktere dostaneme z podminky nuloveho gradientu ulohy nejmenssich ctvercu?',
+      answers: [
+        'Normalni rovnice: A^T A x = A^T b',
+        'Lagrangeovy rovnice: L(x,y) = 0',
+        'Eulerovy rovnice: A x = b',
+        'Charakteristicke rovnice: det(A - lambda I) = 0'
+      ],
+      correct: 0,
+      explanation: 'Z podminky nuloveho gradientu odvodime normalni rovnice A^T A x = A^T b. Pokud ma A plny sloupcovy hodnost, je matice A^T A regulerni a reseni je x = (A^T A)^(-1) A^T b.'
+    },
+    {
+      cat: 'LS',
+      q: 'Co je Moore-Penroseova pseudoinverze A^+?',
+      answers: [
+        'Matice, ktera resi ulohu LS nebo najde reseni s nejmensi normou',
+        'Transponovana matice A',
+        'Inverzni matice k A, ktera vzdy existuje',
+        'Matice projekce na jadro A'
+      ],
+      correct: 0,
+      explanation: 'Moore-Penroseova pseudoinverze A^+ je jednoznacne definovana pro libovolnou matici. Vraci bud nejblizsi obraz (preurcenost) nebo reseni s nejmensi normou (nedourcenanost), nebo resi LS pokud Ax = b nema presne reseni.'
+    },
+    {
+      cat: 'LS',
+      q: 'Jaka je matice ortogonalniho projektoru na podprostor rng(A)?',
+      answers: [
+        'P = A(A^T A)^(-1) A^T',
+        'P = A^T(A A^T)^(-1) A',
+        'P = (A^T A)^(-1)',
+        'P = A A^T'
+      ],
+      correct: 0,
+      explanation: 'Ortogonalni projektor na rng(A) ma tvar P = A(A^T A)^(-1) A^T. Je symetricky (P = P^T) a idempotentni (P^2 = P). Vektor Pz je projekce z do podprostoru.'
+    },
+    {
+      cat: 'EIG',
+      q: 'Co plati pro vlastni cisla realne symetricke matice?',
+      answers: [
+        'Jsou vzdy realna a matice ma ortogonalni bazi vlastnich vektoru',
+        'Jsou vzdy komplexni',
+        'Jsou vzdy kladna',
+        'Algebraicka a geometricka nasobnost se vzdy lisi'
+      ],
+      correct: 0,
+      explanation: 'Realna symetricka matice ma vzdy realna vlastni cisla a ortogonalni bazi vlastnich vektoru. Navic plati spektralni rozklad A = Q Lambda Q^T, kde Q je ortogonalni a Lambda diagonalni. Algebraicka = geometricka nasobnost.'
+    },
+    {
+      cat: 'EIG',
+      q: 'Kvadraticka forma x^T A x s pozitivne definitni matici A (vsechna vlastni cisla kladna) ma...',
+      answers: [
+        'Jedinecne globalni minimum v x = 0',
+        'Jedinecne globalni maximum v x = 0',
+        'Sedlovy bod v x = 0',
+        'Nekonecne mnoho minimu'
+      ],
+      correct: 0,
+      explanation: 'Pokud je A pozitivne definitni (A > 0, vsechna lambda_i > 0), je kvadraticka forma striktne konvexni a ma jedinecne globalni minimum v bode x = 0, kde nabiva hodnoty 0.'
+    },
+    {
+      cat: 'EIG',
+      q: 'Spektralni rozklad symetricke matice A ma tvar...',
+      answers: [
+        'A = V Lambda V^T, kde V je ortogonalni a Lambda diagonalni',
+        'A = U Sigma V^T, kde U, V jsou ortogonalni a Sigma diagonalni',
+        'A = L U, kde L je dolni a U horni trojuhelnikova',
+        'A = Q R, kde Q je ortogonalni a R horni trojuhelnikova'
+      ],
+      correct: 0,
+      explanation: 'Spektralni rozklad symetricke matice je A = V Lambda V^T, kde V je ortogonalni matice vlastnich vektoru a Lambda diagonalni matice vlastnich cisel. SVD (A = U Sigma V^T) je obecnejsi a plati pro libovolnou matici.'
+    },
+    {
+      cat: 'EIG',
+      q: 'Jak zjistime typ stacionarniho bodu pomoci Hessovy matice?',
+      answers: [
+        'H > 0 = ostry minimum, H < 0 = ostry maximum, H indefinitni = sedlovy bod',
+        'H > 0 = sedlovy bod, H < 0 = minimum',
+        'Hessova matice nic o typu extremu nerika',
+        'Staci podminka nulovosti gradientu'
+      ],
+      correct: 0,
+      explanation: 'Hessova matice H v stacionarnim bode rozhodne o typu: H > 0 (pos. definitni) = ostry lokalni minimum, H < 0 (neg. definitni) = ostry maximum, H indefinitni = sedlovy bod (zadny extrem).'
+    },
+    {
+      cat: 'PCA',
+      q: 'Co nam rika Eckart-Younguv theorem pri aproximaci matici nizsiho hodnosti?',
+      answers: [
+        'Nejlepsi aproximace matice A hodnosti k (ve Frobeniove norme) je dana prvnimi k cleny SVD: Ak = U Sigma_k V^T',
+        'Nejlepsi aproximace se ziska odebranima nejvacsich singularnich cisel',
+        'Kazda matice nizsiho hodnosti je stejne dobrou aproximaci',
+        'Frobeniova norma neni vhodna mira pro aproximaci'
+      ],
+      correct: 0,
+      explanation: 'Eckart-Younguv theorem rika, ze nejlepsi aproximace matice A hodnosti nejvyse k ve Frobeniove norme je Ak = soucet prvnich k singularnich trenek: Ak = U Sigma_k V^T, kde Sigma_k ma jen prvnich k singularnich cisel.'
+    },
+    {
+      cat: 'PCA',
+      q: 'SVD rozklad matice A ma tvar A = U Sigma V^T. Co jsou singularni cisla?',
+      answers: [
+        'Druhe odmocniny vlastnich cisel matic A A^T nebo A^T A',
+        'Vlastni cisla matice A',
+        'Normy sloupcu matice A',
+        'Diagonalni prvky matice A'
+      ],
+      correct: 0,
+      explanation: 'Singularni cisla sigma_i jsou druhe odmocniny vlastnich cisel matic A A^T a A^T A. SVD existuje pro libovolnou realnou matici (i obdelnikovou) a sigma_1 >= sigma_2 >= ... >= 0.'
+    },
+    {
+      cat: 'PCA',
+      q: 'PCA lze chaptat jako optimalizacni ulohu. Ktery z nasledujicich popisu je spravny?',
+      answers: [
+        'Hledame podprostor dimenze k minimalizujici soucet ctvercu vzdalenosti dat od podprostoru',
+        'Hledame podprostor dimenze k maximalizujici soucet vzdalenosti dat od podprostoru',
+        'PCA nema zadnou formulaci jako optimalizacni uloha',
+        'PCA minimalizuje pocet parametru modelu'
+      ],
+      correct: 0,
+      explanation: 'PCA lze formulovat dvojim zpusobem: minimalizace chyby projekce (soucet ctvercu vzdalenosti od podprostoru) nebo maximalizace zachyceneho rozptylu (stopy). Oba vedou ke stejnemu reseni - prvnim k vlastnim vektorum kovariancni matice.'
+    },
+    {
+      cat: 'EXT',
+      q: 'Kdy je kazde lokalni minimum zaroven globalnim minimem?',
+      answers: [
+        'Kdyz je funkce konvexni',
+        'Kdyz je funkce diferencovatelna',
+        'Kdyz je definicni obor kompaktni',
+        'Kdyz ma funkce prave jeden stacionarni bod'
+      ],
+      correct: 0,
+      explanation: 'Pro konvexni funkce plati klic. vlastnost: kazde lokalni minimum je zaroven globalni. To je dulezite v optimalizaci - staci najit lokalni optimum a vime, ze je to nejlepsi mozne reseni.'
+    },
+    {
+      cat: 'EXT',
+      q: 'Co je podminkou prvniho radu pro stacionarni bod funkce f(x) v bode x*?',
+      answers: [
+        'Gradient nabla f(x*) = 0',
+        'Hessova matice je pozitivne definitni',
+        'Funkcni hodnota f(x*) = 0',
+        'Druhe derivace jsou nulove'
+      ],
+      correct: 0,
+      explanation: 'Podminkou 1. radu pro stacionarni bod je nulovy gradient: nabla f(x*) = 0. To znamena, ze funkce nema v tomto bode zadny smer rustu ani poklesu. Typ stacionarniho bodu (min, max, sedlo) urcime pomoci Hessovy matice (podminka 2. radu).'
+    },
+    {
+      cat: 'NUM',
+      q: 'Jaky je vzorec pro jeden krok gradientni metody (metody nejvetsiho spadu)?',
+      answers: [
+        'x_{k+1} = x_k - alpha_k * nabla f(x_k)',
+        'x_{k+1} = x_k - H_f(x_k)^(-1) * nabla f(x_k)',
+        'x_{k+1} = x_k + alpha_k * nabla f(x_k)',
+        'x_{k+1} = x_k - (J^T J)^(-1) J^T g(x_k)'
+      ],
+      correct: 0,
+      explanation: 'Gradientni metoda pouziva jako smer sestup v opacnem smeru gradientu: x_{k+1} = x_k - alpha_k * nabla f(x_k). Je jednoducha, ale muze konvergovat pomalu. Krok alpha_k > 0 je dulezity pro stabilitu.'
+    },
+    {
+      cat: 'NUM',
+      q: 'Newtonova metoda pro hledani minima pouziva:',
+      answers: [
+        'Inverzi Hessovy matice: x_{k+1} = x_k - H^(-1) nabla f',
+        'Jen gradient, bez druhe derivace',
+        'Jacobiho matici vektorove funkce',
+        'Pouze funkeni hodnoty bez derivaci'
+      ],
+      correct: 0,
+      explanation: 'Newtonova metoda zahrnuje zakriveni funkce pres Hessovu matici: x_{k+1} = x_k - H_f(x_k)^(-1) nabla f(x_k). Ma kvadratickou konvergenci, ale vyzaduje invertovani Hessovy matice v kazdem kroku.'
+    },
+    {
+      cat: 'NUM',
+      q: 'Levenberg-Marquardtova metoda kombinuje:',
+      answers: [
+        'Robustnost gradientni metody s rychlosti Gauss-Newtonovy metody pres parametr mu',
+        'Newtonovu a gradientni metodu pomoci Hessovy matice',
+        'SVD rozklad se spektralnim rozkladem',
+        'Lagrangeovu funkci s penalizacnim clenem'
+      ],
+      correct: 0,
+      explanation: 'L-M metoda pouziva x_{k+1} = x_k - (J^T J + mu I)^(-1) J^T g(x_k). Parametr mu > 0 plynule prepina mezi Gauss-Newtonovou (mu maly) a gradientni (mu velky) metodou, cimz zlepsi stabilitu v obtiznych oblastech.'
+    },
+    {
+      cat: 'LAG',
+      q: 'Lagrangeova funkce pro ulohu min f(x) s omezenim g_i(x) = 0 je:',
+      answers: [
+        'L(x, lambda) = f(x) + suma lambda_i * g_i(x)',
+        'L(x, lambda) = f(x) - suma lambda_i * g_i(x)',
+        'L(x, lambda) = suma lambda_i * f(x)',
+        'L(x, lambda) = f(x) / g(x)'
+      ],
+      correct: 0,
+      explanation: 'Lagrangeova funkce je L(x, lambda) = f(x) + suma lambda_i * g_i(x). V optimu x* musi platit nabla_x L = 0 a g_i(x*) = 0. Lagrangeovy multiplikatory lambda_i maji geometrickou interpretaci: jsou to stinove ceny omezeni.'
+    },
+    {
+      cat: 'LP',
+      q: 'Proc optimum LP (je-li konecne) lezi vzdy alespon v jednom vrcholu polyedru?',
+      answers: [
+        'Protoze cilova funkce c^T x je linearni na konvexnim polyedru',
+        'Protoze LP ma vzdy jedinecne reseni',
+        'Protoze simplex metoda pokazde skonci ve vrcholu',
+        'Protoze polyedr je vzdy omezeny'
+      ],
+      correct: 0,
+      explanation: 'Linearni funkce na konvexni mnozine dosahuje svych extremu na hranici - a na polyedru konkretne ve vrcholu (extremnim bode). Proto neni treba prozkoumavat vnitrek polyedru; staci prohlasit vrcholy.'
+    },
+    {
+      cat: 'LP',
+      q: 'Jak prevedeme LP ulohu s nerovnosti a_i^T x <= b_i do rovnicoveho (kanonickeho) tvaru?',
+      answers: [
+        'Pridame nezapornou slack promennou s_i: a_i^T x + s_i = b_i, s_i >= 0',
+        'Zmenime znamenko: -a_i^T x >= -b_i',
+        'Zvetsime b_i o malou konstantu epsilon',
+        'Prevedeme nerovnost na dve nerovnosti: a_i^T x <= b_i a a_i^T x >= b_i'
+      ],
+      correct: 0,
+      explanation: 'Pro prevod nerovnosti a_i^T x <= b_i do rovnice pridame slack promennou s_i >= 0: a_i^T x + s_i = b_i. Volne promenne (bez znamenkoveho omezeni) rozepiseme jako x_j = x_j^+ - x_j^-, kde x_j^+, x_j^- >= 0.'
+    },
+    {
+      cat: 'GEO',
+      q: 'Co je konvexni mnozina?',
+      answers: [
+        'Mnozina, kde pro kazde dva body x, y lezi cely usecka lambda*x + (1-lambda)*y v mnozine pro lambda z [0,1]',
+        'Mnozina, ktera ma alespon jeden vnitrek bod',
+        'Mnozina ohranicena polynomialnimi krivkami',
+        'Mnozina bez extremnich bodu'
+      ],
+      correct: 0,
+      explanation: 'Mnozina C je konvexni, kdyz pro kazde x, y v C a lambda v [0,1] plati lambda*x + (1-lambda)*y v C. Tedy obsahuje vsechny konvexni kombinace svych bodu. Prunik poloprostoru (polyedr) je vzdy konvexni.'
+    },
+    {
+      cat: 'DUA',
+      q: 'Co rika veta o slabe dualite v LP?',
+      answers: [
+        'Pro kazde pripustne x primalnim a y dualnim: c^T x >= b^T y',
+        'Optimum primalu vzdy rovna optimu dualu',
+        'Primal ma vzdy reseni, pokud ho ma dual',
+        'Dualita plati jen pro kanonicky tvar'
+      ],
+      correct: 0,
+      explanation: 'Veta o slabe dualite: pro kazde pripustne x primalu a y dualu plati c^T x >= b^T y. Dualni hodnota je vzdy dolni mez primalu. Pokud nastane rovnost c^T x = b^T y, jsou oboje reseni optimalni (certifikat optima).'
+    },
+    {
+      cat: 'DUA',
+      q: 'Komplementarni podminka v LP rika, ze v optimu:',
+      answers: [
+        '(c_i - (A^T y)_i) * x_i = 0 pro kazde i - bud je promenna nulova nebo je podminka aktivni',
+        'Vsechny promenne x_i musi byt kladne',
+        'Primal a dual musi mit stejne optimalni body',
+        'Vsechna omezeni musi byt aktivni'
+      ],
+      correct: 0,
+      explanation: 'Komplementarita resi, ze v optimu bud x_i > 0 a tedy (A^T y)_i = c_i (podminka aktivni), nebo x_i = 0 (neni dulezite, podminka muze byt neaktivni). Jinymi slovy: (c_i - (A^T y)_i) * x_i = 0.'
+    },
+    {
+      cat: 'CVX',
+      q: 'Funkce f je konvexni, kdyz:',
+      answers: [
+        'f(lambda*x + (1-lambda)*y) <= lambda*f(x) + (1-lambda)*f(y) pro vsechna x, y a lambda v [0,1]',
+        'f(lambda*x + (1-lambda)*y) >= lambda*f(x) + (1-lambda)*f(y)',
+        'Gradient f je vsude nulovy',
+        'Hessova matice je negativne definitni'
+      ],
+      correct: 0,
+      explanation: 'Konvexita znamena, ze tecna parabola (chord) lezi nad grafem funkce: f(lambda*x + (1-lambda)*y) <= lambda*f(x) + (1-lambda)*f(y). Ekvivalentne: grad. podminka f(y) >= f(x) + nabla f(x)^T (y-x), nebo Hessova podminka: nabla^2 f(x) >= 0.'
+    }
+  ];
+
+  // State
+  var questions = [];
+  var questionStates = [];
+  var currentIndex = 0;
+  var score = 0;
+  var answered = 0;
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function initQuiz() {
+    questions = shuffle(ALL_QUESTIONS);
+    questionStates = questions.map(function(q) {
+      var indices = [0, 1, 2, 3];
+      var shuffledOrder = shuffle(indices);
+      return {
+        answered: false,
+        chosenIndex: -1,
+        shuffledOrder: shuffledOrder
+      };
+    });
+    currentIndex = 0;
+    score = 0;
+    answered = 0;
+
+    document.getElementById('quizCard').style.display = '';
+    document.getElementById('resultsCard').classList.remove('visible');
+    updateProgress();
+    renderQuestion();
+  }
+
+  function updateProgress() {
+    var total = questions.length;
+    var pct = Math.round((answered / total) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('questionCounter').textContent = 'Otazka ' + (currentIndex + 1) + ' z ' + total;
+    document.getElementById('scoreCounter').textContent = 'Skore: ' + score + ' / ' + answered;
+  }
+
+  function renderQuestion() {
+    var q = questions[currentIndex];
+    var state = questionStates[currentIndex];
+    var cat = CATEGORIES[q.cat];
+
+    // Category badge
+    var badge = document.getElementById('categoryBadge');
+    badge.textContent = cat.label;
+    badge.style.backgroundColor = cat.color;
+
+    // Question text
+    document.getElementById('questionText').textContent = q.q;
+
+    // Answers
+    var grid = document.getElementById('answersGrid');
+    grid.innerHTML = '';
+
+    state.shuffledOrder.forEach(function(origIndex, displayPos) {
+      var btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = q.answers[origIndex];
+
+      if (state.answered) {
+        btn.disabled = true;
+        if (origIndex === q.correct) {
+          btn.classList.add('correct');
+        } else if (origIndex === state.chosenIndex) {
+          btn.classList.add('wrong');
+        }
+      } else {
+        btn.addEventListener('click', (function(oi) {
+          return function() { selectAnswer(oi); };
+        })(origIndex));
+      }
+
+      grid.appendChild(btn);
+    });
+
+    // Explanation
+    var expEl = document.getElementById('explanation');
+    if (state.answered) {
+      expEl.textContent = q.explanation;
+      expEl.classList.add('visible');
+    } else {
+      expEl.textContent = '';
+      expEl.classList.remove('visible');
+    }
+
+    // Nav buttons
+    var btnBack = document.getElementById('btnBack');
+    var btnNext = document.getElementById('btnNext');
+
+    btnBack.disabled = (currentIndex === 0);
+
+    if (state.answered) {
+      btnNext.style.display = '';
+      if (currentIndex === questions.length - 1) {
+        btnNext.textContent = 'Zobrazit vysledky';
+      } else {
+        btnNext.textContent = 'Dalsi →';
+      }
+      // If reviewing old question, allow forward only up to latest answered or unanswered
+      var latestReachable = getLatestReachable();
+      if (currentIndex >= latestReachable && currentIndex === questions.length - 1) {
+        btnNext.textContent = 'Zobrazit vysledky';
+      }
+    } else {
+      btnNext.style.display = 'none';
+    }
+
+    updateProgress();
+  }
+
+  function getLatestReachable() {
+    // Latest index we can go to: first unanswered or last question
+    for (var i = 0; i < questionStates.length; i++) {
+      if (!questionStates[i].answered) return i;
+    }
+    return questionStates.length - 1;
+  }
+
+  function selectAnswer(chosenOrigIndex) {
+    var q = questions[currentIndex];
+    var state = questionStates[currentIndex];
+
+    if (state.answered) return;
+
+    state.answered = true;
+    state.chosenIndex = chosenOrigIndex;
+    answered++;
+
+    if (chosenOrigIndex === q.correct) {
+      score++;
+    }
+
+    // Update button styles
+    var btns = document.querySelectorAll('.answer-btn');
+    var order = state.shuffledOrder;
+    btns.forEach(function(btn, displayPos) {
+      btn.disabled = true;
+      var origIndex = order[displayPos];
+      if (origIndex === q.correct) {
+        btn.classList.add('correct');
+      } else if (origIndex === chosenOrigIndex) {
+        btn.classList.add('wrong');
+      }
+    });
+
+    // Show explanation
+    var expEl = document.getElementById('explanation');
+    expEl.textContent = q.explanation;
+    expEl.classList.add('visible');
+
+    // Show next button
+    var btnNext = document.getElementById('btnNext');
+    btnNext.style.display = '';
+    if (currentIndex === questions.length - 1) {
+      btnNext.textContent = 'Zobrazit vysledky';
+    } else {
+      btnNext.textContent = 'Dalsi →';
+    }
+
+    updateProgress();
+  }
+
+  function goNext() {
+    if (currentIndex === questions.length - 1) {
+      showResults();
+      return;
+    }
+    // Can advance only up to latest reachable
+    var latestReachable = getLatestReachable();
+    if (currentIndex < latestReachable) {
+      currentIndex++;
+      renderQuestion();
+    } else if (currentIndex === latestReachable && questionStates[currentIndex].answered) {
+      if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+  }
+
+  function goBack() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderQuestion();
+    }
+  }
+
+  function showResults() {
+    document.getElementById('quizCard').style.display = 'none';
+    var pct = Math.round((score / questions.length) * 100);
+    document.getElementById('resultsPct').textContent = pct + ' %';
+    document.getElementById('resultsSub').textContent = score + ' spravne z ' + questions.length + ' otazek';
+    document.getElementById('breakdownCorrect').textContent = score;
+    document.getElementById('breakdownWrong').textContent = (questions.length - score);
+
+    var icon, msg;
+    if (pct >= 90) {
+      icon = '🏆';
+      msg = 'Vynikajici! Ovladate latku na vyborne. Jste pripraveni na zkousku z B0B33OPT.';
+    } else if (pct >= 75) {
+      icon = '😊';
+      msg = 'Dobre! Vasnalost je solidni. Doporucuji projit chybne zodpovezene otazky a opakovat.';
+    } else if (pct >= 55) {
+      icon = '📚';
+      msg = 'Prumerne. Nektere temata je potreba procvicit. Zamerite se predevsim na chybna temata.';
+    } else {
+      icon = '🔍';
+      msg = 'Materialje obtizny. Doporucuji znovu projit studijni materialy, predevsim LP, dualitu a konvexni funkce.';
+    }
+
+    document.getElementById('resultsIcon').textContent = icon;
+    document.getElementById('gradeMsg').textContent = msg;
+    document.getElementById('resultsCard').classList.add('visible');
+
+    // Update progress to 100%
+    document.getElementById('progressBar').style.width = '100%';
+    document.getElementById('questionCounter').textContent = 'Kviz dokoncen';
+    document.getElementById('scoreCounter').textContent = 'Skore: ' + score + ' / ' + questions.length;
+  }
+
+  // Event listeners
+  document.getElementById('btnNext').addEventListener('click', function() {
+    goNext();
+  });
+
+  document.getElementById('btnBack').addEventListener('click', function() {
+    goBack();
+  });
+
+  document.getElementById('btnRestart').addEventListener('click', function() {
+    initQuiz();
+  });
+
+  // Start
+  initQuiz();
+});
+</script>
+</body>
+</html>

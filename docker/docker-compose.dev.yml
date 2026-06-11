@@ -50,11 +50,11 @@ services:
     networks:
       - app-network
 
-  # Next.js aplikace (context = složka Frontend_ski)
+  # Next.js aplikace (context = root repozitáře, aby Dockerfile viděl i priprava/)
   frontend:
     build:
-      context: ../Frontend_ski
-      dockerfile: ../docker/frontend/Dockerfile
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
         API_PROXY_TARGET: http://backend:8080

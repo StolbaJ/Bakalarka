@@ -54,8 +54,8 @@ services:
   # Next.js aplikace (NEXT_PUBLIC_API_URL při buildu: prázdné = same origin na prod)
   frontend:
     build:
-      context: ../Frontend_ski
-      dockerfile: ../docker/frontend/Dockerfile
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
     container_name: frontend-ski

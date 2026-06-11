@@ -1,5 +1,5 @@
 # Multi-stage build pro Next.js aplikaci
-# Build context = Frontend_ski (viz docker-compose: context: ../Frontend_ski)
+# Build context = root repozitáře (obsahuje Frontend_ski/ i priprava/)
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
@@ -8,14 +8,16 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY Frontend_ski/package.json Frontend_ski/package-lock.json* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY Frontend_ski/ .
+# Automaticky synchronizuje kvízy ze složky priprava/ do public/
+COPY priprava/ ./public/priprava/
 
 # NEXT_PUBLIC_* se vkládá při buildu – na prod prázdné = same origin (nginx proxy /api)
 ARG NEXT_PUBLIC_API_URL
