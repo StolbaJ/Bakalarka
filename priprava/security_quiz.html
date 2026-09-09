@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentals of Security and Cryptography - Quiz</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #f1f5f9;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  body {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 700px;
+    color: #111827;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 16px;
+    color: #111827;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    margin: 0 0 4px 0;
+    color: #111827;
+  }
+
+  .header p {
+    font-size: 13px;
+    margin: 0;
+    color: #4b5563;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #4b5563;
+  }
+
+  .score-box {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .progress-track {
+    width: 100%;
+    height: 10px;
+    background-color: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: #4f46e5;
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 22px;
+    color: #111827;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  .cat-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+
+  .cat-fundamentals { background-color: #dbeafe; color: #1e3a8a; }
+  .cat-cia { background-color: #ede9fe; color: #5b21b6; }
+  .cat-terminology { background-color: #ffedd5; color: #9a3412; }
+  .cat-adversaries { background-color: #fee2e2; color: #991b1b; }
+  .cat-threats { background-color: #ccfbf1; color: #115e59; }
+  .cat-phishing { background-color: #fce7f3; color: #9d174d; }
+  .cat-fails { background-color: #dcfce7; color: #166534; }
+
+  .question-text {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 18px 0;
+    color: #111827;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 14.5px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    border-radius: 10px;
+    border: 1.5px solid #d1d5db;
+    background-color: #ffffff;
+    color: #1a1a2e;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    background-color: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  .answer-btn:disabled {
+    cursor: default;
+  }
+
+  .answer-btn.correct {
+    background-color: #dcfce7;
+    border-color: #16a34a;
+    color: #14532d;
+    font-weight: 600;
+  }
+
+  .answer-btn.incorrect {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #7f1d1d;
+    font-weight: 600;
+  }
+
+  .explanation {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background-color: #f3f4f6;
+    border-left: 4px solid #4f46e5;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #1f2937;
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    border-radius: 10px;
+    border: 1.5px solid #d1d5db;
+    background-color: #ffffff;
+    color: #111827;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .nav-btn:hover:not(:disabled) {
+    background-color: #f3f4f6;
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+    color: #6b7280;
+  }
+
+  .nav-btn.primary {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+    color: #ffffff;
+  }
+
+  .nav-btn.primary:hover:not(:disabled) {
+    background-color: #4338ca;
+  }
+
+  .nav-btn.primary:disabled {
+    background-color: #a5b4fc;
+    border-color: #a5b4fc;
+    color: #eef2ff;
+    opacity: 1;
+  }
+
+  .results {
+    text-align: center;
+    padding: 10px;
+  }
+
+  .results h2 {
+    font-size: 22px;
+    margin: 0 0 6px 0;
+    color: #111827;
+  }
+
+  .results .big-score {
+    font-size: 44px;
+    font-weight: 700;
+    color: #4f46e5;
+    margin: 10px 0;
+  }
+
+  .results p {
+    color: #4b5563;
+    font-size: 14px;
+    margin: 4px 0 18px 0;
+  }
+
+  .restart-btn {
+    padding: 12px 22px;
+    font-size: 14.5px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    border-radius: 10px;
+    border: none;
+    background-color: #4f46e5;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .restart-btn:hover {
+    background-color: #4338ca;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html, body {
+      background-color: #0f172a;
+      color: #f1f5f9;
+    }
+
+    .header, .header h1 {
+      color: #f1f5f9;
+    }
+
+    .header p {
+      color: #94a3b8;
+    }
+
+    .top-bar {
+      color: #94a3b8;
+    }
+
+    .score-box {
+      color: #f1f5f9;
+    }
+
+    .progress-track {
+      background-color: #334155;
+    }
+
+    .progress-fill {
+      background-color: #818cf8;
+    }
+
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      box-shadow: none;
+    }
+
+    .cat-fundamentals { background-color: #1e3a8a; color: #dbeafe; }
+    .cat-cia { background-color: #5b21b6; color: #ede9fe; }
+    .cat-terminology { background-color: #9a3412; color: #ffedd5; }
+    .cat-adversaries { background-color: #991b1b; color: #fee2e2; }
+    .cat-threats { background-color: #115e59; color: #ccfbf1; }
+    .cat-phishing { background-color: #9d174d; color: #fce7f3; }
+    .cat-fails { background-color: #166534; color: #dcfce7; }
+
+    .question-text {
+      color: #f1f5f9;
+    }
+
+    .answer-btn {
+      background-color: #1e293b;
+      border: 1.5px solid #475569;
+      color: #f1f5f9;
+    }
+
+    .answer-btn:hover:not(:disabled) {
+      background-color: #263449;
+      border-color: #64748b;
+    }
+
+    .answer-btn.correct {
+      background-color: #14532d;
+      border-color: #22c55e;
+      color: #dcfce7;
+    }
+
+    .answer-btn.incorrect {
+      background-color: #7f1d1d;
+      border-color: #ef4444;
+      color: #fee2e2;
+    }
+
+    .explanation {
+      background-color: #263449;
+      border-left: 4px solid #818cf8;
+      color: #e2e8f0;
+    }
+
+    .nav-btn {
+      background-color: #1e293b;
+      border: 1.5px solid #475569;
+      color: #f1f5f9;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background-color: #263449;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      color: #64748b;
+    }
+
+    .nav-btn.primary {
+      background-color: #6366f1;
+      border-color: #6366f1;
+      color: #ffffff;
+    }
+
+    .nav-btn.primary:hover:not(:disabled) {
+      background-color: #4f46e5;
+    }
+
+    .nav-btn.primary:disabled {
+      background-color: #3730a3;
+      border-color: #3730a3;
+      color: #c7d2fe;
+      opacity: 1;
+    }
+
+    .results h2 {
+      color: #f1f5f9;
+    }
+
+    .results .big-score {
+      color: #818cf8;
+    }
+
+    .results p {
+      color: #94a3b8;
+    }
+
+    .restart-btn {
+      background-color: #6366f1;
+      color: #ffffff;
+    }
+
+    .restart-btn:hover {
+      background-color: #4f46e5;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Fundamentals of Security and Cryptography</h1>
+    <p>Lecture 1 Quiz: Attackers, CIA Model, Terminology and Key Concepts</p>
+  </div>
+  <div class="top-bar">
+    <span id="questionCounter">Question 1 of 20</span>
+    <span class="score-box" id="scoreBox">Score: 0 / 0</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+  </div>
+  <div class="card" id="quizCard"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var rawQuestions = [
+    {
+      category: 'Fundamentals',
+      catClass: 'cat-fundamentals',
+      question: 'According to the lecture, what is cybersecurity primarily about protecting?',
+      options: [
+        'A system with regards to its assets',
+        'Only the physical hardware of a computer',
+        'Only a company financial records',
+        'Only user passwords'
+      ],
+      correct: 0,
+      explanation: 'Cybersecurity was defined as the protection of a system with regards to its assets, which can include hardware, software, data, and communication facilities.'
+    },
+    {
+      category: 'Fundamentals',
+      catClass: 'cat-fundamentals',
+      question: 'What important disclaimer did the lecture make about achieving perfect security?',
+      options: [
+        'There is no such thing as 100 percent cybersecurity',
+        'Modern encryption makes systems permanently unbreakable',
+        'Once a system is patched it can never be hacked again',
+        'Cybersecurity is optional for small organizations'
+      ],
+      correct: 0,
+      explanation: 'The lecture stated clearly that there is no 100 percent cybersecurity and that absolutely anything can be hacked.'
+    },
+    {
+      category: 'Fundamentals',
+      catClass: 'cat-fundamentals',
+      question: 'What warning did the lecture give about vendors claiming a bullet-proof security product?',
+      options: [
+        'You should not trust them, referring to it as snake-oil cryptography',
+        'You should always buy their product immediately',
+        'Such products are always backed by government certification',
+        'Such claims are only made by universities'
+      ],
+      correct: 0,
+      explanation: 'The lecture warned that anyone claiming to have a super bullet-proof security product should not be trusted, describing this as snake-oil cryptography.'
+    },
+    {
+      category: 'CIA Triad',
+      catClass: 'cat-cia',
+      question: 'In the CIA triad, what does Confidentiality refer to?',
+      options: [
+        'Information is not made available or disclosed to unauthorized individuals, entities or processes',
+        'A system works as intended and is not denied to authorized users',
+        'The accuracy and completeness of data is maintained over time',
+        'Actions of an entity can be traced uniquely to that entity'
+      ],
+      correct: 0,
+      explanation: 'Confidentiality means information is not made available or disclosed to unauthorized individuals, entities, or processes.'
+    },
+    {
+      category: 'CIA Triad',
+      catClass: 'cat-cia',
+      question: 'In the CIA triad, what does Integrity refer to?',
+      options: [
+        'Maintaining and assuring the accuracy and completeness of data over time',
+        'Preventing unauthorized individuals from viewing information',
+        'Ensuring a service is never denied to authorized users',
+        'Being able to verify that something is genuine'
+      ],
+      correct: 0,
+      explanation: 'Integrity is about maintaining and assuring the accuracy and completeness of data (and systems) over time.'
+    },
+    {
+      category: 'CIA Triad',
+      catClass: 'cat-cia',
+      question: 'In the CIA triad, what does Availability refer to?',
+      options: [
+        'Assuring that a system works as intended and service is not denied to authorized users',
+        'Assuring that data cannot be read by unauthorized people',
+        'Assuring that data has not been modified without authorization',
+        'Assuring that an action can be traced back to its origin'
+      ],
+      correct: 0,
+      explanation: 'Availability means assuring that a system works as intended and that service is not denied to authorized users.'
+    },
+    {
+      category: 'CIA Triad',
+      catClass: 'cat-cia',
+      question: 'If hackers bring down a website so it cannot be reached for several days, which CIA property is primarily violated?',
+      options: [
+        'Availability',
+        'Confidentiality',
+        'Integrity',
+        'Accountability'
+      ],
+      correct: 0,
+      explanation: 'The lecture used exactly this example (a website being taken down for days) to illustrate a violation of Availability.'
+    },
+    {
+      category: 'Security Properties',
+      catClass: 'cat-cia',
+      question: 'How was Authenticity defined in the lecture?',
+      options: [
+        'The property of being genuine and being able to be verified and trusted',
+        'The property of never being disclosed to unauthorized parties',
+        'The property of a system always being online',
+        'The property of data never changing over time'
+      ],
+      correct: 0,
+      explanation: 'Authenticity is the property of being genuine and being able to be verified and trusted.'
+    },
+    {
+      category: 'Security Properties',
+      catClass: 'cat-cia',
+      question: 'Which of the following does the lecture say Accountability supports?',
+      options: [
+        'Nonrepudiation, fault isolation, intrusion detection and prevention, and after-action recovery and legal action',
+        'Faster network speeds and lower latency',
+        'Automatic encryption of all stored data',
+        'Guaranteed system uptime of 100 percent'
+      ],
+      correct: 0,
+      explanation: 'Accountability generates requirements for actions of an entity to be traced uniquely to that entity, and it supports nonrepudiation, fault isolation, intrusion detection and prevention, and after-action recovery and legal action.'
+    },
+    {
+      category: 'Terminology',
+      catClass: 'cat-terminology',
+      question: 'How does the lecture define a bug?',
+      options: [
+        'A programming or hardware error or mistake that may open a system to be vulnerable',
+        'A program that delivers malicious code through a security hole',
+        'A software or hardware weakness that can be taken advantage of',
+        'The malicious code delivered through an exploit'
+      ],
+      correct: 0,
+      explanation: 'Bugs are programming or hardware errors and mistakes that may open a system to being vulnerable.'
+    },
+    {
+      category: 'Terminology',
+      catClass: 'cat-terminology',
+      question: 'How does the lecture define a vulnerability?',
+      options: [
+        'A software or hardware bug which can be taken advantage of to achieve unintended behaviour',
+        'A programming error that has no security consequence',
+        'A program that delivers a payload to a remote system',
+        'The malicious code delivered once a system is compromised'
+      ],
+      correct: 0,
+      explanation: 'A vulnerability is a software or hardware bug that can be taken advantage of to achieve unintended behaviour; some vulnerabilities even have specific names.'
+    },
+    {
+      category: 'Terminology',
+      catClass: 'cat-terminology',
+      question: 'How does the lecture define an exploit?',
+      options: [
+        'A program that utilizes a vulnerability to take advantage of the security hole that is there',
+        'A programming mistake that creates a security hole',
+        'The malicious code or program delivered through a vulnerability',
+        'A method used only by governments to gather intelligence'
+      ],
+      correct: 0,
+      explanation: 'An exploit is a program that utilizes a vulnerability to take advantage of the security hole that exists.'
+    },
+    {
+      category: 'Terminology',
+      catClass: 'cat-terminology',
+      question: 'How does the lecture define a payload?',
+      options: [
+        'The malicious code or programs which are delivered through the exploit',
+        'A program that finds vulnerabilities in software',
+        'A bug that has not yet been discovered',
+        'A method for verifying that a system is authentic'
+      ],
+      correct: 0,
+      explanation: 'Payloads are the malicious code or programs which are delivered through the exploit, such as a reverse shell or an XSS script.'
+    },
+    {
+      category: 'Terminology',
+      catClass: 'cat-terminology',
+      question: 'Which of the following was given as an example of a named vulnerability in the lecture?',
+      options: [
+        'Log4shell',
+        'A generic buffer overflow',
+        'A generic race condition',
+        'A generic input validation error'
+      ],
+      correct: 0,
+      explanation: 'Log4shell, along with Heartbleed and Baron Samedit, was listed as an example of a named vulnerability, as opposed to generic vulnerability classes like SQL injection or XSS.'
+    },
+    {
+      category: 'Adversaries',
+      catClass: 'cat-adversaries',
+      question: 'What is the primary motivation of Script Kiddies according to the lecture?',
+      options: [
+        'Curiosity, fun and thrills, and attention',
+        'Espionage for national security purposes',
+        'Financial gain through ransomware',
+        'Political or religious causes'
+      ],
+      correct: 0,
+      explanation: 'Script Kiddies are motivated by curiosity, fun and thrills, and attention.'
+    },
+    {
+      category: 'Adversaries',
+      catClass: 'cat-adversaries',
+      question: 'How does the lecture describe the capabilities of Script Kiddies?',
+      options: [
+        'Low capabilities, relying on pre-built tools and hacks',
+        'Very high capabilities, comparable to state-sponsored actors',
+        'Capabilities focused exclusively on cryptography research',
+        'Capabilities limited only to physical break-ins'
+      ],
+      correct: 0,
+      explanation: 'Script Kiddies were described as having low capabilities, relying on tools and hacks that others have built.'
+    },
+    {
+      category: 'Adversaries',
+      catClass: 'cat-adversaries',
+      question: 'What is a common motivation for Governments as cyber adversaries, according to the lecture?',
+      options: [
+        'Intelligence gathering for national security purposes, i.e. espionage',
+        'Curiosity and personal entertainment',
+        'Random attacks with no clear target',
+        'Support for online gaming communities'
+      ],
+      correct: 0,
+      explanation: 'Governments are motivated by intelligence gathering for national security purposes (espionage), financial gain, and competitive advantage.'
+    },
+    {
+      category: 'Adversaries',
+      catClass: 'cat-adversaries',
+      question: 'Which means of accomplishment is associated with government-level cyber adversaries in the lecture?',
+      options: [
+        'Usage of 0-days and spearphishing',
+        'Only using easy-to-use DDoS tools',
+        'Only defacing websites',
+        'Only using pre-built scripts found online'
+      ],
+      correct: 0,
+      explanation: 'Governments were described as using 0-days, spearphishing, stealthy malware, and detection avoidance, reflecting their very high capabilities.'
+    },
+    {
+      category: 'Adversaries',
+      catClass: 'cat-adversaries',
+      question: 'What primarily motivates Hacktivists according to the lecture?',
+      options: [
+        'Political causes and social change',
+        'Financial gain in cryptocurrency',
+        'Curiosity and personal thrills',
+        'Espionage for a government'
+      ],
+      correct: 0,
+      explanation: 'Hacktivists are motivated by political causes and social change, using means such as doxxing, DDoS, and website defacements.'
+    },
+    {
+      category: 'Adversaries',
+      catClass: 'cat-adversaries',
+      question: 'What primarily motivates Criminals as cyber adversaries, according to the lecture?',
+      options: [
+        'Financial gain and reputational gains',
+        'Political causes',
+        'National security concerns',
+        'Curiosity and thrills only'
+      ],
+      correct: 0,
+      explanation: 'Criminals are motivated by financial gain, often in cryptocurrencies, as well as reputational gains.'
+    },
+    {
+      category: 'Adversaries',
+      catClass: 'cat-adversaries',
+      question: 'What does the lecture say about Cyber Terrorists?',
+      options: [
+        'They are motivated by political or religious causes and may target critical infrastructure',
+        'They are motivated purely by financial reward',
+        'They always have low capabilities',
+        'They exclusively target video game servers'
+      ],
+      correct: 0,
+      explanation: 'Cyber Terrorists are motivated by political or religious causes and may target companies responsible for critical infrastructure or military targets.'
+    },
+    {
+      category: 'Threats',
+      catClass: 'cat-threats',
+      question: 'How does the lecture classify types of threats at a high level?',
+      options: [
+        'Active attacks and passive attacks',
+        'Internal attacks and external attacks',
+        'Physical attacks and digital attacks',
+        'Human attacks and machine attacks'
+      ],
+      correct: 0,
+      explanation: 'The lecture presented a simple classification of threats into active attacks and passive attacks.'
+    },
+    {
+      category: 'Threats',
+      catClass: 'cat-threats',
+      question: 'Which of the following was listed as an example of a passive attack?',
+      options: [
+        'Eavesdropping on network traffic',
+        'Denial of Service (DoS)',
+        'SQL Injection',
+        'Man-in-the-Middle (MitM)'
+      ],
+      correct: 0,
+      explanation: 'Eavesdropping on network traffic is a passive attack, described as extremely difficult to detect.'
+    },
+    {
+      category: 'Threats',
+      catClass: 'cat-threats',
+      question: 'Which of the following was listed as an example of an active attack?',
+      options: [
+        'Denial of Service (DoS)',
+        'Traffic analysis',
+        'Shoulder surfing',
+        'DNS querying for information gathering'
+      ],
+      correct: 0,
+      explanation: 'Denial of Service is listed as an active attack, which the lecture noted can be much more destructive than passive attacks.'
+    },
+    {
+      category: 'Phishing',
+      catClass: 'cat-phishing',
+      question: 'What is Spearphishing, according to the lecture?',
+      options: [
+        'Phishing that is highly customized for a specific target',
+        'Phishing conducted through SMS messages',
+        'Phishing conducted over a voice call',
+        'Phishing that targets only government employees'
+      ],
+      correct: 0,
+      explanation: 'Spearphishing is described as phishing that is highly customized for a specific target.'
+    },
+    {
+      category: 'Phishing',
+      catClass: 'cat-phishing',
+      question: 'What is Smishing, according to the lecture?',
+      options: [
+        'Phishing but conducted with SMS',
+        'Phishing but conducted over a voice call',
+        'Phishing that is highly customized for one target',
+        'Phishing that only uses malicious email attachments'
+      ],
+      correct: 0,
+      explanation: 'Smishing is phishing carried out using SMS text messages.'
+    },
+    {
+      category: 'Phishing',
+      catClass: 'cat-phishing',
+      question: 'What is Vishing, according to the lecture?',
+      options: [
+        'Phishing but conducted over a voice call',
+        'Phishing but conducted with SMS',
+        'Phishing that is highly customized for one target',
+        'Phishing that impersonates only universities'
+      ],
+      correct: 0,
+      explanation: 'Vishing is phishing carried out over a voice call.'
+    },
+    {
+      category: 'Phishing',
+      catClass: 'cat-phishing',
+      question: 'According to the lecture, how does a phisher typically establish trust with a target?',
+      options: [
+        'By impersonating entities that the target already trusts',
+        'By presenting official government identification',
+        'By always meeting the target in person first',
+        'By using only encrypted communication channels'
+      ],
+      correct: 0,
+      explanation: 'The lecture explained that the person performing the phishing needs to establish trust by impersonating entities that the target trusts, such as a look-alike domain or a compromised mailbox.'
+    },
+    {
+      category: 'Why Security Fails',
+      catClass: 'cat-fails',
+      question: 'According to the lecture, what is described as the biggest problem in security, though hard to solve?',
+      options: [
+        'Humans',
+        'Outdated hardware',
+        'Slow internet connections',
+        'Lack of firewalls'
+      ],
+      correct: 0,
+      explanation: 'The lecture stated that humans are the biggest problem in security, being the weakest point on all networks and systems, and also the ones who build software with errors.'
+    },
+    {
+      category: 'Why Security Fails',
+      catClass: 'cat-fails',
+      question: 'Which computational threat was mentioned as a reason cryptography can eventually fail?',
+      options: [
+        'Quantum computers threatening problems like integer factorization and discrete logarithm',
+        'Slower processors making encryption weaker',
+        'A shortage of internet bandwidth',
+        'A reduction in the number of programming languages'
+      ],
+      correct: 0,
+      explanation: 'The lecture mentioned that quantum computers threaten mathematical problems such as integer factorization, the discrete logarithm problem, and the elliptic-curve discrete logarithm problem, which underpin much of modern cryptography.'
+    }
+  ];
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  var questionOrder = shuffleArray(rawQuestions.map(function(q, idx) { return idx; }));
+
+  var quizState = questionOrder.map(function(origIdx) {
+    var q = rawQuestions[origIdx];
+    var optionIndices = [0, 1, 2, 3];
+    var shuffledIdx = shuffleArray(optionIndices);
+    var shuffledOptions = shuffledIdx.map(function(i) { return q.options[i]; });
+    var newCorrectIndex = shuffledIdx.indexOf(q.correct);
+    return {
+      category: q.category,
+      catClass: q.catClass,
+      question: q.question,
+      explanation: q.explanation,
+      options: shuffledOptions,
+      correctIndex: newCorrectIndex,
+      answered: false,
+      selectedIndex: null
+    };
+  });
+
+  var total = quizState.length;
+  var currentIndex = 0;
+  var furthestIndex = 0;
+  var quizFinished = false;
+
+  var card = document.getElementById('quizCard');
+  var progressFill = document.getElementById('progressFill');
+  var questionCounter = document.getElementById('questionCounter');
+  var scoreBox = document.getElementById('scoreBox');
+
+  function computeScore() {
+    var correctCount = 0;
+    var answeredCount = 0;
+    for (var i = 0; i < total; i++) {
+      if (quizState[i].answered) {
+        answeredCount++;
+        if (quizState[i].selectedIndex === quizState[i].correctIndex) {
+          correctCount++;
+        }
+      }
+    }
+    return { correct: correctCount, answered: answeredCount };
+  }
+
+  function updateTopBar() {
+    var score = computeScore();
+    scoreBox.textContent = 'Score: ' + score.correct + ' / ' + score.answered;
+    if (quizFinished) {
+      questionCounter.textContent = 'Results';
+      progressFill.style.width = '100%';
+    } else {
+      questionCounter.textContent = 'Question ' + (currentIndex + 1) + ' of ' + total;
+      var pct = Math.round((score.answered / total) * 100);
+      progressFill.style.width = pct + '%';
+    }
+  }
+
+  function selectAnswer(qIndex, optIndex) {
+    var q = quizState[qIndex];
+    if (q.answered) {
+      return;
+    }
+    q.answered = true;
+    q.selectedIndex = optIndex;
+
+    if (qIndex === furthestIndex) {
+      if (qIndex === total - 1) {
+        quizFinished = true;
+      } else {
+        furthestIndex = qIndex + 1;
+      }
+    }
+
+    renderQuestion(qIndex);
+    updateTopBar();
+  }
+
+  function goBack() {
+    if (currentIndex > 0) {
+      currentIndex = currentIndex - 1;
+      renderQuestion(currentIndex);
+      updateTopBar();
+    }
+  }
+
+  function goNext() {
+    if (currentIndex < furthestIndex) {
+      currentIndex = currentIndex + 1;
+      renderQuestion(currentIndex);
+      updateTopBar();
+    }
+  }
+
+  function showResults() {
+    quizFinished = true;
+    renderResults();
+    updateTopBar();
+  }
+
+  function restartQuiz() {
+    questionOrder = shuffleArray(rawQuestions.map(function(q, idx) { return idx; }));
+    quizState = questionOrder.map(function(origIdx) {
+      var q = rawQuestions[origIdx];
+      var optionIndices = [0, 1, 2, 3];
+      var shuffledIdx = shuffleArray(optionIndices);
+      var shuffledOptions = shuffledIdx.map(function(i) { return q.options[i]; });
+      var newCorrectIndex = shuffledIdx.indexOf(q.correct);
+      return {
+        category: q.category,
+        catClass: q.catClass,
+        question: q.question,
+        explanation: q.explanation,
+        options: shuffledOptions,
+        correctIndex: newCorrectIndex,
+        answered: false,
+        selectedIndex: null
+      };
+    });
+    currentIndex = 0;
+    furthestIndex = 0;
+    quizFinished = false;
+    renderQuestion(currentIndex);
+    updateTopBar();
+  }
+
+  function renderQuestion(qIndex) {
+    var q = quizState[qIndex];
+
+    var html = '';
+    html += '<span class="cat-tag ' + q.catClass + '">' + q.category + '</span>';
+    html += '<p class="question-text">' + q.question + '</p>';
+    html += '<div class="options" id="optionsWrap"></div>';
+    if (q.answered) {
+      html += '<div class="explanation">' + q.explanation + '</div>';
+    }
+    html += '<div class="nav-row">';
+    html += '<button class="nav-btn" id="backBtn">&larr; Back</button>';
+    if (qIndex === total - 1 && q.answered) {
+      html += '<button class="nav-btn primary" id="finishBtn">See Results</button>';
+    } else {
+      html += '<button class="nav-btn primary" id="nextBtn">Next &rarr;</button>';
+    }
+    html += '</div>';
+
+    card.innerHTML = html;
+
+    var optionsWrap = document.getElementById('optionsWrap');
+    q.options.forEach(function(optText, optIdx) {
+      var btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = optText;
+      btn.type = 'button';
+
+      if (q.answered) {
+        btn.disabled = true;
+        if (optIdx === q.correctIndex) {
+          btn.className = 'answer-btn correct';
+        } else if (optIdx === q.selectedIndex) {
+          btn.className = 'answer-btn incorrect';
+        }
+      } else {
+        btn.addEventListener('click', function() {
+          selectAnswer(qIndex, optIdx);
+        });
+      }
+
+      optionsWrap.appendChild(btn);
+    });
+
+    var backBtn = document.getElementById('backBtn');
+    backBtn.disabled = (qIndex === 0);
+    backBtn.addEventListener('click', goBack);
+
+    if (qIndex === total - 1 && q.answered) {
+      var finishBtn = document.getElementById('finishBtn');
+      finishBtn.addEventListener('click', showResults);
+    } else {
+      var nextBtn = document.getElementById('nextBtn');
+      nextBtn.disabled = !(qIndex < furthestIndex);
+      nextBtn.addEventListener('click', goNext);
+    }
+  }
+
+  function renderResults() {
+    var score = computeScore();
+    var pct = Math.round((score.correct / total) * 100);
+
+    var html = '';
+    html += '<div class="results">';
+    html += '<h2>Quiz Complete</h2>';
+    html += '<div class="big-score">' + pct + '%</div>';
+    html += '<p>You answered ' + score.correct + ' out of ' + total + ' questions correctly.</p>';
+    html += '<button class="restart-btn" id="restartBtn">Restart Quiz</button>';
+    html += '</div>';
+
+    card.innerHTML = html;
+
+    var restartBtn = document.getElementById('restartBtn');
+    restartBtn.addEventListener('click', restartQuiz);
+  }
+
+  renderQuestion(currentIndex);
+  updateTopBar();
+
+});
+</script>
+</body>
+</html>
