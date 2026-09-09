@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentals of Security and Cryptography - Lecture 1 Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f3f4f6;
+    color: #111827;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px 60px 16px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  header h1 {
+    font-size: 1.4rem;
+    color: #111827;
+    margin: 0 0 4px 0;
+  }
+  header p {
+    color: #4b5563;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+  .progress-track {
+    width: 100%;
+    background: #e5e7eb;
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #4f46e5;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    color: #111827;
+  }
+  .category-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 14px;
+    letter-spacing: 0.02em;
+  }
+  .question-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 18px 0;
+    line-height: 1.5;
+  }
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #d1d5db;
+    background: #f9fafb;
+    color: #1a1a2e;
+    font-size: 0.98rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .answer-btn:hover:not(:disabled) {
+    border-color: #4f46e5;
+    background: #eef2ff;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct {
+    background: #d1fae5;
+    border-color: #10b981;
+    color: #065f46;
+    font-weight: 700;
+  }
+  .answer-btn.incorrect {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+    font-weight: 700;
+  }
+  .explanation {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: #f3f4f6;
+    border-left: 4px solid #4f46e5;
+    border-radius: 8px;
+    color: #1f2937;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .explanation.show {
+    display: block;
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+    background: #4f46e5;
+    font-family: inherit;
+  }
+  .nav-btn:disabled {
+    background: #c7c9f5;
+    cursor: not-allowed;
+    color: #f0f0ff;
+  }
+  .nav-btn.secondary {
+    background: #6b7280;
+  }
+  .nav-btn.secondary:disabled {
+    background: #d1d5db;
+    color: #9ca3af;
+  }
+  .result-card {
+    text-align: center;
+    color: #111827;
+  }
+  .result-card h2 {
+    color: #111827;
+    margin-top: 0;
+  }
+  .result-score {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #4f46e5;
+    margin: 10px 0;
+  }
+  .result-percent {
+    font-size: 1.1rem;
+    color: #374151;
+    margin-bottom: 20px;
+  }
+  .restart-btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    background: #4f46e5;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .hidden { display: none; }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #111827; color: #f3f4f6; }
+    header h1 { color: #f9fafb; }
+    header p { color: #9ca3af; }
+    .top-bar { color: #d1d5db; }
+    .progress-track { background: #374151; }
+    .progress-fill { background: #818cf8; }
+    .card { background: #1f2937; color: #f3f4f6; box-shadow: 0 2px 10px rgba(0,0,0,0.4); }
+    .question-text { color: #f9fafb; }
+    .answer-btn { background: #374151; border-color: #4b5563; color: #f3f4f6; }
+    .answer-btn:hover:not(:disabled) { background: #3b3f6b; border-color: #818cf8; }
+    .answer-btn.correct { background: #065f46; border-color: #10b981; color: #d1fae5; }
+    .answer-btn.incorrect { background: #7f1d1d; border-color: #ef4444; color: #fee2e2; }
+    .explanation { background: #111827; border-left-color: #818cf8; color: #e5e7eb; }
+    .nav-btn { background: #6366f1; color: #ffffff; }
+    .nav-btn:disabled { background: #3f3f5f; color: #6b7280; }
+    .nav-btn.secondary { background: #4b5563; }
+    .nav-btn.secondary:disabled { background: #374151; color: #6b7280; }
+    .result-card h2 { color: #f9fafb; }
+    .result-score { color: #818cf8; }
+    .result-percent { color: #d1d5db; }
+    .restart-btn { background: #6366f1; color: #ffffff; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Fundamentals of Security and Cryptography</h1>
+    <p>Lecture 1 Quiz: Attackers, CIA Model, Terminology and Key Concepts</p>
+  </header>
+
+  <div id="quizArea">
+    <div class="top-bar">
+      <span id="questionCounter">Question 1 / 20</span>
+      <span id="scoreCounter">Score: 0</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="card" id="quizCard">
+      <span class="category-tag" id="categoryTag">Category</span>
+      <p class="question-text" id="questionText">Question text</p>
+      <div class="answers" id="answersContainer"></div>
+      <div class="explanation" id="explanationBox"></div>
+      <div class="nav-row">
+        <button class="nav-btn secondary" id="prevBtn">&#8592; Back</button>
+        <button class="nav-btn" id="nextBtn">Next &#8594;</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultArea" class="hidden">
+    <div class="card result-card">
+      <h2>Quiz Complete!</h2>
+      <div class="result-score" id="resultScore">0 / 20</div>
+      <div class="result-percent" id="resultPercent">0% correct</div>
+      <button class="restart-btn" id="restartBtn">Restart Quiz</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var categoryColors = {
+    'Course & AI Policy': '#6366f1',
+    'Security Landscape': '#0891b2',
+    'Threat Actors': '#dc2626',
+    'CIA Triad': '#059669',
+    'Security Properties': '#7c3aed',
+    'Terminology': '#d97706',
+    'Threats & Attacks': '#db2777',
+    'Assets': '#2563eb',
+    'Phishing': '#ea580c',
+    'Denmark Threat Assessment': '#4d7c0f'
+  };
+
+  var questionBank = [
+    {
+      category: 'Course & AI Policy',
+      question: 'According to the lecture, which use of AI on a hand-in assignment is considered GOOD?',
+      options: [
+        'Explaining the concept of encryption in the context of the assignment',
+        'Pasting the whole assignment and asking for the answers',
+        'Submitting a raw ChatGPT answer without changes',
+        'Asking AI to write the entire report from scratch'
+      ],
+      correctIndex: 0,
+      explanation: 'The slide explicitly states that using AI to explain a concept (like encryption) is GOOD, while asking AI to directly give you the answers is BAD.'
+    },
+    {
+      category: 'Course & AI Policy',
+      question: 'What will happen if a hand-in is suspected to be purely written by AI?',
+      options: [
+        'It will receive an automatic passing grade',
+        'It will not be reviewed',
+        'The student will be asked to redo the whole course',
+        'It will be translated into Danish first'
+      ],
+      correctIndex: 1,
+      explanation: 'The slide states that if the hand-in is suspected to be purely AI-written, it will not be reviewed, and all hand-ins will be viewed with more skepticism going forward.'
+    },
+    {
+      category: 'Course & AI Policy',
+      question: 'What is the lecturer\'s preferred way of being contacted outside of class?',
+      options: [
+        'Email',
+        'Phone call',
+        'Slack',
+        'In-person office hours only'
+      ],
+      correctIndex: 2,
+      explanation: 'The lecturer states he would highly prefer being contacted on Slack because he hates sending emails.'
+    },
+    {
+      category: 'Security Landscape',
+      question: 'According to Forbes (2023), how much is the cost of cyberattacks predicted to cost the global economy by the end of 2023?',
+      options: [
+        'Over $1 trillion',
+        'Over $5 trillion',
+        'Over $10.5 trillion',
+        'Over $50 trillion'
+      ],
+      correctIndex: 2,
+      explanation: 'The slide cites Forbes (2023) predicting cyberattacks will cost the global economy over $10.5 trillion by the end of 2023.'
+    },
+    {
+      category: 'Security Landscape',
+      question: 'Based on the Dansk Erhverv survey referenced in the lecture, what percentage of companies experienced IT security breaches in 2021 among those with 250+ employees?',
+      options: [
+        '23%',
+        '34%',
+        '41%',
+        '55%'
+      ],
+      correctIndex: 3,
+      explanation: 'The chart shows that 55% of companies with 250 or more employees experienced an IT security breach in 2021, the highest among the size categories shown.'
+    },
+    {
+      category: 'Security Landscape',
+      question: 'What key point does the lecture make about the current cybersecurity job market?',
+      options: [
+        'There are no jobs available at all in cybersecurity',
+        'While demand is projected to grow, some sources claim the market is not "ideal" right now, with complaints about salaries and entry-level positions',
+        'Cybersecurity salaries are universally considered too high',
+        'The market has fully recovered to pre-pandemic levels with no concerns'
+      ],
+      correctIndex: 1,
+      explanation: 'The lecture presents a nuanced view: growth is projected, but some articles and job posting data suggest the market is saturated and not "ideal", especially for entry-level roles.'
+    },
+    {
+      category: 'Threat Actors',
+      question: 'Which type of cyber adversary is primarily motivated by financial gain and reputational gains, often using ransomware and phishing?',
+      options: [
+        'Governments',
+        'Criminals',
+        'Hacktivists',
+        'Script Kiddies'
+      ],
+      correctIndex: 1,
+      explanation: 'Criminals are motivated by financial gain (often cryptocurrency) and reputational gains, using means like phishing, ransomware, and credit card scams.'
+    },
+    {
+      category: 'Threat Actors',
+      question: 'Which threat actor group is described as having "Very High capabilities, skilled hackers, exploit developers and malware developers"?',
+      options: [
+        'Script Kiddies',
+        'Hacktivists',
+        'Governments',
+        'Cyber Terrorists'
+      ],
+      correctIndex: 2,
+      explanation: 'Governments are described as having very high capabilities, motivated by espionage, financial gain, and competitive advantage, using tools like 0-days and spearphishing.'
+    },
+    {
+      category: 'Threat Actors',
+      question: 'What is the primary motivation of Hacktivists according to the lecture?',
+      options: [
+        'Financial gain through ransomware',
+        'Political causes and social change',
+        'Intelligence gathering for national security',
+        'Curiosity and fun as a hobby'
+      ],
+      correctIndex: 1,
+      explanation: 'Hacktivists are motivated by political causes and social change, using means like doxxing, DDoS, and website defacements.'
+    },
+    {
+      category: 'Threat Actors',
+      question: 'Which group is described as having "low capabilities, relying on pre-built tools and hacks", often targeting games and game servers?',
+      options: [
+        'Cyber Terrorists',
+        'Script Kiddies',
+        'Governments',
+        'Criminals'
+      ],
+      correctIndex: 1,
+      explanation: 'Script Kiddies are motivated by curiosity, fun, and attention, and rely on tools built by others rather than developing their own sophisticated exploits.'
+    },
+    {
+      category: 'Threat Actors',
+      question: 'What motivates Cyber Terrorists according to the lecture?',
+      options: [
+        'Purely financial profit',
+        'Political and religious causes',
+        'Personal curiosity',
+        'Corporate espionage for competitive advantage'
+      ],
+      correctIndex: 1,
+      explanation: 'Cyber Terrorists are motivated by political and religious causes, targeting critical infrastructure and military targets of their adversaries.'
+    },
+    {
+      category: 'Threat Actors',
+      question: 'According to a Symantec report cited in the lecture, what is the most popular known infection vector used by targeted attack groups?',
+      options: [
+        'Web Server Exploits (3%)',
+        'Trojanized Software Updates (6%)',
+        'Watering Hole Websites (24%)',
+        'Spear-Phishing Emails (71%)'
+      ],
+      correctIndex: 3,
+      explanation: 'The Symantec Internet Security Threat Report shows Spear-Phishing Emails as by far the most popular infection vector at 71%.'
+    },
+    {
+      category: 'CIA Triad',
+      question: 'In the CIA triad, what does "Confidentiality" refer to?',
+      options: [
+        'Ensuring a system works as intended and is not denied to authorized users',
+        'Information is not made available or disclosed to unauthorized individuals, entities or processes',
+        'Maintaining the accuracy and completeness of data over time',
+        'The property of being genuine and verifiable'
+      ],
+      correctIndex: 1,
+      explanation: 'Confidentiality ensures information is not disclosed to unauthorized individuals, entities, or processes.'
+    },
+    {
+      category: 'CIA Triad',
+      question: 'Which CIA triad property is most directly violated when hackers bring down Amazon\'s website for days?',
+      options: [
+        'Confidentiality',
+        'Integrity',
+        'Availability',
+        'Accountability'
+      ],
+      correctIndex: 2,
+      explanation: 'Availability ensures a system works as intended and service is not denied to authorized users; a prolonged outage directly breaks availability.'
+    },
+    {
+      category: 'CIA Triad',
+      question: 'A malicious bank transfer that alters the recorded transaction amount primarily violates which CIA property?',
+      options: [
+        'Confidentiality',
+        'Integrity',
+        'Availability',
+        'Authenticity only'
+      ],
+      correctIndex: 1,
+      explanation: 'Integrity is about maintaining and assuring the accuracy and completeness of data over time; tampering with a bank transfer breaks integrity.'
+    },
+    {
+      category: 'Security Properties',
+      question: 'What does "Accountability" support, according to the additional security properties slide?',
+      options: [
+        'Only encryption strength',
+        'Nonrepudiation, fault isolation, intrusion detection and prevention, and after-action recovery and legal action',
+        'Faster network speeds',
+        'Reducing hardware costs'
+      ],
+      correctIndex: 1,
+      explanation: 'Accountability generates requirements for actions to be traced uniquely to an entity, supporting nonrepudiation, fault isolation, intrusion detection/prevention, and legal/recovery actions.'
+    },
+    {
+      category: 'Security Properties',
+      question: 'What does "Authenticity" refer to in the context of additional security properties?',
+      options: [
+        'The property of being genuine and being able to be verified and trusted',
+        'The ability to deny an action was performed',
+        'Keeping data secret from all parties',
+        'Guaranteeing 100% uptime'
+      ],
+      correctIndex: 0,
+      explanation: 'Authenticity is the property of being genuine and being able to be verified and trusted.'
+    },
+    {
+      category: 'Terminology',
+      question: 'How does the lecture define a "vulnerability"?',
+      options: [
+        'A program that delivers malicious code',
+        'A software/hardware bug which can be taken advantage of to achieve unintended behaviour',
+        'A type of firewall configuration',
+        'A physical piece of hardware'
+      ],
+      correctIndex: 1,
+      explanation: 'A vulnerability is a software/hardware bug which can be taken advantage of to achieve unintended behaviour (sometimes specific ones have names, like Log4shell).'
+    },
+    {
+      category: 'Terminology',
+      question: 'What is a "payload" in the context of the file-upload example given in the lecture (malicious PHP script disguised as an image)?',
+      options: [
+        'The lack of file-type restriction itself',
+        'The unintended ability to run executable scripts on the server',
+        'The malicious PHP script that was uploaded and executed by the server',
+        'The act of uploading the file'
+      ],
+      correctIndex: 2,
+      explanation: 'In the example, the bug was the missing file-type restriction, the vulnerability was the resulting ability to run scripts, the exploit was uploading the disguised PHP file, and the payload was the malicious PHP script itself, giving the hacker a web shell.'
+    },
+    {
+      category: 'Terminology',
+      question: 'What is an "exploit", as distinct from a vulnerability?',
+      options: [
+        'The same thing as a vulnerability, just a different name',
+        'A program that utilizes a vulnerability to take advantage of the security hole that is there',
+        'A type of hardware bug only',
+        'A defensive security tool'
+      ],
+      correctIndex: 1,
+      explanation: 'Exploits are programs that utilize a vulnerability to take advantage of the security hole that is there, such as Log4shell or Pwnkit.'
+    },
+    {
+      category: 'Terminology',
+      question: 'Which of the following is given as an example of a named vulnerability in the lecture?',
+      options: [
+        'Cobalt Strike',
+        'Heartbleed',
+        'Metasploit',
+        'Nmap'
+      ],
+      correctIndex: 1,
+      explanation: 'Heartbleed, along with Log4shell and Baron Samedit, is listed as an example of a named vulnerability.'
+    },
+    {
+      category: 'Threats & Attacks',
+      question: 'Which of the following is classified as a passive attack in the lecture?',
+      options: [
+        'SQL Injection',
+        'Denial of Service (DoS)',
+        'Eavesdropping on network traffic',
+        'Cross-Site Scripting (XSS)'
+      ],
+      correctIndex: 2,
+      explanation: 'Eavesdropping on network traffic is a passive attack, extremely difficult to detect, unlike active attacks such as DoS, SQL Injection, and XSS.'
+    },
+    {
+      category: 'Threats & Attacks',
+      question: 'Why are passive attacks like eavesdropping considered particularly dangerous?',
+      options: [
+        'They always destroy the target system',
+        'They are extremely difficult to detect',
+        'They require physical access to the server room',
+        'They only work on outdated hardware'
+      ],
+      correctIndex: 1,
+      explanation: 'The lecture notes that passive attacks such as eavesdropping are extremely difficult to detect, even though active attacks can be more destructive.'
+    },
+    {
+      category: 'Threats & Attacks',
+      question: 'Which of these is listed as an active attack in the lecture?',
+      options: [
+        'Traffic analysis',
+        'DNS querying for information gathering',
+        'Man-in-the-Middle (MitM)',
+        'Shoulder surfing'
+      ],
+      correctIndex: 2,
+      explanation: 'Man-in-the-Middle (MitM) is listed under active attacks, while traffic analysis, DNS querying, and shoulder surfing are listed as passive attacks.'
+    },
+    {
+      category: 'Assets',
+      question: 'Which category of assets includes "the physical hard disk or SSD for storage" and "communication devices"?',
+      options: [
+        'Software',
+        'Hardware',
+        'Data',
+        'Communication Facilities & Network'
+      ],
+      correctIndex: 1,
+      explanation: 'Hardware refers to the actual physical hardware of an IT system, such as physical storage disks and communication devices.'
+    },
+    {
+      category: 'Assets',
+      question: 'According to the lecture, which statement about Software and Data as assets is true?',
+      options: [
+        'Software and Data have no overlap whatsoever',
+        'Software is technically also just data, so there is some overlap between the two categories',
+        'Data only refers to holiday pictures',
+        'Software cannot be considered an asset'
+      ],
+      correctIndex: 1,
+      explanation: 'The lecture explicitly notes that there is some overlap between Software and Data, since software is technically also just data.'
+    },
+    {
+      category: 'Assets',
+      question: 'Which asset category covers "the radio waves sent by your router" and "data going in and out of bridges, routers and other communication links"?',
+      options: [
+        'Hardware',
+        'Software',
+        'Data',
+        'Communication Facilities & Network'
+      ],
+      correctIndex: 3,
+      explanation: 'Communication Facilities & Network covers radio waves, ethernet data, and data moving through bridges, routers, and other communication links, with some overlap with Hardware.'
+    },
+    {
+      category: 'Phishing',
+      question: 'What is "Vishing" as described in the lecture?',
+      options: [
+        'Phishing conducted via SMS',
+        'Phishing that is highly customized for a specific target',
+        'Phishing conducted over a voice call',
+        'Phishing that only targets video game companies'
+      ],
+      correctIndex: 2,
+      explanation: 'Vishing is phishing conducted over a voice call, as opposed to Smishing (SMS) or Spearphishing (highly targeted).'
+    },
+    {
+      category: 'Phishing',
+      question: 'What technique does an attacker rely on when performing phishing, as emphasized in the "Phishing - The impersonation" slide?',
+      options: [
+        'Brute-forcing passwords',
+        'Establishing trust by impersonating entities the victim already trusts',
+        'Physically breaking into a data center',
+        'Exploiting a zero-day in the operating system kernel'
+      ],
+      correctIndex: 1,
+      explanation: 'The lecture explains that the phisher needs to establish trust by impersonation, for example using a look-alike domain or a compromised legitimate mailbox.'
+    },
+    {
+      category: 'Phishing',
+      question: 'According to the survey data shown in the lecture, what was the top reason employees clicked on phishing emails in 2020?',
+      options: [
+        'I was tired',
+        'I was distracted',
+        'I wasn\'t paying attention',
+        'The email was supposedly from a senior executive'
+      ],
+      correctIndex: 1,
+      explanation: 'The chart shows "I was distracted" as the top reason at 45%, followed by "the email looked legitimate" at 43%.'
+    },
+    {
+      category: 'Denmark Threat Assessment',
+      question: 'According to the CFCS Threat Assessment for Denmark in 2024, what is the threat level from cyber terrorism?',
+      options: [
+        'VERY HIGH',
+        'MEDIUM',
+        'LOW',
+        'NONE'
+      ],
+      correctIndex: 3,
+      explanation: 'In all three years shown (2022-2024), the CFCS assessed the threat from cyber terrorism as NONE, since militant extremists lack the capability for devastating cyber attacks.'
+    },
+    {
+      category: 'Denmark Threat Assessment',
+      question: 'How did the threat level from destructive cyber attacks against Denmark change between the 2023 and 2024 CFCS assessments?',
+      options: [
+        'It stayed at VERY HIGH both years',
+        'It was raised from LOW to MEDIUM',
+        'It dropped from HIGH to NONE',
+        'It was raised from MEDIUM to VERY HIGH'
+      ],
+      correctIndex: 1,
+      explanation: 'The CFCS raised the threat level for destructive cyber attacks against Denmark from LOW (2023) to MEDIUM (2024), implying organizations could fall victim to such attacks.'
+    },
+    {
+      category: 'Denmark Threat Assessment',
+      question: 'Which threat categories are both assessed as VERY HIGH in the CFCS 2024 threat assessment for Denmark?',
+      options: [
+        'Cyber terrorism and cyber activism',
+        'Cyber espionage and cyber crime',
+        'Destructive cyber attacks and cyber terrorism',
+        'Cyber activism and destructive cyber attacks'
+      ],
+      correctIndex: 1,
+      explanation: 'In the 2024 assessment, both cyber espionage and cyber crime against Denmark remain VERY HIGH, while cyber activism is HIGH, destructive attacks are MEDIUM, and terrorism is NONE.'
+    },
+    {
+      category: 'Security Landscape',
+      question: 'What famous quote (attributed to Gene Spafford) does the lecture use to illustrate that there is no 100% cyber-security?',
+      options: [
+        '"With great power comes great responsibility"',
+        '"The only truly secure system is one that is powered off, cast in a block of concrete and sealed in a lead-lined room with armed guards"',
+        '"Security through obscurity is not security"',
+        '"Trust, but verify"'
+      ],
+      correctIndex: 1,
+      explanation: 'The lecture uses this famous Gene Spafford quote to illustrate that absolute security is essentially impossible in any practically usable system, while also noting the "weakest link" (humans) still applies even here.'
+    }
+  ];
+
+  function shuffleArray(array) {
+    var arr = array.slice();
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+    }
+    return arr;
+  }
+
+  var questions = shuffleArray(questionBank);
+
+  var state = questions.map(function(q) {
+    var optionIndices = [0, 1, 2, 3];
+    var shuffledIndices = shuffleArray(optionIndices);
+    return {
+      answered: false,
+      selectedShuffledPos: null,
+      shuffledIndices: shuffledIndices
+    };
+  });
+
+  var currentIndex = 0;
+  var maxReached = 0;
+  var score = 0;
+
+  var questionCounterEl = document.getElementById('questionCounter');
+  var scoreCounterEl = document.getElementById('scoreCounter');
+  var progressFillEl = document.getElementById('progressFill');
+  var categoryTagEl = document.getElementById('categoryTag');
+  var questionTextEl = document.getElementById('questionText');
+  var answersContainerEl = document.getElementById('answersContainer');
+  var explanationBoxEl = document.getElementById('explanationBox');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var quizArea = document.getElementById('quizArea');
+  var resultArea = document.getElementById('resultArea');
+  var resultScoreEl = document.getElementById('resultScore');
+  var resultPercentEl = document.getElementById('resultPercent');
+  var restartBtn = document.getElementById('restartBtn');
+
+  function recalcScore() {
+    var s = 0;
+    for (var i = 0; i < questions.length; i++) {
+      var st = state[i];
+      if (st.answered) {
+        var chosenOriginalIndex = st.shuffledIndices[st.selectedShuffledPos];
+        if (chosenOriginalIndex === questions[i].correctIndex) {
+          s++;
+        }
+      }
+    }
+    return s;
+  }
+
+  function renderQuestion() {
+    var q = questions[currentIndex];
+    var st = state[currentIndex];
+
+    questionCounterEl.textContent = 'Question ' + (currentIndex + 1) + ' / ' + questions.length;
+    score = recalcScore();
+    scoreCounterEl.textContent = 'Score: ' + score;
+
+    var progressPercent = Math.round(((currentIndex) / questions.length) * 100);
+    progressFillEl.style.width = progressPercent + '%';
+
+    categoryTagEl.textContent = q.category;
+    var bgColor = categoryColors[q.category] || '#4f46e5';
+    categoryTagEl.style.backgroundColor = bgColor;
+
+    questionTextEl.textContent = q.question;
+
+    answersContainerEl.innerHTML = '';
+
+    var displayOptions = st.shuffledIndices.map(function(origIdx) {
+      return q.options[origIdx];
+    });
+
+    for (var pos = 0; pos < displayOptions.length; pos++) {
+      (function(pos) {
+        var btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.type = 'button';
+        btn.textContent = displayOptions[pos];
+
+        var originalIdxForThisPos = st.shuffledIndices[pos];
+        var isCorrectOption = (originalIdxForThisPos === q.correctIndex);
+
+        if (st.answered) {
+          btn.disabled = true;
+          if (isCorrectOption) {
+            btn.classList.add('correct');
+          } else if (pos === st.selectedShuffledPos) {
+            btn.classList.add('incorrect');
+          }
+        }
+
+        btn.addEventListener('click', function() {
+          if (st.answered) { return; }
+          st.answered = true;
+          st.selectedShuffledPos = pos;
+          renderQuestion();
+        });
+
+        answersContainerEl.appendChild(btn);
+      })(pos);
+    }
+
+    if (st.answered) {
+      explanationBoxEl.textContent = q.explanation;
+      explanationBoxEl.classList.add('show');
+    } else {
+      explanationBoxEl.textContent = '';
+      explanationBoxEl.classList.remove('show');
+    }
+
+    prevBtn.disabled = (currentIndex === 0);
+
+    if (currentIndex > maxReached) {
+      maxReached = currentIndex;
+    }
+
+    if (!st.answered) {
+      nextBtn.disabled = true;
+      nextBtn.textContent = (currentIndex === questions.length - 1) ? 'Finish' : 'Next \u2192';
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.textContent = (currentIndex === questions.length - 1) ? 'Finish' : 'Next \u2192';
+    }
+  }
+
+  prevBtn.addEventListener('click', function() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderQuestion();
+    }
+  });
+
+  nextBtn.addEventListener('click', function() {
+    var st = state[currentIndex];
+    if (!st.answered) { return; }
+
+    if (currentIndex === questions.length - 1) {
+      showResults();
+      return;
+    }
+    currentIndex++;
+    renderQuestion();
+  });
+
+  function showResults() {
+    quizArea.classList.add('hidden');
+    resultArea.classList.remove('hidden');
+    var finalScore = recalcScore();
+    var percent = Math.round((finalScore / questions.length) * 100);
+    resultScoreEl.textContent = finalScore + ' / ' + questions.length;
+    resultPercentEl.textContent = percent + '% correct';
+    progressFillEl.style.width = '100%';
+  }
+
+  restartBtn.addEventListener('click', function() {
+    questions = shuffleArray(questionBank);
+    state = questions.map(function(q) {
+      var optionIndices = [0, 1, 2, 3];
+      var shuffledIndices = shuffleArray(optionIndices);
+      return {
+        answered: false,
+        selectedShuffledPos: null,
+        shuffledIndices: shuffledIndices
+      };
+    });
+    currentIndex = 0;
+    maxReached = 0;
+    score = 0;
+    quizArea.classList.remove('hidden');
+    resultArea.classList.add('hidden');
+    renderQuestion();
+  });
+
+  renderQuestion();
+});
+</script>
+</body>
+</html>
