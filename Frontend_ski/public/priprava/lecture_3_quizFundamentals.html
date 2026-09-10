@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentals of Security and Cryptography - Lecture 5 Quiz</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #4b5563;
+    --border-color: #d1d5db;
+    --btn-bg: #f9fafb;
+    --btn-border: #d1d5db;
+    --btn-text: #1a1a2e;
+    --btn-hover-bg: #eef2ff;
+    --correct-bg: #d1fae5;
+    --correct-border: #10b981;
+    --correct-text: #065f46;
+    --incorrect-bg: #fee2e2;
+    --incorrect-border: #ef4444;
+    --incorrect-text: #991b1b;
+    --accent: #4f46e5;
+    --accent-text: #ffffff;
+    --progress-bg: #e5e7eb;
+    --progress-fill: #4f46e5;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1117;
+      --card-bg: #1a1d29;
+      --text-main: #f3f4f6;
+      --text-muted: #b0b6c2;
+      --border-color: #333947;
+      --btn-bg: #232734;
+      --btn-border: #3a3f4e;
+      --btn-text: #f3f4f6;
+      --btn-hover-bg: #2b3040;
+      --correct-bg: #0f3d2a;
+      --correct-border: #22c55e;
+      --correct-text: #86efac;
+      --incorrect-bg: #4a1414;
+      --incorrect-border: #f87171;
+      --incorrect-text: #fca5a5;
+      --accent: #818cf8;
+      --accent-text: #0f1117;
+      --progress-bg: #2b3040;
+      --progress-fill: #818cf8;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    display: flex;
+    justify-content: center;
+    padding: 20px 12px 60px;
+    min-height: 100vh;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 700px;
+    color: var(--text-main);
+  }
+
+  header.top {
+    margin-bottom: 16px;
+  }
+
+  h1.title {
+    font-size: 1.3rem;
+    color: var(--text-main);
+    margin: 0 0 4px 0;
+    text-align: center;
+  }
+
+  p.subtitle {
+    color: var(--text-muted);
+    text-align: center;
+    margin: 0 0 20px 0;
+    font-size: 0.9rem;
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 10px;
+    background: var(--progress-bg);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--progress-fill);
+    border-radius: 6px;
+    transition: width 0.25s ease;
+  }
+
+  .score-badge {
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 22px;
+    color: var(--text-main);
+  }
+
+  .category-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    color: #ffffff;
+  }
+
+  .q-counter {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+  }
+
+  .question-text {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 18px 0;
+    line-height: 1.45;
+  }
+
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .answer-btn {
+    text-align: left;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: #1a1a2e;
+    font-size: 0.96rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn {
+      color: #f3f4f6;
+    }
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    background: var(--btn-hover-bg);
+  }
+
+  .answer-btn:disabled {
+    cursor: default;
+  }
+
+  .answer-btn.correct-answer {
+    background: var(--correct-bg);
+    border-color: var(--correct-border);
+    color: var(--correct-text);
+    font-weight: 700;
+  }
+
+  .answer-btn.incorrect-answer {
+    background: var(--incorrect-bg);
+    border-color: var(--incorrect-border);
+    color: var(--incorrect-text);
+    font-weight: 700;
+  }
+
+  .explanation {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: var(--btn-bg);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .explanation strong {
+    color: var(--text-main);
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .nav-btn.secondary {
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border-color: var(--btn-border);
+  }
+
+  .summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 32px 22px;
+    text-align: center;
+    color: var(--text-main);
+  }
+
+  .summary-card h2 {
+    color: var(--text-main);
+    margin-top: 0;
+  }
+
+  .summary-pct {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin: 10px 0;
+  }
+
+  .summary-sub {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+  }
+
+  .restart-btn {
+    padding: 12px 26px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <h1 class="title">Fundamentals of Security and Cryptography</h1>
+    <p class="subtitle">Lecture 5 Quiz - Hashing, Asymmetric Cryptography &amp; RSA</p>
+  </header>
+
+  <div id="quizSection">
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+      </div>
+      <div class="score-badge" id="scoreBadge">Score: 0 / 0</div>
+    </div>
+
+    <div class="card" id="questionCard">
+      <span class="category-tag" id="categoryTag"></span>
+      <div class="q-counter" id="qCounter"></div>
+      <p class="question-text" id="questionText"></p>
+      <div class="answers" id="answersContainer"></div>
+      <div class="explanation hidden" id="explanationBox"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn secondary" id="prevBtn" type="button">&larr; Back</button>
+      <button class="nav-btn secondary" id="nextBtn" type="button">Next &rarr;</button>
+    </div>
+  </div>
+
+  <div class="summary-card hidden" id="summarySection">
+    <h2>Quiz Complete!</h2>
+    <div class="summary-pct" id="summaryPct">0%</div>
+    <p class="summary-sub" id="summarySub">You answered 0 out of 0 questions correctly.</p>
+    <button class="restart-btn" id="restartBtn" type="button">Try Again</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var categoryColors = {
+    'Hashing Basics': '#2563eb',
+    'Hash Properties': '#7c3aed',
+    'Hash Algorithms': '#0891b2',
+    'Password Security': '#dc2626',
+    'Symmetric vs Asymmetric': '#059669',
+    'RSA': '#d97706',
+    'Math Foundations': '#4f46e5'
+  };
+
+  var questionBank = [
+    {
+      category: 'Hashing Basics',
+      prompt: 'What is a cryptographic hash function (CHF)?',
+      options: [
+        'A mathematical algorithm that maps data of arbitrary size to a fixed-size bit array',
+        'A method for compressing files without any loss of data',
+        'An algorithm that generates a random encryption key for symmetric ciphers',
+        'A protocol used to exchange public keys between two parties'
+      ],
+      correctIndex: 0,
+      explanation: 'A cryptographic hash function maps data of any size (the message) to a fixed-size output called the hash value, digest, or hash.'
+    },
+    {
+      category: 'Hashing Basics',
+      prompt: 'In the notation H(x) = h, what does h represent?',
+      options: [
+        'The original message before hashing',
+        'The hash function itself',
+        'The resulting digest produced by applying H to x',
+        'The secret key used to generate the hash'
+      ],
+      correctIndex: 2,
+      explanation: 'h is the hash (also called the digest), which is the result of applying the hash function H to some data x.'
+    },
+    {
+      category: 'Hash Properties',
+      prompt: 'Which property states that, given a hash h, it is hard to find any message x such that H(x) = h?',
+      options: [
+        'Second Preimage Resistance',
+        'Collision Resistance',
+        'First Preimage Resistance',
+        'Avalanche Effect'
+      ],
+      correctIndex: 2,
+      explanation: 'First Preimage Resistance means that given an output h, it is computationally hard to find any input x that produces that output.'
+    },
+    {
+      category: 'Hash Properties',
+      prompt: 'Second Preimage Resistance means that for a given message x1, it should be hard to find:',
+      options: [
+        'A shorter version of x1 that hashes to the same value',
+        'The private key that generated x1',
+        'A second, different message x2 such that H(x1) = H(x2)',
+        'The modulus used to create the hash function'
+      ],
+      correctIndex: 2,
+      explanation: 'Second Preimage Resistance requires that, given a specific message x1, it is hard to find a different message x2 that produces the same hash output.'
+    },
+    {
+      category: 'Hash Properties',
+      prompt: 'Collision Resistance means it should be hard to find:',
+      options: [
+        'Any pair of messages x1 and x2 (with x1 not equal to x2) such that H(x1) = H(x2)',
+        'A message that maps to an all-zero hash',
+        'The seed used by a pseudo-random number generator',
+        'A message whose hash is shorter than expected'
+      ],
+      correctIndex: 0,
+      explanation: 'Collision resistance is a general property: without fixing either message in advance, it should be hard to find any two distinct messages that hash to the same value.'
+    },
+    {
+      category: 'Hash Properties',
+      prompt: 'What does the Avalanche Effect describe?',
+      options: [
+        'Hash functions always produce outputs of increasing length',
+        'A change of 1 or more input bits should flip roughly 50% of the output bits',
+        'Hashing the same input multiple times produces different outputs each time',
+        'Hash functions become slower as the input grows'
+      ],
+      correctIndex: 1,
+      explanation: 'The Avalanche Effect means a small change in the input should cause a large, seemingly random change in the output, with each output bit flipping with about 50% probability.'
+    },
+    {
+      category: 'Hash Properties',
+      prompt: 'The Determinism property of hash functions means:',
+      options: [
+        'A given input x to hash function H should always produce the same output h',
+        'The hash output can always be reversed to recover the input',
+        'Different hash functions always produce the same output for the same input',
+        'The output length grows deterministically with input size'
+      ],
+      correctIndex: 0,
+      explanation: 'Determinism means that hashing the same input with the same hash function will always yield the same output, though different hash functions (like MD5 vs SHA1) will differ from each other.'
+    },
+    {
+      category: 'Hash Properties',
+      prompt: 'What does Uniformly Random Distribution mean for a hash function?',
+      options: [
+        'The hash output must always be a prime number',
+        'Every input must produce a unique, never-repeating output',
+        'Outputs should be spread randomly across their domain without an apparent pattern',
+        'The hash function must use a uniform block size for every algorithm'
+      ],
+      correctIndex: 2,
+      explanation: 'This property means that hash outputs should be spread randomly and evenly across the possible output space, without any detectable pattern.'
+    },
+    {
+      category: 'Hash Algorithms',
+      prompt: 'Which construction does SHA-3 use, unlike MD5, SHA-1, and SHA-2?',
+      options: [
+        'Merkle-Damgard construction',
+        'Sponge (Keccak) construction',
+        'Feistel network construction',
+        'Elliptic curve construction'
+      ],
+      correctIndex: 1,
+      explanation: 'SHA-3 uses a Sponge construction based on Keccak, while MD5, SHA-1, and SHA-2 all use the Merkle-Damgard construction.'
+    },
+    {
+      category: 'Hash Algorithms',
+      prompt: 'According to the comparison of hash functions, which of these is true?',
+      options: [
+        'MD5 and SHA-1 are both deprecated due to vulnerability to collisions',
+        'SHA-2 has been fully broken with known collisions',
+        'MD5 has a higher security level than SHA-3',
+        'SHA-1 has never been susceptible to any successful attacks'
+      ],
+      correctIndex: 0,
+      explanation: 'Both MD5 and SHA-1 are deprecated and vulnerable to collision attacks (MD5 since 2004, SHA-1 since the SHAttered attack in 2017). SHA-2 has never been broken and is not deprecated.'
+    },
+    {
+      category: 'Hash Algorithms',
+      prompt: 'For security purposes, which two hash functions should NOT be used, according to the lecture?',
+      options: [
+        'SHA-2 and SHA-3',
+        'MD5 and SHA1',
+        'SHA-256 and SHA-512',
+        'HMAC and SHA-3'
+      ],
+      correctIndex: 1,
+      explanation: 'The lecture explicitly states: "For security purposes don\u2019t use MD5 or SHA1" because both are vulnerable to collision attacks.'
+    },
+    {
+      category: 'Password Security',
+      prompt: 'When a database stores plain H(password) without a salt, what problem can arise?',
+      options: [
+        'The hash becomes reversible using the modulus alone',
+        'Two users with the same password will have identical hash values, revealing the shared password',
+        'The hash length will vary between users',
+        'Passwords will be automatically encrypted with AES'
+      ],
+      correctIndex: 1,
+      explanation: 'Without a salt, identical passwords always hash to the same digest, so an attacker (or observer) can see that "Baduser123" and "Architect" share a password just by comparing hashes.'
+    },
+    {
+      category: 'Password Security',
+      prompt: 'What is the purpose of adding a salt before hashing a password, as in H(Salt|Password)?',
+      options: [
+        'To make the hash function run faster',
+        'To shorten the resulting hash digest',
+        'To make identical passwords produce different hashes and make brute-force/rainbow-table attacks much harder',
+        'To allow the password to be decrypted later'
+      ],
+      correctIndex: 2,
+      explanation: 'Salting ensures that even identical passwords produce different hash outputs, which defeats precomputed rainbow tables and makes brute-forcing far more difficult (though not impossible).'
+    },
+    {
+      category: 'Password Security',
+      prompt: 'According to the lecture, what is the biggest defense against the impact of a compromised, leaked password database?',
+      options: [
+        'Using the same strong password everywhere',
+        'Never reusing a password across different accounts',
+        'Storing passwords in plaintext for easy recovery',
+        'Avoiding hash functions altogether'
+      ],
+      correctIndex: 1,
+      explanation: 'The lecture states that your biggest defense is never reusing a password, ideally with the help of a password manager, since databases get compromised regularly.'
+    },
+    {
+      category: 'Password Security',
+      prompt: 'What is the purpose of a site like haveibeenpwned.com?',
+      options: [
+        'To generate strong random passwords for users',
+        'To let users check if their email or phone appears in a known data breach',
+        'To encrypt a user\u2019s password database automatically',
+        'To perform prime factorization for RSA keys'
+      ],
+      correctIndex: 1,
+      explanation: 'Haveibeenpwned.com lets you check whether your email or phone number has appeared in a known data breach.'
+    },
+    {
+      category: 'Symmetric vs Asymmetric',
+      prompt: 'What is the main problem with symmetric cryptography that asymmetric cryptography solves?',
+      options: [
+        'Symmetric algorithms cannot encrypt large files',
+        'Symmetric cryptography requires securely sharing the same secret key between sender and receiver',
+        'Symmetric cryptography cannot use modular arithmetic',
+        'Symmetric cryptography always produces the same ciphertext for different messages'
+      ],
+      correctIndex: 1,
+      explanation: 'In symmetric cryptography, both sender and receiver need the same secret key, which creates the problem of securely distributing that key. Asymmetric cryptography avoids this by using a public/private key pair.'
+    },
+    {
+      category: 'Symmetric vs Asymmetric',
+      prompt: 'In asymmetric cryptography, which key should be kept secret?',
+      options: [
+        'The public key (pubK)',
+        'The private key (privK)',
+        'Both keys are shared publicly',
+        'Neither key needs to be protected'
+      ],
+      correctIndex: 1,
+      explanation: 'In asymmetric cryptography you generate a key pair, give out the public key (pubK) to everyone, and keep the private key (privK) to yourself.'
+    },
+    {
+      category: 'Symmetric vs Asymmetric',
+      prompt: 'For confidentiality using asymmetric cryptography, how is a message typically encrypted?',
+      options: [
+        'With the sender\u2019s private key',
+        'With the recipient\u2019s public key, so only the recipient\u2019s private key can decrypt it',
+        'With a randomly generated symmetric key that is never shared',
+        'With the recipient\u2019s private key'
+      ],
+      correctIndex: 1,
+      explanation: 'For confidentiality, the sender encrypts the message using the recipient\u2019s public key; only the recipient\u2019s corresponding private key can decrypt it.'
+    },
+    {
+      category: 'Symmetric vs Asymmetric',
+      prompt: 'How does asymmetric cryptography achieve digital signatures for authenticity?',
+      options: [
+        'The sender encrypts the plaintext with their own private key; anyone can verify using the sender\u2019s public key',
+        'The sender encrypts the plaintext with the recipient\u2019s public key',
+        'The receiver signs the message before sending it back',
+        'Both parties generate a new shared secret key for every message'
+      ],
+      correctIndex: 0,
+      explanation: 'For digital signatures, the sender encrypts (signs) with their private key. Anyone can then decrypt with the sender\u2019s public key to confirm the message really came from them.'
+    },
+    {
+      category: 'Symmetric vs Asymmetric',
+      prompt: 'Why is asymmetric cryptography generally not used to encrypt large amounts of data directly?',
+      options: [
+        'It is not mathematically possible to encrypt large files',
+        'It is more computationally heavy than symmetric cryptography and only practical for small data segments',
+        'Asymmetric algorithms cannot use modular arithmetic',
+        'Public keys expire after encrypting a small amount of data'
+      ],
+      correctIndex: 1,
+      explanation: 'Asymmetric cryptography is more computationally expensive than symmetric cryptography, so it is typically only practical for small segments of data (such as keys), not large files.'
+    },
+    {
+      category: 'Symmetric vs Asymmetric',
+      prompt: 'The three main categories of asymmetric cryptosystem use are:',
+      options: [
+        'Compression, hashing, and salting',
+        'Encryption/decryption, digital signature, and key exchange',
+        'Padding, salting, and stretching',
+        'Symmetric key generation, distribution, and rotation'
+      ],
+      correctIndex: 1,
+      explanation: 'Public-key cryptosystems are used for three purposes: encryption/decryption, digital signatures, and key exchange.'
+    },
+    {
+      category: 'Math Foundations',
+      prompt: 'What does GCD(9, 12) equal, and what does GCD generally represent?',
+      options: [
+        'GCD(9,12) = 1; it represents the smallest common multiple',
+        'GCD(9,12) = 3; it represents the greatest number that divides both numbers with no remainder',
+        'GCD(9,12) = 36; it represents the product of the two numbers',
+        'GCD(9,12) = 4; it represents the average of the two numbers'
+      ],
+      correctIndex: 1,
+      explanation: 'The greatest common divisor (GCD) is the largest number that divides two or more numbers evenly. GCD(9,12) = 3, as shown in the lecture.'
+    },
+    {
+      category: 'Math Foundations',
+      prompt: 'Two numbers are described as "coprime" when:',
+      options: [
+        'They are both prime numbers',
+        'Their sum is a prime number',
+        'The only integer that divides both of them is 1',
+        'They have the same number of digits'
+      ],
+      correctIndex: 2,
+      explanation: 'Two numbers are coprime when their greatest common divisor is 1, meaning no integer other than 1 divides both of them evenly.'
+    },
+    {
+      category: 'Math Foundations',
+      prompt: 'In modular arithmetic, what happens when a result exceeds the modulus?',
+      options: [
+        'The calculation is considered invalid',
+        'The result is rounded down to the nearest prime',
+        'The result "wraps around" and ends up at the remainder after dividing by the modulus',
+        'The modulus is automatically doubled'
+      ],
+      correctIndex: 2,
+      explanation: 'Modular arithmetic is "remainder math": when a result exceeds the modulus, it wraps around to the remainder, e.g. 10 + 5 mod 13 = 2.'
+    },
+    {
+      category: 'Math Foundations',
+      prompt: 'The multiplicative inverse w of a number x modulo n satisfies which relationship?',
+      options: [
+        'x + w \u2261 0 mod n',
+        'x * w \u2261 1 mod n',
+        'w \u2261 x mod n',
+        'x / w \u2261 n mod x'
+      ],
+      correctIndex: 1,
+      explanation: 'The multiplicative inverse w of x under modulus n is defined by x * w \u2261 1 (mod n). This concept underlies computing the private exponent d in RSA.'
+    },
+    {
+      category: 'RSA',
+      prompt: 'Who are the inventors that RSA is named after?',
+      options: [
+        'Rivest, Shamir, and Adleman',
+        'Diffie, Hellman, and Merkle',
+        'Vasilomanolakis, Giustolisi, and Hoerning',
+        'Turing, Shannon, and Kerckhoffs'
+      ],
+      correctIndex: 0,
+      explanation: 'RSA is named after Ronald Rivest, Adi Shamir, and Leonard Adleman, who developed it in 1977 at MIT.'
+    },
+    {
+      category: 'RSA',
+      prompt: 'RSA\u2019s security is fundamentally based on the difficulty of which mathematical problem?',
+      options: [
+        'The Discrete Logarithm Problem',
+        'The Number (Integer) Factoring Problem',
+        'The Traveling Salesman Problem',
+        'The Halting Problem'
+      ],
+      correctIndex: 1,
+      explanation: 'RSA is based on the Number Factoring Problem: multiplying two large primes is fast, but factoring the resulting large number back into its prime factors is computationally hard.'
+    },
+    {
+      category: 'RSA',
+      prompt: 'In RSA key generation, how is the modulus n computed?',
+      options: [
+        'n is a randomly chosen prime number',
+        'n = p + q, the sum of two primes',
+        'n = p * q, the product of two distinct prime numbers p and q',
+        'n is computed as the hash of the private key'
+      ],
+      correctIndex: 2,
+      explanation: 'In RSA key generation, two distinct primes p and q are chosen, and the modulus n is calculated as n = p * q. This n is released as part of the public key.'
+    },
+    {
+      category: 'RSA',
+      prompt: 'In RSA, what must remain secret even after the private key exponent d has been computed?',
+      options: [
+        'The public modulus n',
+        'The primes p and q, and the value L, since they could be used to recalculate d',
+        'The public exponent e',
+        'Nothing needs to remain secret once d is known'
+      ],
+      correctIndex: 1,
+      explanation: 'p, q, and L (used to derive d) must be kept secret, or in fact can be discarded entirely once d has been computed, because they could otherwise be used to reconstruct the private key.'
+    },
+    {
+      category: 'RSA',
+      prompt: 'What is the RSA encryption formula used to compute ciphertext c from plaintext integer m?',
+      options: [
+        'c \u2261 m + e (mod n)',
+        'c \u2261 m^e (mod n)',
+        'c \u2261 e^m (mod n)',
+        'c \u2261 m * n (mod e)'
+      ],
+      correctIndex: 1,
+      explanation: 'RSA encryption computes the ciphertext as c \u2261 m^e (mod n), where e and n form the recipient\u2019s public key.'
+    },
+    {
+      category: 'RSA',
+      prompt: 'How does the recipient decrypt an RSA ciphertext c to recover the original plaintext m?',
+      options: [
+        'By computing c^d (mod n), where d is their private key exponent',
+        'By computing c / e (mod n)',
+        'By computing the hash of c',
+        'By computing c^e (mod n) a second time'
+      ],
+      correctIndex: 0,
+      explanation: 'Decryption in RSA is performed by computing c^d (mod n), which recovers m because (m^e)^d \u2261 m (mod n).'
+    },
+    {
+      category: 'RSA',
+      prompt: 'What does the RSA public key consist of?',
+      options: [
+        'The private exponent d and the primes p and q',
+        'The modulus n and the public exponent e',
+        'Only the modulus n',
+        'The value L and the private exponent d'
+      ],
+      correctIndex: 1,
+      explanation: 'The RSA public key is made up of the modulus n and the public (encryption) exponent e.'
+    }
+  ];
+
+  var totalQuestions = questionBank.length;
+  var currentIndex = 0;
+  var state = [];
+
+  function shuffleArray(arr) {
+    var array = arr.slice();
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  }
+
+  function buildQuizState() {
+    var order = shuffleArray(questionBank);
+    state = [];
+    for (var i = 0; i < order.length; i++) {
+      var q = order[i];
+      var optionIndices = [];
+      for (var k = 0; k < q.options.length; k++) {
+        optionIndices.push(k);
+      }
+      var shuffledIndices = shuffleArray(optionIndices);
+      state.push({
+        category: q.category,
+        prompt: q.prompt,
+        options: q.options,
+        correctIndex: q.correctIndex,
+        explanation: q.explanation,
+        displayOrder: shuffledIndices,
+        answered: false,
+        chosenDisplayPos: null
+      });
+    }
+  }
+
+  var quizSection = document.getElementById('quizSection');
+  var summarySection = document.getElementById('summarySection');
+  var progressFill = document.getElementById('progressFill');
+  var scoreBadge = document.getElementById('scoreBadge');
+  var categoryTag = document.getElementById('categoryTag');
+  var qCounter = document.getElementById('qCounter');
+  var questionText = document.getElementById('questionText');
+  var answersContainer = document.getElementById('answersContainer');
+  var explanationBox = document.getElementById('explanationBox');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var restartBtn = document.getElementById('restartBtn');
+  var summaryPct = document.getElementById('summaryPct');
+  var summarySub = document.getElementById('summarySub');
+
+  function getScore() {
+    var correctCount = 0;
+    for (var i = 0; i < state.length; i++) {
+      if (state[i].answered && state[i].chosenDisplayPos !== null) {
+        var q = state[i];
+        var chosenOriginalIndex = q.displayOrder[q.chosenDisplayPos];
+        if (chosenOriginalIndex === q.correctIndex) {
+          correctCount++;
+        }
+      }
+    }
+    return correctCount;
+  }
+
+  function getAnsweredCount() {
+    var count = 0;
+    for (var i = 0; i < state.length; i++) {
+      if (state[i].answered) count++;
+    }
+    return count;
+  }
+
+  function updateProgressAndScore() {
+    var answeredCount = getAnsweredCount();
+    var pct = (answeredCount / totalQuestions) * 100;
+    progressFill.style.width = pct + '%';
+    scoreBadge.textContent = 'Score: ' + getScore() + ' / ' + answeredCount;
+  }
+
+  function renderQuestion() {
+    var q = state[currentIndex];
+    categoryTag.textContent = q.category;
+    categoryTag.style.backgroundColor = categoryColors[q.category] || '#4f46e5';
+    qCounter.textContent = 'Question ' + (currentIndex + 1) + ' of ' + totalQuestions;
+    questionText.textContent = q.prompt;
+
+    answersContainer.innerHTML = '';
+
+    for (var pos = 0; pos < q.displayOrder.length; pos++) {
+      var originalIndex = q.displayOrder[pos];
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'answer-btn';
+      btn.textContent = q.options[originalIndex];
+      btn.setAttribute('data-pos', String(pos));
+
+      if (q.answered) {
+        btn.disabled = true;
+        if (originalIndex === q.correctIndex) {
+          btn.classList.add('correct-answer');
+        } else if (pos === q.chosenDisplayPos) {
+          btn.classList.add('incorrect-answer');
+        }
+      } else {
+        btn.addEventListener('click', function(event) {
+          var clickedPos = parseInt(event.currentTarget.getAttribute('data-pos'), 10);
+          handleAnswerSelected(clickedPos);
+        });
+      }
+
+      answersContainer.appendChild(btn);
+    }
+
+    if (q.answered) {
+      explanationBox.classList.remove('hidden');
+      var chosenOriginalIndex = q.displayOrder[q.chosenDisplayPos];
+      var verdict = (chosenOriginalIndex === q.correctIndex) ? 'Correct! ' : 'Not quite. ';
+      explanationBox.innerHTML = '<strong>' + verdict + '</strong>' + q.explanation;
+    } else {
+      explanationBox.classList.add('hidden');
+      explanationBox.innerHTML = '';
+    }
+
+    prevBtn.disabled = (currentIndex === 0);
+
+    if (q.answered) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = (currentIndex === totalQuestions - 1) ? 'See Results' : 'Next \u2192';
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Next \u2192';
+    }
+
+    updateProgressAndScore();
+  }
+
+  function handleAnswerSelected(pos) {
+    var q = state[currentIndex];
+    if (q.answered) return;
+    q.answered = true;
+    q.chosenDisplayPos = pos;
+    renderQuestion();
+  }
+
+  function goNext() {
+    var q = state[currentIndex];
+    if (!q.answered) return;
+    if (currentIndex === totalQuestions - 1) {
+      showSummary();
+    } else {
+      currentIndex++;
+      renderQuestion();
+    }
+  }
+
+  function goPrev() {
+    if (currentIndex === 0) return;
+    currentIndex--;
+    renderQuestion();
+  }
+
+  function showSummary() {
+    quizSection.classList.add('hidden');
+    summarySection.classList.remove('hidden');
+    var correctCount = getScore();
+    var pct = Math.round((correctCount / totalQuestions) * 100);
+    summaryPct.textContent = pct + '%';
+    summarySub.textContent = 'You answered ' + correctCount + ' out of ' + totalQuestions + ' questions correctly.';
+  }
+
+  function restartQuiz() {
+    currentIndex = 0;
+    buildQuizState();
+    summarySection.classList.add('hidden');
+    quizSection.classList.remove('hidden');
+    renderQuestion();
+  }
+
+  nextBtn.addEventListener('click', goNext);
+  prevBtn.addEventListener('click', goPrev);
+  restartBtn.addEventListener('click', restartQuiz);
+
+  buildQuizState();
+  renderQuestion();
+
+});
+</script>
+
+</body>
+</html>

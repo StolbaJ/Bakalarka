@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Security Quiz - Authentication & Link Layer Security</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f3f4f6;
+    color: #111827;
+    min-height: 100vh;
+  }
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 24px;
+    color: #111827;
+    margin: 0 0 4px 0;
+  }
+  .header p {
+    color: #4b5563;
+    font-size: 14px;
+    margin: 0;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #374151;
+  }
+  .score-box {
+    font-weight: 700;
+    color: #111827;
+  }
+  .progress-track {
+    width: 100%;
+    height: 10px;
+    background-color: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-fill {
+    height: 100%;
+    background-color: #2563eb;
+    border-radius: 6px;
+    transition: width 0.25s ease;
+  }
+  .card {
+    background-color: #ffffff;
+    color: #111827;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+    border: 1px solid #e5e7eb;
+  }
+  .category-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+  .question-number {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 6px;
+  }
+  .question-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.4;
+    margin: 0 0 18px 0;
+  }
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 2px solid #d1d5db;
+    background-color: #ffffff;
+    color: #1a1a2e;
+    font-size: 15px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .answer-btn:hover:not(:disabled) {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct {
+    background-color: #d1fae5;
+    border-color: #10b981;
+    color: #065f46;
+    font-weight: 700;
+  }
+  .answer-btn.incorrect {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    color: #991b1b;
+    font-weight: 700;
+  }
+  .explanation {
+    background-color: #f3f4f6;
+    color: #111827;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 6px;
+    border-left: 4px solid #2563eb;
+  }
+  .explanation strong {
+    color: #111827;
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #2563eb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: background-color 0.15s ease;
+  }
+  .nav-btn:hover:not(:disabled) {
+    background-color: #1d4ed8;
+  }
+  .nav-btn:disabled {
+    background-color: #d1d5db;
+    color: #9ca3af;
+    cursor: default;
+  }
+  .nav-btn.secondary {
+    background-color: #e5e7eb;
+    color: #111827;
+  }
+  .nav-btn.secondary:hover:not(:disabled) {
+    background-color: #d1d5db;
+  }
+  .nav-btn.secondary:disabled {
+    background-color: #f3f4f6;
+    color: #b0b5bd;
+  }
+  .results-card {
+    text-align: center;
+    padding: 40px 24px;
+  }
+  .results-card h2 {
+    color: #111827;
+    margin-top: 0;
+  }
+  .results-percent {
+    font-size: 52px;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 10px 0;
+  }
+  .results-detail {
+    font-size: 16px;
+    color: #374151;
+    margin-bottom: 24px;
+  }
+  .restart-btn {
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: none;
+    background-color: #10b981;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  .restart-btn:hover {
+    background-color: #059669;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #111827;
+      color: #f3f4f6;
+    }
+    .header h1 {
+      color: #f9fafb;
+    }
+    .header p {
+      color: #9ca3af;
+    }
+    .top-bar {
+      color: #d1d5db;
+    }
+    .score-box {
+      color: #f9fafb;
+    }
+    .progress-track {
+      background-color: #374151;
+    }
+    .progress-fill {
+      background-color: #3b82f6;
+    }
+    .card {
+      background-color: #1f2937;
+      color: #f3f4f6;
+      border: 1px solid #374151;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .question-number {
+      color: #9ca3af;
+    }
+    .question-text {
+      color: #f9fafb;
+    }
+    .answer-btn {
+      background-color: #111827;
+      border-color: #4b5563;
+      color: #f3f4f6;
+    }
+    .answer-btn:hover:not(:disabled) {
+      border-color: #3b82f6;
+      background-color: #1e3a5f;
+    }
+    .answer-btn.correct {
+      background-color: #064e3b;
+      border-color: #10b981;
+      color: #d1fae5;
+    }
+    .answer-btn.incorrect {
+      background-color: #7f1d1d;
+      border-color: #ef4444;
+      color: #fee2e2;
+    }
+    .explanation {
+      background-color: #111827;
+      color: #f3f4f6;
+      border-left: 4px solid #3b82f6;
+    }
+    .explanation strong {
+      color: #f9fafb;
+    }
+    .nav-btn {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background-color: #2563eb;
+    }
+    .nav-btn:disabled {
+      background-color: #374151;
+      color: #6b7280;
+    }
+    .nav-btn.secondary {
+      background-color: #374151;
+      color: #f3f4f6;
+    }
+    .nav-btn.secondary:hover:not(:disabled) {
+      background-color: #4b5563;
+    }
+    .nav-btn.secondary:disabled {
+      background-color: #1f2937;
+      color: #4b5563;
+    }
+    .results-card h2 {
+      color: #f9fafb;
+    }
+    .results-percent {
+      color: #3b82f6;
+    }
+    .results-detail {
+      color: #d1d5db;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Network Security Quiz</h1>
+    <p>User Authentication &amp; Link Layer Security</p>
+  </div>
+  <div id="quizArea"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  var questionBank = [
+    {
+      category: "Authentication Basics",
+      question: "What is user authentication defined as?",
+      options: [
+        "The process of determining whether a user or process is who or what it declares itself to be",
+        "The process of encrypting all messages sent over a network",
+        "The process of assigning an IP address to a new device",
+        "The process of compressing data before transmission"
+      ],
+      correctIndex: 0,
+      explanation: "User authentication is the process of determining whether a user, application, or process acting on behalf of a user is, in fact, who or what it declares itself to be."
+    },
+    {
+      category: "Authentication Basics",
+      question: "How is user authentication different from message authentication?",
+      options: [
+        "They are exactly the same thing",
+        "Message authentication only applies to encrypted email",
+        "Message authentication verifies that message contents were not altered and the source is authentic, while user authentication verifies identity",
+        "User authentication only works over wireless networks"
+      ],
+      correctIndex: 2,
+      explanation: "Message authentication is a procedure that allows communicating parties to verify that the contents of a received message have not been altered and that the source is authentic, which is distinct from verifying a user's identity."
+    },
+    {
+      category: "Authentication Basics",
+      question: "What is a digital identity?",
+      options: [
+        "A password stored in plaintext",
+        "The unique representation of a subject engaged in an online transaction",
+        "A physical ID card issued by a government",
+        "A backup copy of a user's data"
+      ],
+      correctIndex: 1,
+      explanation: "Digital identity is the unique representation of a subject engaged in an online transaction, consisting of an attribute or set of attributes that describe the subject within a given context."
+    },
+    {
+      category: "Authentication Basics",
+      question: "What does identity proofing establish?",
+      options: [
+        "That a network connection is encrypted",
+        "That a subject is who they claim to be, to a stated level of certitude",
+        "That a password meets complexity requirements",
+        "That a device has the latest software updates"
+      ],
+      correctIndex: 1,
+      explanation: "Identity proofing establishes that a subject is who they claim to be to a stated level of certitude, involving collecting, validating, and verifying information about a person or system."
+    },
+    {
+      category: "Auth Factors",
+      question: "Which three factors can be used, alone or in combination, for user authentication?",
+      options: [
+        "Location, time, and device type",
+        "Knowledge, possession, and inherence factors",
+        "Speed, bandwidth, and latency",
+        "Encryption, compression, and hashing"
+      ],
+      correctIndex: 1,
+      explanation: "The means of user authentication rely on knowledge factors (something you know), possession factors (something you have), and inherence factors (something you are)."
+    },
+    {
+      category: "Auth Factors",
+      question: "Which of the following is an example of a knowledge factor?",
+      options: [
+        "A smart card",
+        "A fingerprint scan",
+        "A password or PIN",
+        "A USB security token"
+      ],
+      correctIndex: 2,
+      explanation: "Knowledge factors require the user to demonstrate knowledge of secret information, such as passwords, passphrases, PINs, or answers to secret questions."
+    },
+    {
+      category: "Auth Factors",
+      question: "What is a documented weakness of knowledge-based authentication factors like passwords?",
+      options: [
+        "They cannot be shared between users",
+        "Many passwords are easy to guess and can be forgotten",
+        "They require special biometric hardware",
+        "They are always encrypted automatically"
+      ],
+      correctIndex: 1,
+      explanation: "According to the authentication factors comparison, knowledge factors such as passwords can be shared, many are easy to guess, and they can be forgotten."
+    },
+    {
+      category: "Auth Factors",
+      question: "What is a disconnected hardware token?",
+      options: [
+        "A token that has been permanently disabled",
+        "A device that connects physically or wirelessly to a computer to authenticate",
+        "A device that does not directly connect to the client computer, instead displaying data the user manually enters",
+        "A token that only works with biometric scanners"
+      ],
+      correctIndex: 2,
+      explanation: "Disconnected hardware tokens do not directly connect to the client computer; they typically use a built-in screen to display authentication data that the user then manually enters when prompted."
+    },
+    {
+      category: "Auth Factors",
+      question: "What is a key property of inherence (biometric) authentication factors?",
+      options: [
+        "They can be easily shared between users",
+        "They are not possible to share, though false positives and false negatives are possible",
+        "They never require any hardware",
+        "They can be reset like a password"
+      ],
+      correctIndex: 1,
+      explanation: "Inherence factors such as fingerprints, face, iris, or voice print are not possible to share, though they can produce false positives and false negatives, and forging them is difficult."
+    },
+    {
+      category: "Mutual Authentication",
+      question: "What does mutual authentication refer to?",
+      options: [
+        "A protocol used only for encrypting hard drives",
+        "Protocols enabling communicating parties to satisfy themselves about each other's identity and exchange session keys",
+        "A method for compressing network traffic",
+        "A firewall configuration technique"
+      ],
+      correctIndex: 1,
+      explanation: "Mutual authentication protocols enable communicating parties to satisfy themselves mutually about each other's identity and to exchange session keys."
+    },
+    {
+      category: "Mutual Authentication",
+      question: "What are the two central issues in authenticated key exchange?",
+      options: [
+        "Bandwidth and latency",
+        "Timeliness and confidentiality",
+        "Compression and encoding",
+        "Routing and switching"
+      ],
+      correctIndex: 1,
+      explanation: "Central to the problem of authenticated key exchange are two issues: timeliness (to prevent message replays) and confidentiality (protecting identification and session-key information)."
+    },
+    {
+      category: "Mutual Authentication",
+      question: "Why is timeliness important in mutual authentication protocols?",
+      options: [
+        "Because of the threat of message replays that could compromise a session key or allow impersonation",
+        "Because it reduces the size of network packets",
+        "Because it prevents devices from running out of battery",
+        "Because it is required for DNS resolution"
+      ],
+      correctIndex: 0,
+      explanation: "Timeliness is important because of the threat of message replays, which could allow an opponent to compromise a session key or successfully impersonate another party."
+    },
+    {
+      category: "Replay Attacks",
+      question: "What is the simplest form of a replay attack?",
+      options: [
+        "The opponent simply copies a message and replays it later",
+        "The opponent deletes all network traffic",
+        "The opponent changes the destination IP address of every packet",
+        "The opponent encrypts the message with a stronger algorithm"
+      ],
+      correctIndex: 0,
+      explanation: "The simplest replay attack is one in which the opponent simply copies a message and replays it later."
+    },
+    {
+      category: "Replay Attacks",
+      question: "When is a backward replay attack possible?",
+      options: [
+        "Only when asymmetric encryption is used",
+        "Only on wireless networks",
+        "If symmetric encryption is used and the sender cannot easily distinguish sent messages from received ones based on content",
+        "Only when no encryption at all is used"
+      ],
+      correctIndex: 2,
+      explanation: "A backward replay without modification is possible if symmetric encryption is used and the sender cannot easily recognize the difference between messages sent and messages received based on content."
+    },
+    {
+      category: "Replay Attacks",
+      question: "What is a known difficulty with using sequence numbers to cope with replay attacks?",
+      options: [
+        "Sequence numbers cannot be transmitted over UDP",
+        "Each party must keep track of the last sequence number for every claimant it has dealt with, creating overhead",
+        "Sequence numbers require biometric hardware",
+        "Sequence numbers only work with wireless networks"
+      ],
+      correctIndex: 1,
+      explanation: "A difficulty with the sequence number approach is that it requires each party to keep track of the last sequence number for each claimant, and it is generally not used for authentication and key exchange because of this overhead."
+    },
+    {
+      category: "Replay Attacks",
+      question: "What does a timestamp-based approach to preventing replay attacks require?",
+      options: [
+        "That all parties use the same encryption algorithm",
+        "That clocks among the various participants be synchronized",
+        "That messages be sent over a wired connection only",
+        "That the message be compressed before sending"
+      ],
+      correctIndex: 1,
+      explanation: "The timestamp approach requires that clocks among the various participants be synchronized, since a party accepts a message as fresh only if its timestamp is close enough to the current known time."
+    },
+    {
+      category: "Replay Attacks",
+      question: "In the challenge/response method of preventing replay attacks, what does party A send to B?",
+      options: [
+        "A digital certificate",
+        "A nonce, expecting the subsequent response from B to contain that same nonce value",
+        "A new password",
+        "A compressed copy of the previous message"
+      ],
+      correctIndex: 1,
+      explanation: "In challenge/response, party A first sends B a nonce (challenge) and requires that the subsequent response received from B contain the correct nonce value."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "In remote user authentication using symmetric encryption, what role does the Key Distribution Center (KDC) play?",
+      options: [
+        "It stores web page content for faster access",
+        "It generates short-lived session keys and distributes them using master keys shared with each party",
+        "It only handles DNS lookups",
+        "It replaces the need for any encryption"
+      ],
+      correctIndex: 1,
+      explanation: "The KDC is responsible for generating keys to be used for a short time over a connection between two parties, distributing those keys using the master keys each party shares with the KDC to protect the distribution."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "What mechanism does the Needham-Schroeder protocol use to ensure message freshness?",
+      options: [
+        "Timestamps synchronized across all devices",
+        "Nonces",
+        "IP address filtering",
+        "MAC address whitelisting"
+      ],
+      correctIndex: 1,
+      explanation: "The Needham-Schroeder protocol uses nonces for freshness, which prevents simple replay since an attacker cannot fake the nonce, but it remains vulnerable to replay of old session keys."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "What vulnerability remains in the Denning protocol, which added timestamps to the Needham-Schroeder approach?",
+      options: [
+        "It is vulnerable to suppress-replay attacks if clocks become unsynchronized",
+        "It cannot be used with symmetric encryption",
+        "It requires no clock synchronization at all",
+        "It only works for wireless devices"
+      ],
+      correctIndex: 0,
+      explanation: "The Denning protocol solves the old-key replay problem using timestamps but requires tight clock synchronization and remains vulnerable to suppress-replay attacks, where an attacker delays a valid message and replays it within the clock window."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "What causes a suppress-replay attack to be possible?",
+      options: [
+        "A sender's clock being ahead of the intended recipient's clock, allowing an intercepted message to be replayed later when its timestamp becomes current",
+        "The use of nonces instead of timestamps",
+        "A recipient's clock being reset to zero",
+        "The absence of any network connection"
+      ],
+      correctIndex: 0,
+      explanation: "The problem occurs when a sender's clock is ahead of the intended recipient's clock; an opponent can intercept a message and replay it later when the timestamp becomes current at the recipient's site."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "What approach does the Kehne-Schroeder/Neuman protocol take to address suppress-replay attacks?",
+      options: [
+        "It removes the need for a KDC entirely",
+        "It combines nonces and timestamps, using nonces for immediate freshness and timestamps to limit session key lifetime",
+        "It relies solely on biometric verification",
+        "It disables all clock synchronization requirements"
+      ],
+      correctIndex: 1,
+      explanation: "The Kehne-Schroeder/Neuman protocol combines nonces and timestamps: nonces provide immediate freshness to stop suppress-replay attacks, while timestamps limit the session key lifetime, at the cost of added complexity."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "What assumption does remote user authentication using asymmetric encryption rely on?",
+      options: [
+        "Each of the two parties is in possession of the current public key of the other",
+        "Both parties share an identical secret password",
+        "No encryption is used at any stage",
+        "The session key never changes"
+      ],
+      correctIndex: 0,
+      explanation: "This protocol assumes that each of the two parties is in possession of the current public key of the other, and it also requires time synchronization of clocks."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "In the Denning asymmetric-encryption protocol, why is the central system called an authentication server (AS) rather than a KDC?",
+      options: [
+        "Because it is not actually responsible for secret-key distribution",
+        "Because it only manages DNS records",
+        "Because it does not participate in the protocol at all",
+        "Because it replaces the need for a session key"
+      ],
+      correctIndex: 0,
+      explanation: "The central system is referred to as an authentication server (AS) because, unlike a KDC, it is not actually responsible for secret-key distribution; the session key is chosen and encrypted by A."
+    },
+    {
+      category: "Key Exchange Protocols",
+      question: "What is the main idea behind the Woo and Lam protocol for remote authentication using asymmetric encryption?",
+      options: [
+        "Use only timestamps to prove freshness",
+        "Use nonces combined with public keys, instead of only timestamps, to prove freshness and liveness",
+        "Avoid using any central server",
+        "Use symmetric encryption exclusively"
+      ],
+      correctIndex: 1,
+      explanation: "The Woo and Lam protocol's main idea is to use nonces plus public keys, instead of relying only on timestamps, to prove freshness and liveness."
+    },
+    {
+      category: "Link Layer Basics",
+      question: "What is the purpose of the OSI Layer-2 Link Layer?",
+      options: [
+        "To provide reliable, efficient communication between adjacent machines connected by a single communication channel",
+        "To route packets between different networks across the internet",
+        "To translate domain names into IP addresses",
+        "To manage application-level user sessions"
+      ],
+      correctIndex: 0,
+      explanation: "The purpose of L2 is to provide reliable, efficient communication between adjacent machines connected by a single communication channel."
+    },
+    {
+      category: "Link Layer Basics",
+      question: "Which of the following is one of the core functions of the Link Layer?",
+      options: [
+        "Rendering web pages",
+        "Framing, which splits data into data units",
+        "Assigning domain names",
+        "Managing application firewalls"
+      ],
+      correctIndex: 1,
+      explanation: "Framing is a core L2 function that involves splitting data into data units, alongside reliable delivery, addressing, error control, flow control, and access control."
+    },
+    {
+      category: "Link Layer Basics",
+      question: "What type of addresses does the Link Layer use?",
+      options: [
+        "IP addresses",
+        "MAC addresses",
+        "Port numbers",
+        "Domain names"
+      ],
+      correctIndex: 1,
+      explanation: "Addressing at the Link Layer is done using MAC addresses, which uniquely identify network interfaces."
+    },
+    {
+      category: "Link Layer Basics",
+      question: "How does the Link Layer typically perform error control?",
+      options: [
+        "By detecting and correcting transmission errors using CRC codes",
+        "By encrypting every frame with AES",
+        "By assigning a new IP address to the sender",
+        "By disabling the network interface"
+      ],
+      correctIndex: 0,
+      explanation: "Error control at the Link Layer detects and corrects transmission errors, typically using CRC (Cyclic Redundancy Check) codes."
+    },
+    {
+      category: "Link Layer Basics",
+      question: "The Data Link layer is divided into which two sub-layers?",
+      options: [
+        "Transport and Session",
+        "Logical Link Control (LLC) and Media Access Control (MAC)",
+        "Application and Presentation",
+        "Physical and Network"
+      ],
+      correctIndex: 1,
+      explanation: "The Data Link layer consists of the Logical Link Control (LLC) sub-layer and the Media Access Control (MAC) sub-layer."
+    },
+    {
+      category: "Link Layer Basics",
+      question: "Which IEEE standard corresponds to Ethernet?",
+      options: [
+        "IEEE 802.11",
+        "IEEE 802.15",
+        "IEEE 802.3",
+        "IEEE 802.2 only"
+      ],
+      correctIndex: 2,
+      explanation: "Ethernet is defined by IEEE 802.3 and is used in wired LANs such as Fast Ethernet and Gigabit Ethernet."
+    },
+    {
+      category: "ARP",
+      question: "What is the main purpose of the Address Resolution Protocol (ARP)?",
+      options: [
+        "To map IP addresses to MAC addresses within a local network",
+        "To assign dynamic IP addresses to new devices",
+        "To translate domain names into IP addresses",
+        "To encrypt traffic between two hosts"
+      ],
+      correctIndex: 0,
+      explanation: "ARP is used to map IP addresses to MAC addresses within a local network, enabling communication between devices in a LAN."
+    },
+    {
+      category: "ARP",
+      question: "Why does ARP operate at Layer 2?",
+      options: [
+        "Because it manages DNS zone files",
+        "Because it involves mapping and using MAC addresses, which are part of the Data Link layer",
+        "Because it only works over fiber optic cables",
+        "Because it replaces the need for IP addresses entirely"
+      ],
+      correctIndex: 1,
+      explanation: "ARP operates at Layer 2 because it involves mapping and using MAC addresses, which are part of the Data Link layer."
+    },
+    {
+      category: "ARP",
+      question: "What is an ARP cache used for?",
+      options: [
+        "Storing a backup of all web pages visited",
+        "Optimizing network overhead by storing recently resolved IP-to-MAC mappings on a host",
+        "Storing user passwords securely",
+        "Storing a list of blocked IP addresses"
+      ],
+      correctIndex: 1,
+      explanation: "The ARP cache stores recently resolved IP-to-MAC mappings on hosts to optimize network overhead by avoiding repeated ARP requests."
+    },
+    {
+      category: "ARP",
+      question: "How does ARP spoofing enable a man-in-the-middle attack?",
+      options: [
+        "The attacker sends fake ARP replies mapping its own MAC address to the victim's IP address, causing traffic to be redirected to the attacker",
+        "The attacker physically cuts the network cable",
+        "The attacker changes the DNS server settings on the victim's router",
+        "The attacker floods the network with encrypted traffic"
+      ],
+      correctIndex: 0,
+      explanation: "In ARP spoofing, the attacker sends fake ARP replies with its own MAC address mapped to a target IP (such as the router), so the victim's device updates its ARP cache and sends traffic to the attacker instead."
+    },
+    {
+      category: "ARP",
+      question: "Why must an attacker performing ARP spoofing continuously send spoofed replies?",
+      options: [
+        "Because ARP entries have a limited lifespan and are refreshed periodically, so a legitimate ARP response could overwrite the spoofed entry",
+        "Because ARP replies are automatically deleted every second",
+        "Because switches block ARP traffic by default",
+        "Because ARP only works once per network session"
+      ],
+      correctIndex: 0,
+      explanation: "Since ARP entries have a limited lifespan and are refreshed periodically, a legitimate ARP response could overwrite the spoofed entry, so attackers must perform continuous spoofing to keep the fake entry active."
+    },
+    {
+      category: "DHCP",
+      question: "What is the primary purpose of DHCP?",
+      options: [
+        "To assign dynamic IP addresses to devices on a network and ensure no two devices get the same address",
+        "To encrypt all traffic on a local network",
+        "To convert domain names into IP addresses",
+        "To detect and block malware"
+      ],
+      correctIndex: 0,
+      explanation: "DHCP (Dynamic Host Configuration Protocol) assigns dynamic IP addresses to devices on a network and ensures no two devices get the same IP address."
+    },
+    {
+      category: "DHCP",
+      question: "At which OSI layer is DHCP typically considered to operate, and over what transport protocol?",
+      options: [
+        "Physical layer, over TCP",
+        "Application layer, over UDP",
+        "Network layer, over ICMP",
+        "Session layer, over SCTP"
+      ],
+      correctIndex: 1,
+      explanation: "DHCP is considered an Application Layer protocol, running over UDP (using ports 67 for the server and 68 for the client)."
+    },
+    {
+      category: "DHCP",
+      question: "Why does DHCP identify clients by MAC address rather than IP address during the initial exchange?",
+      options: [
+        "Because MAC addresses are encrypted by default",
+        "Because the client has no IP address available yet",
+        "Because IP addresses are not allowed in DHCP messages",
+        "Because MAC addresses change every second"
+      ],
+      correctIndex: 1,
+      explanation: "At the Data Link layer, DHCP identifies clients by MAC address since no IP address is available yet at the start of the exchange."
+    },
+    {
+      category: "DHCP",
+      question: "What is the correct order of the DHCP message exchange?",
+      options: [
+        "Offer, Discover, Request, Acknowledge",
+        "Discover, Offer, Request, Acknowledge",
+        "Request, Discover, Acknowledge, Offer",
+        "Acknowledge, Request, Offer, Discover"
+      ],
+      correctIndex: 1,
+      explanation: "The DHCP exchange follows the order: DHCPDiscover (IP address request), DHCPOffer (IP address offer), DHCPRequest (IP address selection), and DHCPAck (acknowledgment)."
+    },
+    {
+      category: "DHCP",
+      question: "What happens during a DHCP starvation attack?",
+      options: [
+        "The attacker sends a large number of spoofed DHCP requests to exhaust the server's IP address pool, causing a denial of service",
+        "The attacker deletes the DHCP server's configuration file",
+        "The attacker slows down all wireless connections",
+        "The attacker encrypts the DHCP server's hard drive"
+      ],
+      correctIndex: 0,
+      explanation: "In a DHCP starvation attack, the attacker sends spoofed requests in large numbers to exhaust the IP address pool at the DHCP server, resulting in a denial of service where legitimate devices cannot obtain IP addresses."
+    },
+    {
+      category: "DHCP",
+      question: "How does DHCP snooping help protect against DHCP-based attacks?",
+      options: [
+        "It encrypts all DHCP traffic end to end",
+        "It allows only trusted ports to send DHCP responses, blocking DHCP messages from untrusted ports that look like server responses",
+        "It disables DHCP entirely on the network",
+        "It replaces DHCP with static IP addressing automatically"
+      ],
+      correctIndex: 1,
+      explanation: "DHCP snooping is a Layer 2 security feature that classifies switch ports as trusted or untrusted, allowing only trusted ports to send DHCP responses, thereby protecting against rogue DHCP servers and DHCP starvation."
+    },
+    {
+      category: "STP",
+      question: "What problem does the Spanning Tree Protocol (STP) solve?",
+      options: [
+        "It prevents loops in Ethernet networks by creating a loop-free logical topology",
+        "It assigns IP addresses to new devices",
+        "It encrypts traffic between switches",
+        "It compresses Ethernet frames to save bandwidth"
+      ],
+      correctIndex: 0,
+      explanation: "STP prevents loops in Ethernet networks by creating a loop-free logical topology, since Ethernet does not work correctly in looped topologies."
+    },
+    {
+      category: "STP",
+      question: "What happens in an Ethernet network with a looped topology and no working spanning tree protocol?",
+      options: [
+        "Frames loop indefinitely between switches until one switch crashes, a broadcast storm",
+        "The network automatically becomes faster",
+        "All devices are assigned new MAC addresses",
+        "The switches automatically shut down safely with no impact"
+      ],
+      correctIndex: 0,
+      explanation: "In a looped topology without a working spanning tree protocol, frames loop indefinitely between switches, consuming CPU resources until a switch crashes, a broadcast storm."
+    },
+    {
+      category: "STP",
+      question: "What is a Bridge Protocol Data Unit (BPDU)?",
+      options: [
+        "An encrypted email message between switches",
+        "An STP message unit that describes the attributes of a switch port, such as MAC address, priority, and cost to reach",
+        "A type of DHCP request",
+        "A protocol used exclusively for wireless authentication"
+      ],
+      correctIndex: 1,
+      explanation: "A BPDU is a spanning tree protocol message unit that describes the attributes of a switch port, such as its MAC address, priority, and cost to reach, enabling switches to gather information about each other."
+    },
+    {
+      category: "STP",
+      question: "How can an attacker manipulate the Spanning Tree Protocol to perform a man-in-the-middle attack?",
+      options: [
+        "By sending BPDUs with a lower bridge ID, pretending to be a superior bridge, forcing the network to elect the attacker's device as the root bridge",
+        "By disabling all switches on the network",
+        "By assigning itself a random MAC address",
+        "By requesting a new IP address from the DHCP server"
+      ],
+      correctIndex: 0,
+      explanation: "By sending BPDUs with a lower bridge ID and pretending to be a superior bridge, an attacker can force the network to elect the attacker's device as the root bridge, enabling a man-in-the-middle attack."
+    },
+    {
+      category: "STP",
+      question: "What happens when an attacker exploits STP Topology Change Attacks by sending false Topology Change Notifications (TCNs)?",
+      options: [
+        "The root bridge responds with a Topology Change Acknowledgement, causing all switches to clear and relearn their MAC address mappings",
+        "All switches immediately reboot",
+        "The network automatically switches to a wireless connection",
+        "DHCP leases are permanently revoked"
+      ],
+      correctIndex: 0,
+      explanation: "Every time a TCN is received, the root bridge responds with a Topology Change Acknowledgement (TCA), which causes all switches to clear and relearn the MAC address mappings, something an attacker can exploit by generating false TCNs."
+    }
+  ];
+
+  var categoryColors = {
+    "Authentication Basics": "#2563eb",
+    "Auth Factors": "#7c3aed",
+    "Mutual Authentication": "#0891b2",
+    "Replay Attacks": "#dc2626",
+    "Key Exchange Protocols": "#d97706",
+    "Link Layer Basics": "#059669",
+    "ARP": "#db2777",
+    "DHCP": "#4f46e5",
+    "STP": "#ea580c"
+  };
+
+  var quizArea = document.getElementById("quizArea");
+  var session = [];
+  var currentIndex = 0;
+  var score = 0;
+  var maxUnlocked = 0;
+  var showingResults = false;
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  function initSession() {
+    var order = shuffleArray(questionBank.map(function(q, idx) { return idx; }));
+    session = order.map(function(qIdx) {
+      var q = questionBank[qIdx];
+      var optOrder = shuffleArray([0, 1, 2, 3]);
+      return {
+        category: q.category,
+        questionText: q.question,
+        options: q.options,
+        explanation: q.explanation,
+        originalCorrectIndex: q.correctIndex,
+        optOrder: optOrder,
+        answered: false,
+        selectedDisplayIndex: null
+      };
+    });
+    currentIndex = 0;
+    score = 0;
+    maxUnlocked = 0;
+    showingResults = false;
+  }
+
+  function correctDisplayIndex(item) {
+    for (var i = 0; i < item.optOrder.length; i++) {
+      if (item.optOrder[i] === item.originalCorrectIndex) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function render() {
+    if (showingResults) {
+      renderResults();
+      return;
+    }
+    var total = session.length;
+    var item = session[currentIndex];
+    var pct = Math.round(((currentIndex) / total) * 100);
+    var color = categoryColors[item.category] || "#2563eb";
+
+    var html = "";
+    html += "<div class=\"top-bar\">";
+    html += "<span>Question " + (currentIndex + 1) + " of " + total + "</span>";
+    html += "<span class=\"score-box\">Score: " + score + " / " + total + "</span>";
+    html += "</div>";
+    html += "<div class=\"progress-track\"><div class=\"progress-fill\" style=\"width:" + pct + "%\"></div></div>";
+    html += "<div class=\"card\">";
+    html += "<span class=\"category-badge\" style=\"background-color:" + color + "\">" + escapeHtml(item.category) + "</span>";
+    html += "<div class=\"question-text\">" + escapeHtml(item.questionText) + "</div>";
+    html += "<div class=\"answers\" id=\"answersContainer\"></div>";
+    if (item.answered) {
+      html += "<div class=\"explanation\"><strong>Explanation:</strong> " + escapeHtml(item.explanation) + "</div>";
+    }
+    html += "<div class=\"nav-row\">";
+    html += "<button class=\"nav-btn secondary\" id=\"backBtn\">&larr; Back</button>";
+    if (currentIndex === total - 1 && item.answered) {
+      html += "<button class=\"nav-btn\" id=\"nextBtn\">View Results</button>";
+    } else {
+      html += "<button class=\"nav-btn\" id=\"nextBtn\">Next &rarr;</button>";
+    }
+    html += "</div>";
+    html += "</div>";
+
+    quizArea.innerHTML = html;
+
+    var answersContainer = document.getElementById("answersContainer");
+    for (var i = 0; i < item.optOrder.length; i++) {
+      var origIdx = item.optOrder[i];
+      var btn = document.createElement("button");
+      btn.className = "answer-btn";
+      btn.type = "button";
+      btn.textContent = item.options[origIdx];
+      btn.setAttribute("data-display-index", String(i));
+
+      if (item.answered) {
+        btn.disabled = true;
+        var correctDisp = correctDisplayIndex(item);
+        if (i === correctDisp) {
+          btn.classList.add("correct");
+        } else if (i === item.selectedDisplayIndex) {
+          btn.classList.add("incorrect");
+        }
+      } else {
+        btn.addEventListener("click", function(e) {
+          var idx = parseInt(e.target.getAttribute("data-display-index"), 10);
+          selectAnswer(idx);
+        });
+      }
+      answersContainer.appendChild(btn);
+    }
+
+    var backBtn = document.getElementById("backBtn");
+    backBtn.disabled = (currentIndex === 0);
+    backBtn.addEventListener("click", function() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        render();
+      }
+    });
+
+    var nextBtn = document.getElementById("nextBtn");
+    if (currentIndex === total - 1 && item.answered) {
+      nextBtn.disabled = false;
+      nextBtn.addEventListener("click", function() {
+        showingResults = true;
+        render();
+      });
+    } else {
+      nextBtn.disabled = !(currentIndex < maxUnlocked);
+      nextBtn.addEventListener("click", function() {
+        if (currentIndex < maxUnlocked) {
+          currentIndex++;
+          render();
+        }
+      });
+    }
+  }
+
+  function selectAnswer(displayIndex) {
+    var item = session[currentIndex];
+    if (item.answered) {
+      return;
+    }
+    item.answered = true;
+    item.selectedDisplayIndex = displayIndex;
+    var correctDisp = correctDisplayIndex(item);
+    if (displayIndex === correctDisp) {
+      score++;
+    }
+    if (currentIndex + 1 > maxUnlocked) {
+      maxUnlocked = currentIndex + 1;
+    }
+    render();
+  }
+
+  function renderResults() {
+    var total = session.length;
+    var pct = Math.round((score / total) * 100);
+    var html = "";
+    html += "<div class=\"card results-card\">";
+    html += "<h2>Quiz Complete</h2>";
+    html += "<div class=\"results-percent\">" + pct + "%</div>";
+    html += "<div class=\"results-detail\">You answered " + score + " out of " + total + " questions correctly.</div>";
+    html += "<button class=\"restart-btn\" id=\"restartBtn\">Restart Quiz</button>";
+    html += "</div>";
+    quizArea.innerHTML = html;
+    document.getElementById("restartBtn").addEventListener("click", function() {
+      initSession();
+      render();
+    });
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  initSession();
+  render();
+});
+</script>
+</body>
+</html>

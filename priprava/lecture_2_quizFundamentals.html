@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentals of Cryptography - Quiz</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #f3f4f6;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  body {
+    padding: 24px 16px 60px 16px;
+  }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    color: #111827;
+  }
+  h1.page-title {
+    text-align: center;
+    color: #111827;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+  }
+  p.page-subtitle {
+    text-align: center;
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #111827;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .score-text {
+    color: #111827;
+  }
+  .progress-outer {
+    width: 100%;
+    background-color: #e5e7eb;
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .progress-inner {
+    height: 100%;
+    background-color: #2563eb;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .card {
+    background-color: #ffffff;
+    color: #111827;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  }
+  .category-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+  .question-text {
+    color: #111827;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0 0 18px 0;
+    line-height: 1.4;
+  }
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 2px solid #d1d5db;
+    background-color: #f9fafb;
+    color: #1a1a2e;
+    font-size: 0.98rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .answer-btn:hover:not(:disabled) {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+    color: #1a1a2e;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct-answer {
+    background-color: #16a34a;
+    border-color: #15803d;
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .answer-btn.wrong-answer {
+    background-color: #dc2626;
+    border-color: #b91c1c;
+    color: #ffffff;
+    font-weight: 700;
+  }
+  .explanation {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background-color: #f0f4ff;
+    border-left: 4px solid #2563eb;
+    border-radius: 8px;
+    color: #111827;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+  .explanation strong {
+    color: #111827;
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 22px;
+    gap: 12px;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #2563eb;
+    font-family: inherit;
+  }
+  .nav-btn.secondary {
+    background-color: #6b7280;
+  }
+  .nav-btn:disabled {
+    background-color: #d1d5db;
+    color: #6b7280;
+    cursor: not-allowed;
+  }
+  .hidden {
+    display: none !important;
+  }
+  .results-title {
+    color: #111827;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .results-score {
+    color: #111827;
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin: 12px 0;
+  }
+  .results-detail {
+    color: #4b5563;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+  }
+  .restart-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html, body {
+      background-color: #0f172a;
+      color: #f3f4f6;
+    }
+    .container {
+      color: #f3f4f6;
+    }
+    h1.page-title {
+      color: #f3f4f6;
+    }
+    p.page-subtitle {
+      color: #9ca3af;
+    }
+    .top-bar {
+      color: #f3f4f6;
+    }
+    .score-text {
+      color: #f3f4f6;
+    }
+    .progress-outer {
+      background-color: #1f2937;
+    }
+    .progress-inner {
+      background-color: #3b82f6;
+    }
+    .card {
+      background-color: #1f2937;
+      color: #f3f4f6;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    .question-text {
+      color: #f3f4f6;
+    }
+    .answer-btn {
+      background-color: #111827;
+      border: 2px solid #374151;
+      color: #f3f4f6;
+    }
+    .answer-btn:hover:not(:disabled) {
+      border-color: #60a5fa;
+      background-color: #1e3a5f;
+      color: #f3f4f6;
+    }
+    .answer-btn.correct-answer {
+      background-color: #15803d;
+      border-color: #166534;
+      color: #ffffff;
+    }
+    .answer-btn.wrong-answer {
+      background-color: #b91c1c;
+      border-color: #991b1b;
+      color: #ffffff;
+    }
+    .explanation {
+      background-color: #111c34;
+      border-left: 4px solid #3b82f6;
+      color: #f3f4f6;
+    }
+    .explanation strong {
+      color: #f3f4f6;
+    }
+    .nav-btn {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+    .nav-btn.secondary {
+      background-color: #4b5563;
+      color: #ffffff;
+    }
+    .nav-btn:disabled {
+      background-color: #374151;
+      color: #6b7280;
+    }
+    .results-title {
+      color: #f3f4f6;
+    }
+    .results-score {
+      color: #f3f4f6;
+    }
+    .results-detail {
+      color: #9ca3af;
+    }
+    .restart-btn {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1 class="page-title">Fundamentals of Cryptography</h1>
+  <p class="page-subtitle">Lecture Quiz - Introduction to Cryptography</p>
+
+  <div id="quizView">
+    <div class="top-bar">
+      <span id="questionCounter">Question 1 / 20</span>
+      <span class="score-text" id="scoreCounter">Score: 0</span>
+    </div>
+    <div class="progress-outer">
+      <div class="progress-inner" id="progressBar"></div>
+    </div>
+
+    <div class="card">
+      <span class="category-tag" id="categoryTag">Category</span>
+      <p class="question-text" id="questionText">Question text</p>
+      <div class="options-list" id="optionsList"></div>
+      <div class="explanation hidden" id="explanationBox"></div>
+
+      <div class="nav-row">
+        <button class="nav-btn secondary" id="backBtn">Back</button>
+        <button class="nav-btn" id="nextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultsView" class="card hidden">
+    <p class="results-title">Quiz Complete!</p>
+    <p class="results-score" id="resultsScore">0%</p>
+    <p class="results-detail" id="resultsDetail">You got 0 out of 0 correct.</p>
+    <button class="restart-btn" id="restartBtn">Restart Quiz</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var quizData = [
+    {
+      category: 'Data Representation',
+      question: 'How many different combinations can 8 bits represent?',
+      options: ['128', '256', '512', '64'],
+      correctIndex: 1,
+      explanation: '8 bits allow for 2 to the power of 8, which equals 256 different combinations.'
+    },
+    {
+      category: 'Data Representation',
+      question: 'What is the hexadecimal representation of the binary byte 00011010?',
+      options: ['0x1A', '0x0A', '0x2A', '0x1B'],
+      correctIndex: 0,
+      explanation: 'The binary value 00011010 equals decimal 26, which is written as 0x1A in hexadecimal.'
+    },
+    {
+      category: 'Data Representation',
+      question: 'In the ASCII table, how many of the first byte values correspond to a specific letter or character?',
+      options: ['256', '64', '128', '32'],
+      correctIndex: 2,
+      explanation: 'The first 128 byte values are defined in ASCII, since a leading 0 bit is assumed for all ASCII letters.'
+    },
+    {
+      category: 'Data Representation',
+      question: 'Why is UTF-8 considered ideal for backward compatibility with existing ASCII text?',
+      options: [
+        'It uses only 4-byte characters for everything',
+        'Standard ASCII (0-127) characters have identical codes in UTF-8',
+        'It removes all special characters',
+        'It converts ASCII text into hexadecimal automatically'
+      ],
+      correctIndex: 1,
+      explanation: 'For the standard ASCII range (0-127), the UTF-8 codes are identical to ASCII codes, which preserves backward compatibility.'
+    },
+    {
+      category: 'Data Representation',
+      question: 'In UTF-8, what indicates that a byte is part of a multi-byte character?',
+      options: [
+        'The byte value is zero',
+        'The last bit of the byte is 1',
+        'The first bit of the byte is 1',
+        'The byte is written in uppercase'
+      ],
+      correctIndex: 2,
+      explanation: 'The first bit of each byte in a multi-byte UTF-8 sequence is set to 1, so it never clashes with standard ASCII bytes, which always start with 0.'
+    },
+    {
+      category: 'Data Representation',
+      question: 'What is Base64 encoding primarily used for?',
+      options: [
+        'Securely encrypting sensitive data',
+        'Representing binary data as ASCII text',
+        'Compressing large files',
+        'Generating cryptographic keys'
+      ],
+      correctIndex: 1,
+      explanation: 'Base64 is a "binary to text" encoding method used to represent binary data using ASCII characters. It is explicitly not a form of encryption.'
+    },
+    {
+      category: 'Data Representation',
+      question: 'How does Base64 encoding work at a technical level?',
+      options: [
+        'It encrypts data using a secret key',
+        'It splits binary data into 6-bit chunks and maps each chunk to a character',
+        'It compresses bytes into fewer bits',
+        'It reverses the order of all bytes'
+      ],
+      correctIndex: 1,
+      explanation: 'Base64 splits the binary data into 6-bit chunks from left to right and maps each chunk to a character using a lookup table.'
+    },
+    {
+      category: 'Data Representation',
+      question: 'According to the XOR truth table, what is the result of 1 XOR 1?',
+      options: ['1', '0', 'Undefined', '2'],
+      correctIndex: 1,
+      explanation: 'XOR (exclusive OR) returns 0 when both input bits are the same, so 1 XOR 1 equals 0.'
+    },
+    {
+      category: 'History',
+      question: 'What was the scytale primarily used for?',
+      options: [
+        'A modern substitution cipher',
+        'Transposition encryption by wrapping paper around a rod',
+        'Generating random cryptographic keys',
+        'Hashing military messages'
+      ],
+      correctIndex: 1,
+      explanation: 'The scytale is a transposition cipher where a strip of paper is wrapped around a rod, and the diameter of the rod serves as the key.'
+    },
+    {
+      category: 'History',
+      question: 'In the Caesar cipher, what serves as the key?',
+      options: [
+        'A random sequence of bytes',
+        'The number of positions each letter is shifted in the alphabet',
+        'The length of the message',
+        'A public and private key pair'
+      ],
+      correctIndex: 1,
+      explanation: 'The Caesar cipher replaces each letter with one a fixed number of positions down the alphabet, and that shift amount is the key.'
+    },
+    {
+      category: 'History',
+      question: 'Why is the Caesar cipher considered very insecure?',
+      options: [
+        'It requires too much computing power to use',
+        'It has an extremely small keyspace of only 25 possible keys',
+        'It cannot be decrypted under any circumstances',
+        'It only works with numeric input'
+      ],
+      correctIndex: 1,
+      explanation: 'Because there are only 25 possible shift values, an attacker can simply brute force every key to break the cipher.'
+    },
+    {
+      category: 'History',
+      question: 'What defines the Atbash cipher?',
+      options: [
+        'It shifts letters by a randomly chosen number',
+        'It maps each letter to its reverse in the alphabet and uses no key',
+        'It relies on a 256-bit secret key',
+        'It is a modern block cipher used in AES'
+      ],
+      correctIndex: 1,
+      explanation: 'The Atbash cipher is a very simple monoalphabetic substitution where the first letter becomes the last, and so on, requiring no key at all.'
+    },
+    {
+      category: 'History',
+      question: 'How large is the keyspace of a general monoalphabetic substitution cipher over the 26-letter alphabet?',
+      options: ['26', '26 squared', '25', '26 factorial (26!)'],
+      correctIndex: 3,
+      explanation: 'Since each of the 26 letters can be mapped to any other unique letter, there are 26 factorial possible mappings, which is a huge number.'
+    },
+    {
+      category: 'History',
+      question: 'Despite having a huge keyspace, why is the monoalphabetic substitution cipher still considered weak?',
+      options: [
+        'It can be broken using frequency analysis of letters',
+        'It technically has no keyspace at all',
+        'It requires a quantum computer to encrypt anything',
+        'It can only encrypt numeric data'
+      ],
+      correctIndex: 0,
+      explanation: 'Because letter frequencies from the original language are preserved, an attacker can use frequency analysis (knowing that letters like E, T, A, O, I, N, S are most common) to progressively figure out the key.'
+    },
+    {
+      category: 'History',
+      question: 'How is cryptography (or cryptology) defined in the lecture?',
+      options: [
+        'The study of computer hardware design',
+        'The practice and study of techniques for secure communication in the presence of adversaries',
+        'A method used only for compressing files',
+        'A branch of biology concerned with codes'
+      ],
+      correctIndex: 1,
+      explanation: 'Cryptography is defined as the practice and study of techniques for secure communication in the presence of third parties called adversaries.'
+    },
+    {
+      category: 'Terminology',
+      question: 'What is the term for a message in its original, readable form before encryption?',
+      options: ['Ciphertext', 'Plaintext', 'Hash', 'Key'],
+      correctIndex: 1,
+      explanation: 'Plaintext (also called cleartext) refers to a message in its original, unencrypted form.'
+    },
+    {
+      category: 'Terminology',
+      question: 'What is a "cipher" defined as?',
+      options: [
+        'A single algorithm used only for encryption',
+        'A pair of algorithms that perform encryption and decryption',
+        'A randomly generated key',
+        'A type of one-way hash function'
+      ],
+      correctIndex: 1,
+      explanation: 'A cipher is a pair of algorithms which perform encryption and decryption, with its operation controlled by both the algorithms and the keys.'
+    },
+    {
+      category: 'Terminology',
+      question: 'What is the process of converting ciphertext back into plaintext called?',
+      options: ['Encryption', 'Hashing', 'Decryption', 'Encoding'],
+      correctIndex: 2,
+      explanation: 'Decryption is the reverse process of encryption, transforming ciphertext back into readable plaintext.'
+    },
+    {
+      category: 'Symmetric Crypto',
+      question: 'In symmetric encryption, what key is required to decrypt a ciphertext?',
+      options: [
+        'A completely different key from the one used to encrypt',
+        'The same key that was used for encryption',
+        'No key is required at all',
+        'Only a public key'
+      ],
+      correctIndex: 1,
+      explanation: 'Symmetric encryption uses the same key for both encrypting the plaintext and decrypting the resulting ciphertext.'
+    },
+    {
+      category: 'Symmetric Crypto',
+      question: 'What is the main security goal of symmetric encryption?',
+      options: ['Availability', 'Confidentiality', 'Non-repudiation', 'Load balancing'],
+      correctIndex: 1,
+      explanation: 'The primary goal of symmetric encryption, as defined in the lecture, is confidentiality of the message content.'
+    },
+    {
+      category: 'Symmetric Crypto',
+      question: 'What operation does the One-Time Pad use to encrypt a plaintext with a key?',
+      options: ['Addition', 'XOR between the plaintext and the key', 'Multiplication', 'Base64 encoding'],
+      correctIndex: 1,
+      explanation: 'The One-Time Pad encrypts by XOR-ing the plaintext with a truly random key of the same length, achieving perfect secrecy.'
+    },
+    {
+      category: 'Symmetric Crypto',
+      question: 'Why is the One-Time Pad practically impossible to use for everyday communication?',
+      options: [
+        'It does not actually provide any secrecy',
+        'The key must be as long as the plaintext and can only ever be used once',
+        'It requires an active internet connection',
+        'It can only be used to encrypt images'
+      ],
+      correctIndex: 1,
+      explanation: 'Because the key length must match the plaintext length and the key can only be used once, distributing and managing such keys becomes impractical for large or repeated communication.'
+    },
+    {
+      category: 'Symmetric Crypto',
+      question: 'What is the purpose of an Initialization Vector (IV) in modes like Cipher Block Chaining?',
+      options: [
+        'To make the encryption key shorter',
+        'To allow safe key reuse by randomizing the encryption process',
+        'To compress the resulting ciphertext',
+        'To completely remove the need for a key'
+      ],
+      correctIndex: 1,
+      explanation: 'An IV introduces randomness into the encryption process for each message, allowing the same secret key to be reused safely across multiple messages.'
+    },
+    {
+      category: 'Symmetric Crypto',
+      question: 'In Cipher Block Chaining (CBC) mode, what is each plaintext block combined with before it is encrypted?',
+      options: [
+        'The next plaintext block in the sequence',
+        'The encryption key itself, doubled',
+        'The previous ciphertext block (or the IV for the very first block)',
+        'A separate random number generated per byte'
+      ],
+      correctIndex: 2,
+      explanation: 'In CBC mode, each plaintext block is XORed with the previous ciphertext block (or the IV for the first block) before being passed through the block cipher.'
+    },
+    {
+      category: 'Symmetric Crypto',
+      question: 'What major limitation of symmetric cryptography relates to key management?',
+      options: [
+        'It can only ever be used by a single person',
+        'A separate shared key is needed for each pair of parties who want to communicate securely',
+        'Keys never need to be kept secret from anyone',
+        'It cannot be used together with random number generators'
+      ],
+      correctIndex: 1,
+      explanation: 'Symmetric cryptography requires a unique shared secret key for every pair of communicating parties, which creates a significant key distribution challenge.'
+    },
+    {
+      category: 'AES / Block Ciphers',
+      question: 'Which of the following is a valid AES key length?',
+      options: ['8 bytes', '16 bytes (AES-128)', '48 bytes', '100 bytes'],
+      correctIndex: 1,
+      explanation: 'AES supports key lengths of 16 bytes (AES-128), 24 bytes (AES-192), and 32 bytes (AES-256).'
+    },
+    {
+      category: 'AES / Block Ciphers',
+      question: 'Which of these is NOT listed as a mode of operation for AES in the lecture?',
+      options: ['CBC', 'CTR', 'GCM', 'ROT13'],
+      correctIndex: 3,
+      explanation: 'ROT13 is a simple letter-rotation substitution cipher, not an AES mode. The lecture lists CBC, CFB, OFB, CTR, GCM, and ECB as AES modes of operation.'
+    },
+    {
+      category: 'AES / Block Ciphers',
+      question: 'What is a key advantage of stream ciphers compared to block ciphers?',
+      options: [
+        'They require significantly more padding',
+        'There is no need for padding, since they produce a variable-length bitstream',
+        'They never require a secret key',
+        'They can only be used offline'
+      ],
+      correctIndex: 1,
+      explanation: 'Stream ciphers generate a variable-length bitstream that is XORed with the plaintext, so there is no need to pad the data into fixed-size blocks.'
+    },
+    {
+      category: 'AES / Block Ciphers',
+      question: 'What critical rule must never be violated when using a stream cipher?',
+      options: [
+        'The plaintext must never contain letters of the alphabet',
+        'The same key and IV pair must never be used to encrypt two different messages',
+        'The key must be changed after every single byte',
+        'The ciphertext must always be Base64 encoded afterward'
+      ],
+      correctIndex: 1,
+      explanation: 'Reusing the same key and IV pair to encrypt two different messages with a stream cipher severely compromises the security of both messages.'
+    },
+    {
+      category: 'AES / Block Ciphers',
+      question: 'In Counter (CTR) mode, what is encrypted with the block cipher to generate the keystream?',
+      options: [
+        'The plaintext directly, block by block',
+        'A combination of a nonce and an incrementing counter value',
+        'The previous ciphertext block only',
+        'The final ciphertext block of the message'
+      ],
+      correctIndex: 1,
+      explanation: 'In CTR mode, a nonce combined with an incrementing counter is encrypted using the block cipher, and the result is XORed with the plaintext to produce the ciphertext.'
+    }
+  ];
+
+  var categoryColors = {
+    'Data Representation': '#2563eb',
+    'History': '#9333ea',
+    'Terminology': '#0d9488',
+    'Symmetric Crypto': '#ea580c',
+    'AES / Block Ciphers': '#dc2626'
+  };
+
+  var sessionQuestions = [];
+  var answers = [];
+  var currentIndex = 0;
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  function buildSession() {
+    var shuffledQuestions = shuffleArray(quizData);
+    sessionQuestions = [];
+    answers = [];
+    for (var i = 0; i < shuffledQuestions.length; i++) {
+      var q = shuffledQuestions[i];
+      var indices = [0, 1, 2, 3];
+      var shuffledIdx = shuffleArray(indices);
+      var displayOptions = [];
+      var correctDisplayIndex = -1;
+      for (var j = 0; j < shuffledIdx.length; j++) {
+        var originalPos = shuffledIdx[j];
+        displayOptions.push(q.options[originalPos]);
+        if (originalPos === q.correctIndex) {
+          correctDisplayIndex = j;
+        }
+      }
+      sessionQuestions.push({
+        category: q.category,
+        question: q.question,
+        explanation: q.explanation,
+        displayOptions: displayOptions,
+        correctDisplayIndex: correctDisplayIndex
+      });
+      answers.push({ answered: false, selectedIndex: -1 });
+    }
+    currentIndex = 0;
+  }
+
+  var questionCounter = document.getElementById('questionCounter');
+  var scoreCounter = document.getElementById('scoreCounter');
+  var progressBar = document.getElementById('progressBar');
+  var categoryTag = document.getElementById('categoryTag');
+  var questionText = document.getElementById('questionText');
+  var optionsList = document.getElementById('optionsList');
+  var explanationBox = document.getElementById('explanationBox');
+  var backBtn = document.getElementById('backBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var quizView = document.getElementById('quizView');
+  var resultsView = document.getElementById('resultsView');
+  var resultsScore = document.getElementById('resultsScore');
+  var resultsDetail = document.getElementById('resultsDetail');
+  var restartBtn = document.getElementById('restartBtn');
+
+  function getScore() {
+    var score = 0;
+    for (var i = 0; i < answers.length; i++) {
+      if (answers[i].answered && answers[i].selectedIndex === sessionQuestions[i].correctDisplayIndex) {
+        score++;
+      }
+    }
+    return score;
+  }
+
+  function getAnsweredCount() {
+    var count = 0;
+    for (var i = 0; i < answers.length; i++) {
+      if (answers[i].answered) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  function renderQuestion() {
+    var total = sessionQuestions.length;
+    var q = sessionQuestions[currentIndex];
+    var state = answers[currentIndex];
+
+    questionCounter.textContent = 'Question ' + (currentIndex + 1) + ' / ' + total;
+    scoreCounter.textContent = 'Score: ' + getScore();
+
+    var progressPct = Math.round((getAnsweredCount() / total) * 100);
+    progressBar.style.width = progressPct + '%';
+
+    categoryTag.textContent = q.category;
+    var bgColor = categoryColors[q.category] || '#2563eb';
+    categoryTag.style.backgroundColor = bgColor;
+    categoryTag.style.color = '#ffffff';
+
+    questionText.textContent = q.question;
+
+    optionsList.innerHTML = '';
+    for (var i = 0; i < q.displayOptions.length; i++) {
+      (function(optionIndex) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'answer-btn';
+        btn.textContent = q.displayOptions[optionIndex];
+
+        if (state.answered) {
+          btn.disabled = true;
+          if (optionIndex === q.correctDisplayIndex) {
+            btn.classList.add('correct-answer');
+          } else if (optionIndex === state.selectedIndex) {
+            btn.classList.add('wrong-answer');
+          }
+        } else {
+          btn.addEventListener('click', function() {
+            selectAnswer(optionIndex);
+          });
+        }
+
+        optionsList.appendChild(btn);
+      })(i);
+    }
+
+    if (state.answered) {
+      explanationBox.classList.remove('hidden');
+      var resultLabel = (state.selectedIndex === q.correctDisplayIndex) ? 'Correct! ' : 'Not quite. ';
+      explanationBox.innerHTML = '<strong>' + resultLabel + '</strong>' + q.explanation;
+    } else {
+      explanationBox.classList.add('hidden');
+      explanationBox.innerHTML = '';
+    }
+
+    backBtn.disabled = (currentIndex === 0);
+
+    if (state.answered) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = (currentIndex === total - 1) ? 'See Results' : 'Next';
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Next';
+    }
+  }
+
+  function selectAnswer(optionIndex) {
+    var state = answers[currentIndex];
+    if (state.answered) {
+      return;
+    }
+    state.answered = true;
+    state.selectedIndex = optionIndex;
+    renderQuestion();
+  }
+
+  function goBack() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      renderQuestion();
+    }
+  }
+
+  function goNext() {
+    var total = sessionQuestions.length;
+    var state = answers[currentIndex];
+    if (!state.answered) {
+      return;
+    }
+    if (currentIndex === total - 1) {
+      showResults();
+    } else {
+      currentIndex++;
+      renderQuestion();
+    }
+  }
+
+  function showResults() {
+    var total = sessionQuestions.length;
+    var score = getScore();
+    var pct = Math.round((score / total) * 100);
+    quizView.classList.add('hidden');
+    resultsView.classList.remove('hidden');
+    resultsScore.textContent = pct + '%';
+    resultsDetail.textContent = 'You got ' + score + ' out of ' + total + ' questions correct.';
+  }
+
+  function restartQuiz() {
+    resultsView.classList.add('hidden');
+    quizView.classList.remove('hidden');
+    buildSession();
+    renderQuestion();
+  }
+
+  backBtn.addEventListener('click', goBack);
+  nextBtn.addEventListener('click', goNext);
+  restartBtn.addEventListener('click', restartQuiz);
+
+  buildSession();
+  renderQuestion();
+
+});
+</script>
+</body>
+</html>
