@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IoT Architecture and Security Quiz</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text: #111827;
+    --subtext: #4b5563;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-text: #ffffff;
+    --correct-bg: #16a34a;
+    --correct-text: #ffffff;
+    --incorrect-bg: #dc2626;
+    --incorrect-text: #ffffff;
+    --disabled-bg: #e5e7eb;
+    --disabled-text: #6b7280;
+    --track-bg: #e5e7eb;
+    --track-fill: #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f1f5f9;
+      --subtext: #cbd5e1;
+      --border: #334155;
+      --accent: #3b82f6;
+      --accent-text: #ffffff;
+      --correct-bg: #22c55e;
+      --correct-text: #06210f;
+      --incorrect-bg: #ef4444;
+      --incorrect-text: #2b0a0a;
+      --disabled-bg: #334155;
+      --disabled-text: #94a3b8;
+      --track-bg: #334155;
+      --track-fill: #3b82f6;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px 16px 60px 16px;
+    min-height: 100vh;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      color: #f1f5f9;
+    }
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    color: #111827;
+    font-size: 1.5rem;
+    margin: 0 0 4px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .header h1 { color: #f1f5f9; }
+  }
+
+  .header p {
+    color: #4b5563;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .header p { color: #cbd5e1; }
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 10px;
+    background-color: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .progress-track { background-color: #334155; }
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: #2563eb;
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .progress-fill { background-color: #3b82f6; }
+  }
+
+  .score-badge {
+    background-color: #111827;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .score-badge {
+      background-color: #3b82f6;
+      color: #06210f;
+    }
+  }
+
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    color: #111827;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+    }
+  }
+
+  .category-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+
+  .q-index {
+    color: #4b5563;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .q-index { color: #cbd5e1; }
+  }
+
+  .question-text {
+    color: #111827;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin: 0 0 18px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .question-text { color: #f1f5f9; }
+  }
+
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    background-color: #f8fafc;
+    color: #1a1a2e;
+    font-size: 0.98rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn {
+      border: 1.5px solid #475569;
+      background-color: #273449;
+      color: #f1f5f9;
+    }
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    border-color: #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn:hover:not(:disabled) {
+      border-color: #3b82f6;
+    }
+  }
+
+  .answer-btn:disabled {
+    cursor: not-allowed;
+  }
+
+  .answer-btn.correct {
+    background-color: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn.correct {
+      background-color: #22c55e;
+      border-color: #22c55e;
+      color: #06210f;
+    }
+  }
+
+  .answer-btn.incorrect {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn.incorrect {
+      background-color: #ef4444;
+      border-color: #ef4444;
+      color: #2b0a0a;
+    }
+  }
+
+  .answer-btn.dim {
+    background-color: #e5e7eb;
+    border-color: #e5e7eb;
+    color: #6b7280;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn.dim {
+      background-color: #334155;
+      border-color: #334155;
+      color: #94a3b8;
+    }
+  }
+
+  .explanation {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background-color: #eef2ff;
+    color: #1e293b;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    border-left: 4px solid #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .explanation {
+      background-color: #1e2b47;
+      color: #e2e8f0;
+      border-left: 4px solid #3b82f6;
+    }
+  }
+
+  .explanation strong {
+    color: inherit;
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .nav-btn {
+      background-color: #3b82f6;
+      color: #06210f;
+    }
+  }
+
+  .nav-btn:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .nav-btn:disabled {
+      background-color: #334155;
+      color: #64748b;
+    }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .summary-title {
+    color: #111827;
+    font-size: 1.4rem;
+    margin: 0 0 8px 0;
+    text-align: center;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .summary-title { color: #f1f5f9; }
+  }
+
+  .summary-score {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 10px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .summary-score { color: #3b82f6; }
+  }
+
+  .summary-sub {
+    text-align: center;
+    color: #4b5563;
+    margin-bottom: 20px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .summary-sub { color: #cbd5e1; }
+  }
+
+  .restart-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background-color: #111827;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .restart-btn {
+      background-color: #3b82f6;
+      color: #06210f;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>IoT Architecture and Security Quiz</h1>
+      <p>IoT layers, IIoT vs OT, adversary types, and common vulnerabilities</p>
+    </div>
+
+    <div id="quizScreen">
+      <div class="top-bar">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+        <div class="score-badge" id="scoreBadge">Score: 0/0</div>
+      </div>
+
+      <div class="card">
+        <span class="category-tag" id="categoryTag">Category</span>
+        <div class="q-index" id="qIndex">Question 1 of 20</div>
+        <p class="question-text" id="questionText">Question text goes here</p>
+        <div class="answers" id="answersContainer"></div>
+        <div id="explanationBox" class="explanation hidden"></div>
+
+        <div class="nav-row">
+          <button type="button" class="nav-btn" id="backBtn">Back</button>
+          <button type="button" class="nav-btn" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="summaryScreen" class="card hidden">
+      <div class="summary-title">Quiz Complete</div>
+      <div class="summary-score" id="summaryPercent">0%</div>
+      <div class="summary-sub" id="summaryDetail">0 out of 0 correct</div>
+      <button type="button" class="restart-btn" id="restartBtn">Restart Quiz</button>
+    </div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  var categoryColors = {
+    "IoT Fundamentals": "#0891b2",
+    "IoT Architecture": "#7c3aed",
+    "IIoT vs OT": "#ea580c",
+    "CIA and Security Priorities": "#2563eb",
+    "Why IoT is Vulnerable": "#be123c",
+    "WhisperPair Case Study": "#4338ca",
+    "Attack Types": "#b45309",
+    "Adversary Types": "#c026d3",
+    "Attacking IoT Devices": "#4d7c0f",
+    "OWASP Top 10 IoT": "#0d9488"
+  };
+
+  var rawQuestions = [
+    {
+      category: "IoT Fundamentals",
+      question: "According to the Oxford Dictionary definition cited in the lecture, IoT refers to the interconnection via the internet of what kind of devices?",
+      options: ["Only industrial robots", "Computing devices embedded in everyday objects, enabling them to send and receive data", "Personal computers connected via Wi-Fi only", "Mainframe computers in a data center"],
+      correct: 1,
+      explanation: "The Oxford Dictionary definition cited describes IoT as the interconnection via the internet of computing devices embedded in everyday objects, enabling them to send and receive data."
+    },
+    {
+      category: "IoT Fundamentals",
+      question: "Into which three main categories does the lecture classify IoT devices?",
+      options: ["Industrial, Infrastructure, Consumer", "Personal, Business, Government", "Wired, Wireless, Hybrid", "Sensors, Actuators, Gateways"],
+      correct: 0,
+      explanation: "The lecture classifies IoT devices into Industrial IoT devices, IoT for infrastructure, and Consumer IoT devices."
+    },
+    {
+      category: "IoT Fundamentals",
+      question: "Which decade does the lecture's IoT evolution timeline associate with the emergence of wireless sensor devices?",
+      options: ["1940s", "2000s", "2010s", "2020s"],
+      correct: 1,
+      explanation: "The timeline shows wired network devices in the 1940s, wireless sensor devices in the 2000s, and the IoT revolution in the 2010s."
+    },
+    {
+      category: "IoT Fundamentals",
+      question: "Which of the following is listed as a hardware design characteristic of IoT devices?",
+      options: ["High cost and large form factor", "Low-cost, small, and heterogeneous with constrained computational power", "Unlimited storage and energy", "Centralized single-vendor hardware only"],
+      correct: 1,
+      explanation: "IoT devices are described as low-cost, small, and heterogeneous, with constrained capabilities such as limited computational power, storage, and energy."
+    },
+    {
+      category: "IoT Fundamentals",
+      question: "Which of the following is listed among the types of sensitive data that IoT devices may handle?",
+      options: ["Location, personal information, health data", "Stock market indices", "Weather satellite imagery only", "Corporate tax records"],
+      correct: 0,
+      explanation: "The lecture lists location, personal information, health data, video and audio as examples of sensitive data handled by IoT devices."
+    },
+    {
+      category: "IoT Architecture",
+      question: "In the five-layer IoT architecture presented in the lecture, which layer is described as the brain of the IoT ecosystem, where data is analyzed, pre-processed, and stored before being sent to the data center?",
+      options: ["Perception Layer", "Network Layer", "Middleware Layer", "Business Layer"],
+      correct: 2,
+      explanation: "The Middleware Layer is described as the brain of the IoT ecosystem, handling analysis, pre-processing and storage of data."
+    },
+    {
+      category: "IoT Architecture",
+      question: "Which layer of the five-layer IoT architecture is responsible for managing overall system activities and building business models, graphs, and flowcharts from received data?",
+      options: ["Application Layer", "Business Layer", "Network Layer", "Perception Layer"],
+      correct: 1,
+      explanation: "The Business Layer manages overall IoT system activities and builds business models, graphs and flowcharts based on data from the Application layer."
+    },
+    {
+      category: "IoT Architecture",
+      question: "In the five-layer IoT architecture, which layer consists of sensors and actuators capable of collecting, accepting, and processing data over the network?",
+      options: ["Perception Layer", "Middleware Layer", "Application Layer", "Business Layer"],
+      correct: 0,
+      explanation: "The Perception Layer consists of sensors and actuators that collect, accept and process data, connected wirelessly or via wired connections."
+    },
+    {
+      category: "IoT Architecture",
+      question: "Which layer in the five-layer IoT architecture is responsible for collecting and aggregating data from sensors and allowing devices to connect and communicate with other servers and devices?",
+      options: ["Business Layer", "Network Layer", "Application Layer", "Middleware Layer"],
+      correct: 1,
+      explanation: "The Network Layer collects and aggregates data from sensors and allows devices to connect and communicate with other servers, smart devices, and network devices."
+    },
+    {
+      category: "IoT Architecture",
+      question: "Compared to the five-layer IoT architecture, which layer is absent from the three-layer IoT architecture shown in the lecture?",
+      options: ["Perception", "Network", "Business", "Application"],
+      correct: 2,
+      explanation: "The three-layer architecture consists of Perception, Network, and Application layers; the Business layer only appears in the five-layer architecture."
+    },
+    {
+      category: "IIoT vs OT",
+      question: "According to the lecture's comparison, which type of communication protocols does Industrial IoT (IIoT) typically use?",
+      options: ["Standard internet communication protocols such as MQTT and HTTP", "Only proprietary satellite protocols", "Exclusively analog radio protocols", "Only protocols standardized for smartphones"],
+      correct: 0,
+      explanation: "IIoT is described as using standard internet communication protocols such as MQTT and HTTP."
+    },
+    {
+      category: "IIoT vs OT",
+      question: "Which type of communication protocol does Operational Technology (OT) typically rely on, according to the lecture?",
+      options: ["Standard internet protocols like HTTP", "Specialized, legacy, often proprietary protocols such as MODBUS", "5G cellular protocols exclusively", "Bluetooth Low Energy only"],
+      correct: 1,
+      explanation: "OT is described as relying on specialized, legacy, often proprietary communication protocols such as MODBUS."
+    },
+    {
+      category: "IIoT vs OT",
+      question: "Regarding lifecycle, how does OT typically compare to IIoT according to the lecture?",
+      options: ["OT has a short life cycle with frequent updates, while IIoT has a long life cycle", "OT has a long life cycle with infrequent updates, while IIoT has a shorter life cycle with regular updates", "Both have identical life cycles", "Neither IIoT nor OT devices are ever updated"],
+      correct: 1,
+      explanation: "IIoT exhibits a short life cycle with regular updates, while OT exhibits a long life cycle with infrequent updates or changes."
+    },
+    {
+      category: "CIA and Security Priorities",
+      question: "In the classical CIA triad discussed in the lecture, what does Integrity refer to?",
+      options: ["No disclosure of information to unauthorized entities", "No modification of information by unauthorized entities", "Authorized users can always access the system", "Encryption of all stored data"],
+      correct: 1,
+      explanation: "Integrity means no modification of information by unauthorized entities, distinct from Confidentiality (no disclosure) and Availability (access)."
+    },
+    {
+      category: "CIA and Security Priorities",
+      question: "According to the priority pyramid comparing IT and OT shown in the lecture, which CIA property is the top priority for IT systems?",
+      options: ["Availability", "Integrity", "Confidentiality", "Authentication"],
+      correct: 2,
+      explanation: "For IT systems, the priority order shown is Confidentiality first, then Integrity, then Availability."
+    },
+    {
+      category: "CIA and Security Priorities",
+      question: "According to the same priority pyramid, which CIA property is the top priority for OT systems?",
+      options: ["Confidentiality", "Availability", "Integrity", "Non-repudiation"],
+      correct: 1,
+      explanation: "For OT systems, the priority order shown is Availability first, then Integrity, then Confidentiality."
+    },
+    {
+      category: "CIA and Security Priorities",
+      question: "In the IT vs OT priority pyramid, which CIA property occupies the same priority rank in both IT and OT?",
+      options: ["Confidentiality", "Availability", "Integrity", "Authentication"],
+      correct: 2,
+      explanation: "Integrity is ranked second in both the IT priority order and the OT priority order shown in the pyramid."
+    },
+    {
+      category: "Why IoT is Vulnerable",
+      question: "Which of the following is listed as a reason why IoT devices are attractive targets for attackers?",
+      options: ["They are deployed in safety-critical domains and contain sensitive data", "They are always physically inaccessible", "They never connect to the internet", "They exclusively run enterprise-grade operating systems"],
+      correct: 0,
+      explanation: "IoT devices are considered attractive targets because they are deployed in safety-critical domains and contain sensitive data, and can control the physical environment."
+    },
+    {
+      category: "Why IoT is Vulnerable",
+      question: "Why does the lecture say IoT devices can amplify the impact of an attack?",
+      options: ["Because they are expensive and rare", "Because many interconnected devices allow malware to spread quickly", "Because they never share a network", "Because they use quantum encryption"],
+      correct: 1,
+      explanation: "Because many IoT devices are interconnected, malware can spread quickly across them, amplifying the impact of an attack."
+    },
+    {
+      category: "Why IoT is Vulnerable",
+      question: "Which of the following is listed as a security challenge for IoT, related to standards?",
+      options: ["There is a single universally accepted IoT security framework", "There is a lack of a common IoT security framework and no uniform standards yet", "All manufacturers follow identical security certifications", "IoT security standards are stricter than traditional IT standards"],
+      correct: 1,
+      explanation: "The lecture lists the lack of a common IoT security framework and the absence of uniform standards as key security challenges."
+    },
+    {
+      category: "WhisperPair Case Study",
+      question: "The WhisperPair attacks described in the lecture exploit a flaw in the implementation of which protocol?",
+      options: ["Bluetooth Classic pairing only", "Google Fast Pair protocol", "WPA3 Wi-Fi protocol", "NFC payment protocol"],
+      correct: 1,
+      explanation: "WhisperPair exploits a flaw in how accessories implement the Google Fast Pair protocol."
+    },
+    {
+      category: "WhisperPair Case Study",
+      question: "In the Google Fast Pair protocol roles described in the lecture, what is the phone referred to as?",
+      options: ["Provider", "Seeker", "Broker", "Relay"],
+      correct: 1,
+      explanation: "The phone acts as the Seeker, which initiates pairing, while the accessory acts as the Provider that responds."
+    },
+    {
+      category: "WhisperPair Case Study",
+      question: "What was identified as the root cause of the WhisperPair vulnerability?",
+      options: ["Use of outdated encryption algorithms only", "Many accessories skipping the required pairing mode check and responding to any pairing request", "Lack of any encryption in Bluetooth at all", "Devices refusing all pairing requests by default"],
+      correct: 1,
+      explanation: "The root cause was that many flagship accessories skipped the required pairing mode check entirely and responded to any pairing request, regardless of pairing mode."
+    },
+    {
+      category: "WhisperPair Case Study",
+      question: "Which of the following is one of the three named attacks in the WhisperPair attack family?",
+      options: ["SQL Injection Hijack", "Location Tracking (Find Hub Hijack)", "DNS Cache Poisoning", "Cross-Site Request Forgery"],
+      correct: 1,
+      explanation: "The three named attacks are Forced Pairing (Bluetooth Hijacking), Location Tracking (Find Hub Hijack), and Eavesdropping and Audio Injection."
+    },
+    {
+      category: "WhisperPair Case Study",
+      question: "According to the systemic compliance failure analysis in the lecture, which three levels of failure allowed the vulnerability to reach the market at scale?",
+      options: ["Design, Marketing, Sales", "Implementation, Validation, Certification", "Development, Testing, Deployment only", "Manufacturing, Shipping, Retail"],
+      correct: 1,
+      explanation: "The three levels described are Implementation Failure, Validation Failure, and Certification Failure."
+    },
+    {
+      category: "WhisperPair Case Study",
+      question: "According to the lecture, which of the following does NOT fix the WhisperPair vulnerability?",
+      options: ["A firmware update from the accessory manufacturer", "Factory resetting the accessory", "A vendor patch that enforces the pairing mode check", "Installing the manufacturer's official firmware fix"],
+      correct: 1,
+      explanation: "The lecture explicitly lists factory resetting the accessory as something that does NOT fix the vulnerability; only a manufacturer firmware patch does."
+    },
+    {
+      category: "Attack Types",
+      question: "According to the lecture, what characterizes an active attack?",
+      options: ["It only involves passive eavesdropping on packets", "It involves modification of the data stream or the creation of a false stream", "It never affects data integrity", "It cannot be detected in principle"],
+      correct: 1,
+      explanation: "Active attacks involve some modification of the data stream or the creation of a false stream."
+    },
+    {
+      category: "Attack Types",
+      question: "Which of the following is classified as a passive attack in the lecture?",
+      options: ["Denial of service", "Replay attack", "Traffic analysis", "Modification of messages"],
+      correct: 2,
+      explanation: "Traffic analysis is listed as an example of a passive attack, alongside release of message contents."
+    },
+    {
+      category: "Attack Types",
+      question: "Why does the lecture state that passive attacks are difficult to detect, focusing on prevention instead?",
+      options: ["Because they do not alter the data stream, making detection harder", "Because they always use strong encryption", "Because they only occur once per year", "Because they exclusively target hardware, not data"],
+      correct: 0,
+      explanation: "Passive attacks involve eavesdropping or monitoring without modifying the data stream, which is why they are difficult to detect and the focus shifts to prevention."
+    },
+    {
+      category: "Adversary Types",
+      question: "According to the adversary types described in the lecture, which adversary is remote and aims to infect the device with malware?",
+      options: ["Physical Intrusive Adversary", "Remote Software Adversary", "Stealthy Physical Intrusive Adversary", "Local Adversary"],
+      correct: 1,
+      explanation: "The Remote Software Adversary operates remotely and aims to infect the device with malware."
+    },
+    {
+      category: "Adversary Types",
+      question: "Which adversary type, as defined in the lecture, is capable of mounting side-channel attacks due to close physical proximity to the device?",
+      options: ["Remote Software Adversary", "Local Adversary", "Physical Non-Intrusive Adversary", "Physical Intrusive Adversary"],
+      correct: 2,
+      explanation: "The Physical Non-Intrusive Adversary is physically close enough to the device to mount side-channel attacks."
+    },
+    {
+      category: "Adversary Types",
+      question: "Which adversary type can capture a device and attempt to physically modify its state or hardware components, such as adding memory?",
+      options: ["Local Adversary", "Physical Non-Intrusive Adversary", "Remote Software Adversary", "Physical Intrusive Adversary"],
+      correct: 3,
+      explanation: "The Physical Intrusive Adversary can physically capture the device and attempt to modify its state and/or hardware components."
+    },
+    {
+      category: "Attacking IoT Devices",
+      question: "According to the lecture, what is the first step a remote software adversary should take when attacking an IoT device knowing only its IP address?",
+      options: ["Exploitation", "Target discovery", "Impact assessment", "Initial access"],
+      correct: 1,
+      explanation: "The first step is target discovery: identifying the device and determining whether it is reachable."
+    },
+    {
+      category: "Attacking IoT Devices",
+      question: "According to the lecture, most IoT devices typically run on which operating system, making root access the main point of attack?",
+      options: ["Windows", "Linux", "macOS", "A proprietary real-time OS unique to each vendor"],
+      correct: 1,
+      explanation: "IoT devices typically run on Linux, which has two levels of access (root and user), making root a single point of attack."
+    },
+    {
+      category: "OWASP Top 10 IoT",
+      question: "Which of the following is listed as an OWASP Top 10 IoT vulnerability related to authentication credentials?",
+      options: ["Lack of Physical Hardening", "Weak, Guessable, or Hardcoded Passwords", "Insufficient Privacy Protection", "Insecure Data Transfer and Storage"],
+      correct: 1,
+      explanation: "Weak, Guessable, or Hardcoded Passwords is the first item on the OWASP Top 10 IoT Vulnerabilities list."
+    },
+    {
+      category: "OWASP Top 10 IoT",
+      question: "Which interfaces are identified in the lecture as part of Insecure Ecosystem Interfaces outside the IoT device itself?",
+      options: ["Only physical hardware ports", "Web, Backend API, Cloud, and Mobile", "Only the device's power supply", "Only Bluetooth radios"],
+      correct: 1,
+      explanation: "Insecure Ecosystem Interfaces refers to insecure interfaces outside the device, including Web, Backend API, Cloud, and Mobile interfaces."
+    },
+    {
+      category: "OWASP Top 10 IoT",
+      question: "According to the lecture, what is a primary cause of SQL Injection vulnerabilities?",
+      options: ["Overuse of encryption", "Missing input validation combined with application-generated queries containing user-fed input", "Excessive use of firewalls", "Devices being physically too small"],
+      correct: 1,
+      explanation: "SQL Injection is caused by missing input validation together with application-generated queries that contain user-fed input."
+    },
+    {
+      category: "OWASP Top 10 IoT",
+      question: "Which historical vulnerability is used in the lecture as an example under Use of Insecure or Outdated Components?",
+      options: ["Heartbleed", "Stuxnet", "WannaCry", "Meltdown"],
+      correct: 0,
+      explanation: "Heartbleed is used as the example of a vulnerability arising from insecure or outdated software components."
+    },
+    {
+      category: "Why IoT is Vulnerable",
+      question: "Which of the following best reflects the lecture's IoT security summary statements?",
+      options: ["Everything is a computer, everything is connected to the internet, everything can be hacked", "Nothing is connected, nothing can be hacked", "Only industrial devices can be hacked", "Security is guaranteed by default configurations"],
+      correct: 0,
+      explanation: "The lecture's IoT security summary states: everything is a computer, everything is connected to the internet, and everything can be hacked."
+    }
+  ];
+
+  var state = {
+    order: [],
+    current: 0,
+    answers: {}
+  };
+
+  var quizScreen = document.getElementById("quizScreen");
+  var summaryScreen = document.getElementById("summaryScreen");
+  var progressFill = document.getElementById("progressFill");
+  var scoreBadge = document.getElementById("scoreBadge");
+  var categoryTag = document.getElementById("categoryTag");
+  var qIndexEl = document.getElementById("qIndex");
+  var questionTextEl = document.getElementById("questionText");
+  var answersContainer = document.getElementById("answersContainer");
+  var explanationBox = document.getElementById("explanationBox");
+  var backBtn = document.getElementById("backBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var restartBtn = document.getElementById("restartBtn");
+  var summaryPercent = document.getElementById("summaryPercent");
+  var summaryDetail = document.getElementById("summaryDetail");
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  function initQuiz() {
+    var indices = [];
+    for (var i = 0; i < rawQuestions.length; i++) {
+      indices.push(i);
+    }
+    state.order = shuffleArray(indices);
+    state.current = 0;
+    state.answers = {};
+    quizScreen.classList.remove("hidden");
+    summaryScreen.classList.add("hidden");
+    renderQuestion();
+  }
+
+  function getAnswerState(qPos) {
+    if (!state.answers[qPos]) {
+      var qData = rawQuestions[state.order[qPos]];
+      var optIndices = [];
+      for (var i = 0; i < qData.options.length; i++) {
+        optIndices.push(i);
+      }
+      state.answers[qPos] = {
+        answered: false,
+        selected: -1,
+        optionOrder: shuffleArray(optIndices)
+      };
+    }
+    return state.answers[qPos];
+  }
+
+  function computeScore() {
+    var correctCount = 0;
+    var answeredCount = 0;
+    for (var key in state.answers) {
+      if (state.answers.hasOwnProperty(key)) {
+        var a = state.answers[key];
+        if (a.answered) {
+          answeredCount++;
+          var qData = rawQuestions[state.order[key]];
+          if (a.selected === qData.correct) {
+            correctCount++;
+          }
+        }
+      }
+    }
+    return { correct: correctCount, answered: answeredCount };
+  }
+
+  function renderQuestion() {
+    var total = state.order.length;
+    var qPos = state.current;
+    var qData = rawQuestions[state.order[qPos]];
+    var aState = getAnswerState(qPos);
+
+    var pct = Math.round((qPos / total) * 100);
+    progressFill.style.width = pct + "%";
+
+    var scoreInfo = computeScore();
+    scoreBadge.textContent = "Score: " + scoreInfo.correct + "/" + scoreInfo.answered;
+
+    categoryTag.textContent = qData.category;
+    var color = categoryColors[qData.category] ? categoryColors[qData.category] : "#2563eb";
+    categoryTag.style.backgroundColor = color;
+
+    qIndexEl.textContent = "Question " + (qPos + 1) + " of " + total;
+    questionTextEl.textContent = qData.question;
+
+    answersContainer.innerHTML = "";
+
+    for (var i = 0; i < aState.optionOrder.length; i++) {
+      var originalIndex = aState.optionOrder[i];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "answer-btn";
+      btn.textContent = qData.options[originalIndex];
+      btn.setAttribute("data-original-index", String(originalIndex));
+
+      if (aState.answered) {
+        btn.disabled = true;
+        if (originalIndex === qData.correct) {
+          btn.classList.add("correct");
+        } else if (originalIndex === aState.selected) {
+          btn.classList.add("incorrect");
+        } else {
+          btn.classList.add("dim");
+        }
+      } else {
+        btn.addEventListener("click", function(ev) {
+          var chosenIndex = parseInt(ev.currentTarget.getAttribute("data-original-index"), 10);
+          handleAnswer(qPos, chosenIndex);
+        });
+      }
+
+      answersContainer.appendChild(btn);
+    }
+
+    if (aState.answered) {
+      explanationBox.classList.remove("hidden");
+      var isCorrect = aState.selected === qData.correct;
+      var verdict = isCorrect ? "Correct. " : "Not quite. ";
+      explanationBox.innerHTML = "<strong>" + verdict + "</strong>" + qData.explanation;
+    } else {
+      explanationBox.classList.add("hidden");
+      explanationBox.innerHTML = "";
+    }
+
+    backBtn.disabled = (qPos === 0);
+
+    if (aState.answered) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = (qPos === total - 1) ? "Finish" : "Next";
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.textContent = "Next";
+    }
+  }
+
+  function handleAnswer(qPos, chosenIndex) {
+    var aState = getAnswerState(qPos);
+    if (aState.answered) {
+      return;
+    }
+    aState.answered = true;
+    aState.selected = chosenIndex;
+    renderQuestion();
+  }
+
+  function goNext() {
+    var total = state.order.length;
+    var aState = getAnswerState(state.current);
+    if (!aState.answered) {
+      return;
+    }
+    if (state.current === total - 1) {
+      showSummary();
+      return;
+    }
+    state.current++;
+    renderQuestion();
+  }
+
+  function goBack() {
+    if (state.current === 0) {
+      return;
+    }
+    state.current--;
+    renderQuestion();
+  }
+
+  function showSummary() {
+    var total = state.order.length;
+    var scoreInfo = computeScore();
+    var pct = total > 0 ? Math.round((scoreInfo.correct / total) * 100) : 0;
+    summaryPercent.textContent = pct + "%";
+    summaryDetail.textContent = scoreInfo.correct + " out of " + total + " correct";
+    quizScreen.classList.add("hidden");
+    summaryScreen.classList.remove("hidden");
+  }
+
+  backBtn.addEventListener("click", goBack);
+  nextBtn.addEventListener("click", goNext);
+  restartBtn.addEventListener("click", initQuiz);
+
+  initQuiz();
+});
+</script>
+</body>
+</html>

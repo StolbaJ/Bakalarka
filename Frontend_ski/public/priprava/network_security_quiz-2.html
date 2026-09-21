@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Layer Security Quiz</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text: #111827;
+    --subtext: #4b5563;
+    --border: #e2e8f0;
+    --accent: #2563eb;
+    --accent-text: #ffffff;
+    --correct-bg: #16a34a;
+    --correct-text: #ffffff;
+    --incorrect-bg: #dc2626;
+    --incorrect-text: #ffffff;
+    --disabled-bg: #e5e7eb;
+    --disabled-text: #6b7280;
+    --track-bg: #e5e7eb;
+    --track-fill: #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f1f5f9;
+      --subtext: #cbd5e1;
+      --border: #334155;
+      --accent: #3b82f6;
+      --accent-text: #ffffff;
+      --correct-bg: #22c55e;
+      --correct-text: #06210f;
+      --incorrect-bg: #ef4444;
+      --incorrect-text: #2b0a0a;
+      --disabled-bg: #334155;
+      --disabled-text: #94a3b8;
+      --track-bg: #334155;
+      --track-fill: #3b82f6;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px 16px 60px 16px;
+    min-height: 100vh;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      color: #f1f5f9;
+    }
+  }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    color: #111827;
+    font-size: 1.5rem;
+    margin: 0 0 4px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .header h1 { color: #f1f5f9; }
+  }
+
+  .header p {
+    color: #4b5563;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .header p { color: #cbd5e1; }
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .progress-track {
+    flex: 1;
+    height: 10px;
+    background-color: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .progress-track { background-color: #334155; }
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: #2563eb;
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .progress-fill { background-color: #3b82f6; }
+  }
+
+  .score-badge {
+    background-color: #111827;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .score-badge {
+      background-color: #3b82f6;
+      color: #06210f;
+    }
+  }
+
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    color: #111827;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+    }
+  }
+
+  .category-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    color: #ffffff;
+  }
+
+  .q-index {
+    color: #4b5563;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .q-index { color: #cbd5e1; }
+  }
+
+  .question-text {
+    color: #111827;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin: 0 0 18px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .question-text { color: #f1f5f9; }
+  }
+
+  .answers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 13px 16px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    background-color: #f8fafc;
+    color: #1a1a2e;
+    font-size: 0.98rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn {
+      border: 1.5px solid #475569;
+      background-color: #273449;
+      color: #f1f5f9;
+    }
+  }
+
+  .answer-btn:hover:not(:disabled) {
+    border-color: #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn:hover:not(:disabled) {
+      border-color: #3b82f6;
+    }
+  }
+
+  .answer-btn:disabled {
+    cursor: not-allowed;
+  }
+
+  .answer-btn.correct {
+    background-color: #16a34a;
+    border-color: #16a34a;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn.correct {
+      background-color: #22c55e;
+      border-color: #22c55e;
+      color: #06210f;
+    }
+  }
+
+  .answer-btn.incorrect {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn.incorrect {
+      background-color: #ef4444;
+      border-color: #ef4444;
+      color: #2b0a0a;
+    }
+  }
+
+  .answer-btn.dim {
+    background-color: #e5e7eb;
+    border-color: #e5e7eb;
+    color: #6b7280;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .answer-btn.dim {
+      background-color: #334155;
+      border-color: #334155;
+      color: #94a3b8;
+    }
+  }
+
+  .explanation {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background-color: #eef2ff;
+    color: #1e293b;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    border-left: 4px solid #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .explanation {
+      background-color: #1e2b47;
+      color: #e2e8f0;
+      border-left: 4px solid #3b82f6;
+    }
+  }
+
+  .explanation strong {
+    color: inherit;
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .nav-btn {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #2563eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .nav-btn {
+      background-color: #3b82f6;
+      color: #06210f;
+    }
+  }
+
+  .nav-btn:disabled {
+    background-color: #e5e7eb;
+    color: #9ca3af;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .nav-btn:disabled {
+      background-color: #334155;
+      color: #64748b;
+    }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .summary-title {
+    color: #111827;
+    font-size: 1.4rem;
+    margin: 0 0 8px 0;
+    text-align: center;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .summary-title { color: #f1f5f9; }
+  }
+
+  .summary-score {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 10px 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .summary-score { color: #3b82f6; }
+  }
+
+  .summary-sub {
+    text-align: center;
+    color: #4b5563;
+    margin-bottom: 20px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .summary-sub { color: #cbd5e1; }
+  }
+
+  .restart-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background-color: #111827;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .restart-btn {
+      background-color: #3b82f6;
+      color: #06210f;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>Network Layer Security Quiz</h1>
+      <p>IPsec, AH, ESP, IKE and the Internet layer</p>
+    </div>
+
+    <div id="quizScreen">
+      <div class="top-bar">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+        <div class="score-badge" id="scoreBadge">Score: 0/0</div>
+      </div>
+
+      <div class="card">
+        <span class="category-tag" id="categoryTag">Category</span>
+        <div class="q-index" id="qIndex">Question 1 of 20</div>
+        <p class="question-text" id="questionText">Question text goes here</p>
+        <div class="answers" id="answersContainer"></div>
+        <div id="explanationBox" class="explanation hidden"></div>
+
+        <div class="nav-row">
+          <button type="button" class="nav-btn" id="backBtn">Back</button>
+          <button type="button" class="nav-btn" id="nextBtn">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="summaryScreen" class="card hidden">
+      <div class="summary-title">Quiz Complete</div>
+      <div class="summary-score" id="summaryPercent">0%</div>
+      <div class="summary-sub" id="summaryDetail">0 out of 0 correct</div>
+      <button type="button" class="restart-btn" id="restartBtn">Restart Quiz</button>
+    </div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  var categoryColors = {
+    "OSI & TCP/IP": "#0891b2",
+    "Encapsulation": "#7c3aed",
+    "IPsec Basics": "#2563eb",
+    "AH": "#b45309",
+    "ESP": "#be123c",
+    "IKE & Key Exchange": "#0d9488",
+    "Authentication Methods": "#c026d3",
+    "Protocol Numbers": "#4d7c0f",
+    "NAT & IPsec": "#ea580c",
+    "IPv6": "#4338ca"
+  };
+
+  var rawQuestions = [
+    {
+      category: "OSI & TCP/IP",
+      question: "In the mapping between OSI and TCP/IP models shown in the lecture, which single TCP/IP layer corresponds to the OSI Application, Presentation and Session layers combined?",
+      options: ["Application", "Host-to-host (Transport)", "Internet", "Network Interface"],
+      correct: 0,
+      explanation: "The TCP/IP model merges the OSI Application, Presentation and Session layers into one Application layer."
+    },
+    {
+      category: "OSI & TCP/IP",
+      question: "Which OSI layer is equivalent to the Internet layer of the TCP/IP model?",
+      options: ["Transport layer", "Network layer", "Data Link layer", "Physical layer"],
+      correct: 1,
+      explanation: "The lecture title states that OSI's Network Layer Security is equivalent to Internet Layer Security of TCP/IP."
+    },
+    {
+      category: "OSI & TCP/IP",
+      question: "In the internet hourglass model, what do reliable or unreliable transport protocols such as TCP and UDP run on top of?",
+      options: ["Physical transfer of bits", "Best-effort local packet delivery", "Best-effort global packet delivery (IP)", "Applications such as email and WWW"],
+      correct: 2,
+      explanation: "The hourglass model shows transport protocols (TCP, UDP) built on top of best-effort global packet delivery, which is IP."
+    },
+    {
+      category: "Encapsulation",
+      question: "In the encapsulation example, what is the data unit called at the transport layer, before the network layer header is added?",
+      options: ["Message", "Segment", "Datagram", "Frame"],
+      correct: 1,
+      explanation: "At the transport layer the data unit with header Ht plus message M is called a segment."
+    },
+    {
+      category: "Encapsulation",
+      question: "According to the encapsulation diagram, which device operates only at the link and physical layers?",
+      options: ["Router", "Host", "Switch", "Application server"],
+      correct: 2,
+      explanation: "The switch is shown handling only the link and physical layers, while the router also handles the network layer."
+    },
+    {
+      category: "OSI & TCP/IP",
+      question: "In the Data Flow diagram, communication described as host-to-host takes place between which pair of layers?",
+      options: ["Application layers of two hosts", "Transport layers of two hosts", "Internet layers of two hosts", "Link layers of two hosts"],
+      correct: 1,
+      explanation: "The diagram labels the Transport-to-Transport communication between hosts as host-to-host, while Application-to-Application is process-to-process."
+    },
+    {
+      category: "OSI & TCP/IP",
+      question: "Which of the following is listed as one of the three basic functions of the Internet Layer / Network Layer?",
+      options: ["Selecting the next-hop host for outgoing packets", "Rendering the user interface", "Managing DNS name resolution", "Compressing application data"],
+      correct: 0,
+      explanation: "One of the three basic functions is selecting the next-hop host (gateway) for outgoing packets and passing them to the link layer."
+    },
+    {
+      category: "Protocol Numbers",
+      question: "Which Network Layer protocol listed in the lecture is used to detect errors and provide diagnostic capability for IPv4?",
+      options: ["IPsec", "ICMP", "IPv6", "TCP"],
+      correct: 1,
+      explanation: "ICMP (Internet Control Message Protocol) provides error detection and diagnostic capability for IPv4."
+    },
+    {
+      category: "IPsec Basics",
+      question: "What is IPsec primarily used for, according to the lecture?",
+      options: ["Compressing video streams", "Providing cryptographic security services to protect communications over IP networks", "Assigning IP addresses automatically", "Translating domain names into IP addresses"],
+      correct: 1,
+      explanation: "IPsec uses cryptographic security services to protect communications over Internet Protocol (IP) networks."
+    },
+    {
+      category: "IPsec Basics",
+      question: "Between which types of endpoints can IPsec protect data flows, according to the lecture?",
+      options: ["Only between two application processes", "Only between two web browsers", "Host-to-host, network-to-network, or network-to-host", "Only between a DNS server and a client"],
+      correct: 2,
+      explanation: "IPsec can protect data flows between a pair of hosts, a pair of security gateways, or a gateway and a host."
+    },
+    {
+      category: "IPsec Basics",
+      question: "Which of the following is NOT listed as something IPsec can provide, depending on protocol and configuration?",
+      options: ["Data-origin authentication", "Replay protection", "Data confidentiality", "Automatic firewall rule generation"],
+      correct: 3,
+      explanation: "IPsec can provide peer authentication, data-origin authentication, data integrity, confidentiality and replay protection, but not automatic firewall rule generation."
+    },
+    {
+      category: "AH",
+      question: "What security service does the Authentication Header (AH) protocol NOT provide?",
+      options: ["Data integrity", "Data-origin authentication", "Anti-replay protection", "Confidentiality"],
+      correct: 3,
+      explanation: "AH provides data integrity, data-origin authentication and anti-replay protection, but no confidentiality (no encryption)."
+    },
+    {
+      category: "ESP",
+      question: "Which IPsec protocol provides confidentiality and can optionally also provide integrity and anti-replay protection?",
+      options: ["AH (Authentication Header)", "ESP (Encapsulating Security Payload)", "ICMP", "IKE"],
+      correct: 1,
+      explanation: "ESP provides confidentiality and can also provide integrity, data-origin authentication and anti-replay protection depending on configuration."
+    },
+    {
+      category: "IPsec Basics",
+      question: "In IPsec Transport mode, what is encapsulated?",
+      options: ["The entire original IP packet, including headers", "Only the IP payload (data)", "Only the Ethernet frame", "Only the routing table"],
+      correct: 1,
+      explanation: "Transport mode encapsulates only the IP payload (data), and is common in host-to-host scenarios."
+    },
+    {
+      category: "IPsec Basics",
+      question: "In IPsec Tunnel mode, what is encapsulated?",
+      options: ["Only the TCP header", "Only the IP payload", "An entire IP packet", "Only the physical layer signal"],
+      correct: 2,
+      explanation: "Tunnel mode encapsulates an entire IP packet, and is common in VPNs such as gateway-to-gateway or site-to-site setups."
+    },
+    {
+      category: "IKE & Key Exchange",
+      question: "What is the purpose of IKE (Internet Key Exchange) in IPsec?",
+      options: ["To route packets between autonomous systems", "To authenticate peers, negotiate security parameters, and establish cryptographic keying material", "To assign IP addresses to new hosts", "To compress payloads before encryption"],
+      correct: 1,
+      explanation: "IPsec uses IKE to authenticate peers, negotiate security parameters, and establish cryptographic keying material."
+    },
+    {
+      category: "IKE & Key Exchange",
+      question: "Using Diffie-Hellman during IKE, how do peers obtain a shared secret?",
+      options: ["By transmitting the shared secret directly over the network", "By deriving it independently without transmitting the shared secret itself over the network", "By downloading it from a certificate authority", "By using a fixed default key built into the protocol"],
+      correct: 1,
+      explanation: "Using Diffie-Hellman, peers can derive a shared secret without transmitting that shared secret over the network."
+    },
+    {
+      category: "Authentication Methods",
+      question: "Which out-of-band key exchange mechanism configures the same secret key manually on both peers, for example via a config file?",
+      options: ["Internet Key Exchange (IKE)", "Manual key exchange", "Diffie-Hellman exchange", "Digital certificate exchange"],
+      correct: 1,
+      explanation: "The Manual method is an out-of-band key exchange mechanism where the same secret key is configured by hand on both peers."
+    },
+    {
+      category: "IKE & Key Exchange",
+      question: "What is established at the end of IKEv1 Phase 1?",
+      options: ["The IPsec Security Association (IPsec SA)", "The IKE Security Association (IKE SA)", "The TCP three-way handshake", "The routing table entries"],
+      correct: 1,
+      explanation: "IKEv1 Phase 1 establishes an authenticated, protected IKE Security Association (IKE SA) between the peers."
+    },
+    {
+      category: "IKE & Key Exchange",
+      question: "What does the IKE SA created in Phase 1 actually protect?",
+      options: ["The actual user data traffic", "Only IKE messages, not the actual data traffic from the user", "Only DNS queries", "Nothing, it is symbolic only"],
+      correct: 1,
+      explanation: "The IKE SA is used only to protect IKE messages, not the actual data traffic from the user."
+    },
+    {
+      category: "IKE & Key Exchange",
+      question: "What does IKEv1 Phase 2 (Quick Mode) create at its conclusion?",
+      options: ["A new IKE SA", "A pair of unidirectional IPsec Security Associations (IPsec SAs)", "A new Diffie-Hellman private key only", "A certificate revocation list"],
+      correct: 1,
+      explanation: "Phase 2 negotiates encryption and integrity keys/methods and creates IPsec SAs; since IPsec SAs are unidirectional, a pair is created for bidirectional traffic."
+    },
+    {
+      category: "Authentication Methods",
+      question: "Which of these is listed as a drawback of using pre-shared keys (PSK) for authentication?",
+      options: ["They cannot be used with IPsec at all", "Managing pre-shared keys securely becomes difficult as the number of users or sites grows", "They are slower than certificate-based authentication in every case", "They cannot be configured on VPN implementations"],
+      correct: 1,
+      explanation: "A drawback of PSK is scalability: as the number of users or sites grows, managing pre-shared keys securely becomes difficult."
+    },
+    {
+      category: "Authentication Methods",
+      question: "In certificate-based mutual authentication, what does each party do with a random challenge (nonce) it creates?",
+      options: ["Discards it immediately", "Sends it to the other party signed with its own private key", "Stores it permanently in a public database", "Encrypts it using the other party's public key only"],
+      correct: 1,
+      explanation: "Each party creates a random challenge and sends it to the other party signed with its own private key; the signature is verified using the sender's certificate public key."
+    },
+    {
+      category: "Protocol Numbers",
+      question: "According to the IPv4 protocol numbers listed in the lecture, which protocol number corresponds to TCP?",
+      options: ["1", "6", "17", "50"],
+      correct: 1,
+      explanation: "Protocol number 6 corresponds to the Transmission Control Protocol (TCP)."
+    },
+    {
+      category: "Protocol Numbers",
+      question: "Which IP protocol number is assigned to Encapsulating Security Payload (ESP)?",
+      options: ["17", "41", "50", "51"],
+      correct: 2,
+      explanation: "Protocol number 50 is assigned to ESP (Encapsulating Security Payload)."
+    },
+    {
+      category: "Protocol Numbers",
+      question: "Which IP protocol number is assigned to the Authentication Header (AH)?",
+      options: ["47", "50", "51", "6"],
+      correct: 2,
+      explanation: "Protocol number 51 is assigned to AH (Authentication Header)."
+    },
+    {
+      category: "Protocol Numbers",
+      question: "According to the lecture note, which transport protocol does IKE itself normally use?",
+      options: ["TCP", "UDP", "ICMP", "GRE"],
+      correct: 1,
+      explanation: "The lecture notes that IKE itself normally uses UDP, not IP protocol 50 or 51."
+    },
+    {
+      category: "AH",
+      question: "What is the purpose of the Sequence Number field in the AH header?",
+      options: ["To indicate the total packet length", "To provide a strictly increasing number that helps prevent replay attacks", "To identify the destination application port", "To store the encryption key"],
+      correct: 1,
+      explanation: "The Sequence Number is a strictly increasing number for each packet, used to prevent replay attacks by ensuring uniqueness and order."
+    },
+    {
+      category: "AH",
+      question: "What does the SPI (Security Parameters Index) field in AH allow the receiving host to do?",
+      options: ["Calculate the round-trip time", "Identify the security association (SA) for the incoming packet", "Determine the packet's TTL", "Compress the payload"],
+      correct: 1,
+      explanation: "The SPI is used by the receiving host to identify the security association (SA) associated with the incoming packet."
+    },
+    {
+      category: "ESP",
+      question: "In the ESP header format, what is the purpose of the Padding field?",
+      options: ["To store the source IP address", "To extend the payload to match the cipher block size", "To hold the digital certificate", "To indicate the sequence number"],
+      correct: 1,
+      explanation: "ESP padding extends the payload as needed to match the required cipher block size."
+    },
+    {
+      category: "ESP",
+      question: "Which technique does ESP use to provide limited traffic-flow confidentiality, according to the lecture?",
+      options: ["Sending dummy (null) packets during idle times", "Disabling the IP checksum entirely", "Always using the same fixed packet size for every protocol", "Broadcasting packets to all hosts on the network"],
+      correct: 0,
+      explanation: "Among other techniques, ESP can send dummy/null packets during idle times to maintain a constant traffic flow and obscure real traffic patterns."
+    },
+    {
+      category: "NAT & IPsec",
+      question: "Why does AH not work correctly when NAT (Network Address Translation) is used?",
+      options: ["AH does not support IPv4 packets", "AH's Integrity Check Value covers IP header fields that NAT modifies, such as the source IP, breaking validation", "AH requires a minimum of three network hops", "AH always disables the TTL field"],
+      correct: 1,
+      explanation: "Because AH authenticates parts of the IP header, when NAT translates the source IP address the integrity check fails, so AH does not work through NAT."
+    },
+    {
+      category: "NAT & IPsec",
+      question: "What limitation does plain ESP have when used through a NAT device with multiple internal hosts?",
+      options: ["It cannot encrypt any data at all", "It has no port numbers available for NAT to distinguish multiple simultaneous sessions", "It only works with IPv6", "It requires a dedicated fiber connection"],
+      correct: 1,
+      explanation: "ESP lacks port numbers, so a NAT device cannot use ports to distinguish multiple simultaneous ESP sessions to different internal hosts."
+    },
+    {
+      category: "NAT & IPsec",
+      question: "How does NAT Traversal (NAT-T) allow ESP traffic to pass through NAT devices?",
+      options: ["By disabling encryption entirely", "By encapsulating the ESP packet inside a UDP packet, commonly using destination port 4500", "By converting ESP into an ICMP message", "By requiring a static public IP on every internal host"],
+      correct: 1,
+      explanation: "NAT-T encapsulates the ESP packet inside a UDP packet, typically using destination port 4500, so NAT devices can handle it using normal UDP port translation."
+    },
+    {
+      category: "IPsec Basics",
+      question: "According to the lecture, what is the relationship between VPN and IPsec?",
+      options: ["VPN and IPsec are exactly the same thing", "VPN is a general networking concept, and IPsec is one technology that can be used to implement a secure VPN", "IPsec is a type of VPN client software only", "VPN only refers to IPsec tunnel mode"],
+      correct: 1,
+      explanation: "VPN is a general networking concept, while IPsec is one technology that can be used to implement a secure VPN."
+    },
+    {
+      category: "IPv6",
+      question: "What does the lecture say about the relationship between IPsec and IPv6?",
+      options: ["IPsec is automatically enabled whenever IPv6 is used", "IPv6 was designed with IPsec support in mind, but IPsec is not automatically enabled just because IPv6 is used", "IPsec cannot be used with IPv6 at all", "IPv6 removes the need for encryption entirely"],
+      correct: 1,
+      explanation: "IPv6 was designed with IPsec support in mind and modern IPv6 node requirements recommend supporting the IPsec architecture, but IPsec is not automatically enabled just because IPv6 is used."
+    },
+    {
+      category: "IPv6",
+      question: "How does IPv6 affect one common complication for deploying IPsec?",
+      options: ["It makes IPsec deployment impossible", "NAT is much less fundamental in IPv6, which removes one common complication for IPsec", "It requires IPsec to always run in transport mode", "It replaces IPsec with a built-in encryption standard"],
+      correct: 1,
+      explanation: "Since NAT is much less fundamental in IPv6, one common complication that IPsec faces with NAT is largely removed."
+    }
+  ];
+
+  var state = {
+    order: [],
+    current: 0,
+    answers: {}
+  };
+
+  var quizScreen = document.getElementById("quizScreen");
+  var summaryScreen = document.getElementById("summaryScreen");
+  var progressFill = document.getElementById("progressFill");
+  var scoreBadge = document.getElementById("scoreBadge");
+  var categoryTag = document.getElementById("categoryTag");
+  var qIndexEl = document.getElementById("qIndex");
+  var questionTextEl = document.getElementById("questionText");
+  var answersContainer = document.getElementById("answersContainer");
+  var explanationBox = document.getElementById("explanationBox");
+  var backBtn = document.getElementById("backBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var restartBtn = document.getElementById("restartBtn");
+  var summaryPercent = document.getElementById("summaryPercent");
+  var summaryDetail = document.getElementById("summaryDetail");
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  function initQuiz() {
+    var indices = [];
+    for (var i = 0; i < rawQuestions.length; i++) {
+      indices.push(i);
+    }
+    state.order = shuffleArray(indices);
+    state.current = 0;
+    state.answers = {};
+    quizScreen.classList.remove("hidden");
+    summaryScreen.classList.add("hidden");
+    renderQuestion();
+  }
+
+  function getAnswerState(qPos) {
+    if (!state.answers[qPos]) {
+      var qData = rawQuestions[state.order[qPos]];
+      var optIndices = [];
+      for (var i = 0; i < qData.options.length; i++) {
+        optIndices.push(i);
+      }
+      state.answers[qPos] = {
+        answered: false,
+        selected: -1,
+        optionOrder: shuffleArray(optIndices)
+      };
+    }
+    return state.answers[qPos];
+  }
+
+  function computeScore() {
+    var correctCount = 0;
+    var answeredCount = 0;
+    for (var key in state.answers) {
+      if (state.answers.hasOwnProperty(key)) {
+        var a = state.answers[key];
+        if (a.answered) {
+          answeredCount++;
+          var qData = rawQuestions[state.order[key]];
+          if (a.selected === qData.correct) {
+            correctCount++;
+          }
+        }
+      }
+    }
+    return { correct: correctCount, answered: answeredCount };
+  }
+
+  function renderQuestion() {
+    var total = state.order.length;
+    var qPos = state.current;
+    var qData = rawQuestions[state.order[qPos]];
+    var aState = getAnswerState(qPos);
+
+    var pct = Math.round((qPos / total) * 100);
+    progressFill.style.width = pct + "%";
+
+    var scoreInfo = computeScore();
+    scoreBadge.textContent = "Score: " + scoreInfo.correct + "/" + scoreInfo.answered;
+
+    categoryTag.textContent = qData.category;
+    var color = categoryColors[qData.category] ? categoryColors[qData.category] : "#2563eb";
+    categoryTag.style.backgroundColor = color;
+
+    qIndexEl.textContent = "Question " + (qPos + 1) + " of " + total;
+    questionTextEl.textContent = qData.question;
+
+    answersContainer.innerHTML = "";
+
+    for (var i = 0; i < aState.optionOrder.length; i++) {
+      var originalIndex = aState.optionOrder[i];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "answer-btn";
+      btn.textContent = qData.options[originalIndex];
+      btn.setAttribute("data-original-index", String(originalIndex));
+
+      if (aState.answered) {
+        btn.disabled = true;
+        if (originalIndex === qData.correct) {
+          btn.classList.add("correct");
+        } else if (originalIndex === aState.selected) {
+          btn.classList.add("incorrect");
+        } else {
+          btn.classList.add("dim");
+        }
+      } else {
+        btn.addEventListener("click", function(ev) {
+          var chosenIndex = parseInt(ev.currentTarget.getAttribute("data-original-index"), 10);
+          handleAnswer(qPos, chosenIndex);
+        });
+      }
+
+      answersContainer.appendChild(btn);
+    }
+
+    if (aState.answered) {
+      explanationBox.classList.remove("hidden");
+      var isCorrect = aState.selected === qData.correct;
+      var verdict = isCorrect ? "Correct. " : "Not quite. ";
+      explanationBox.innerHTML = "<strong>" + verdict + "</strong>" + qData.explanation;
+    } else {
+      explanationBox.classList.add("hidden");
+      explanationBox.innerHTML = "";
+    }
+
+    backBtn.disabled = (qPos === 0);
+
+    if (aState.answered) {
+      nextBtn.disabled = false;
+      nextBtn.textContent = (qPos === total - 1) ? "Finish" : "Next";
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.textContent = "Next";
+    }
+  }
+
+  function handleAnswer(qPos, chosenIndex) {
+    var aState = getAnswerState(qPos);
+    if (aState.answered) {
+      return;
+    }
+    aState.answered = true;
+    aState.selected = chosenIndex;
+    renderQuestion();
+  }
+
+  function goNext() {
+    var total = state.order.length;
+    var aState = getAnswerState(state.current);
+    if (!aState.answered) {
+      return;
+    }
+    if (state.current === total - 1) {
+      showSummary();
+      return;
+    }
+    state.current++;
+    renderQuestion();
+  }
+
+  function goBack() {
+    if (state.current === 0) {
+      return;
+    }
+    state.current--;
+    renderQuestion();
+  }
+
+  function showSummary() {
+    var total = state.order.length;
+    var scoreInfo = computeScore();
+    var pct = total > 0 ? Math.round((scoreInfo.correct / total) * 100) : 0;
+    summaryPercent.textContent = pct + "%";
+    summaryDetail.textContent = scoreInfo.correct + " out of " + total + " correct";
+    quizScreen.classList.add("hidden");
+    summaryScreen.classList.remove("hidden");
+  }
+
+  backBtn.addEventListener("click", goBack);
+  nextBtn.addEventListener("click", goNext);
+  restartBtn.addEventListener("click", initQuiz);
+
+  initQuiz();
+});
+</script>
+</body>
+</html>

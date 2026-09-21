@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture 4 Quiz: Even More Cryptography</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+  body {
+    padding: 24px 12px 60px 12px;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 24px;
+    margin: 0 0 6px 0;
+    color: #111827;
+  }
+  .header p {
+    font-size: 14px;
+    color: #4b5563;
+    margin: 0;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #374151;
+  }
+  .progress-outer {
+    width: 100%;
+    height: 10px;
+    background-color: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-inner {
+    height: 100%;
+    background-color: #2563eb;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    color: #111827;
+  }
+  .category-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+  }
+  .question-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 18px 0;
+    line-height: 1.4;
+  }
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #1a1a2e;
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    font-family: inherit;
+  }
+  .answer-btn:hover:not(:disabled) {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct-answer {
+    background-color: #d1fae5;
+    border-color: #059669;
+    color: #065f46;
+    font-weight: 600;
+  }
+  .answer-btn.wrong-answer {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+    font-weight: 600;
+  }
+  .explanation {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 8px;
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
+    color: #0c4a6e;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .explanation strong {
+    color: #0c4a6e;
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-family: inherit;
+  }
+  .nav-btn:disabled {
+    background-color: #d1d5db;
+    color: #6b7280;
+    cursor: default;
+  }
+  .nav-btn.secondary {
+    background-color: #e5e7eb;
+    color: #111827;
+  }
+  .nav-btn.secondary:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+  }
+  .summary-card {
+    text-align: center;
+    padding: 32px 22px;
+  }
+  .summary-card h2 {
+    font-size: 22px;
+    margin: 0 0 10px 0;
+    color: #111827;
+  }
+  .summary-score {
+    font-size: 44px;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 10px 0;
+  }
+  .summary-detail {
+    font-size: 15px;
+    color: #4b5563;
+    margin-bottom: 20px;
+  }
+  .restart-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html, body {
+      background-color: #0f172a;
+      color: #e5e7eb;
+    }
+    .header h1 {
+      color: #f1f5f9;
+    }
+    .header p {
+      color: #94a3b8;
+    }
+    .top-bar {
+      color: #cbd5e1;
+    }
+    .progress-outer {
+      background-color: #1e293b;
+    }
+    .progress-inner {
+      background-color: #3b82f6;
+    }
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #e5e7eb;
+      box-shadow: none;
+    }
+    .question-text {
+      color: #f1f5f9;
+    }
+    .answer-btn {
+      background-color: #0f172a;
+      border-color: #475569;
+      color: #e5e7eb;
+    }
+    .answer-btn:hover:not(:disabled) {
+      border-color: #60a5fa;
+      background-color: #1e3a5f;
+    }
+    .answer-btn.correct-answer {
+      background-color: #064e3b;
+      border-color: #10b981;
+      color: #d1fae5;
+    }
+    .answer-btn.wrong-answer {
+      background-color: #450a0a;
+      border-color: #f87171;
+      color: #fecaca;
+    }
+    .explanation {
+      background-color: #0c2d3d;
+      border-color: #155e75;
+      color: #bae6fd;
+    }
+    .explanation strong {
+      color: #bae6fd;
+    }
+    .nav-btn {
+      background-color: #3b82f6;
+      color: #f8fafc;
+    }
+    .nav-btn:disabled {
+      background-color: #334155;
+      color: #64748b;
+    }
+    .nav-btn.secondary {
+      background-color: #334155;
+      color: #e5e7eb;
+    }
+    .nav-btn.secondary:disabled {
+      background-color: #1e293b;
+      color: #475569;
+    }
+    .summary-card h2 {
+      color: #f1f5f9;
+    }
+    .summary-score {
+      color: #60a5fa;
+    }
+    .summary-detail {
+      color: #94a3b8;
+    }
+    .restart-btn {
+      background-color: #3b82f6;
+      color: #f8fafc;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Fundamentals of Security and Cryptography</h1>
+      <p>Lecture 4: Even More Cryptography — Knowledge Quiz</p>
+    </div>
+    <div id="topBar" class="top-bar"></div>
+    <div class="progress-outer"><div class="progress-inner" id="progressInner"></div></div>
+    <div id="quizArea"></div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  var categoryColors = {
+    'Diffie-Hellman': '#2563eb',
+    'DH Security': '#dc2626',
+    'RSA vs DH': '#ea580c',
+    'Elliptic Curves': '#059669',
+    'Certificates': '#7c3aed',
+    'HMAC': '#0891b2',
+    'Security Goals': '#db2777',
+    'VPN Design': '#4f46e5'
+  };
+
+  var questions = [
+    {
+      category: 'Diffie-Hellman',
+      question: 'What is the primary purpose of the Diffie-Hellman protocol?',
+      options: [
+        'Encrypting bulk data for confidentiality',
+        'Establishing a shared secret over an insecure channel',
+        'Creating digital signatures',
+        'Hashing passwords for storage'
+      ],
+      correct: 1,
+      explanation: 'Diffie-Hellman is a key exchange protocol: it lets two parties agree on a shared secret over a public channel, not an encryption or signing algorithm.'
+    },
+    {
+      category: 'Diffie-Hellman',
+      question: 'In the Diffie-Hellman protocol, what does Alice send to Bob over the public channel?',
+      options: [
+        'g^x mod p',
+        'Her private random value x directly',
+        'g^xy mod p',
+        'The prime p only'
+      ],
+      correct: 0,
+      explanation: 'Alice picks a random private value x, computes g^x mod p, and sends that public value to Bob. Bob does the same with y.'
+    },
+    {
+      category: 'Diffie-Hellman',
+      question: 'According to the lecture, what is it called when it is hard to find x given g^x mod p?',
+      options: [
+        'The factorization problem',
+        'The Discrete Logarithm (DL) problem',
+        'The elliptic curve problem',
+        'The birthday problem'
+      ],
+      correct: 1,
+      explanation: 'Recovering the private exponent x from the public value g^x mod p is the Discrete Logarithm problem, believed to be computationally hard.'
+    },
+    {
+      category: 'Diffie-Hellman',
+      question: 'What is the "Computational Diffie-Hellman problem"?',
+      options: [
+        'Given g^x and g^y, it is hard to find x or y',
+        'Given g^x and g^y, it is hard to compute g^xy',
+        'Given g^xy, it is hard to find g',
+        'Given p, it is hard to find a generator g'
+      ],
+      correct: 1,
+      explanation: 'The lecture states: given g^x and g^y it is hard to find g^xy - this is the Computational Diffie-Hellman (CDH) problem.'
+    },
+    {
+      category: 'Diffie-Hellman',
+      question: 'In the worked example with P = 13, G = 6, Alice private key = 5, what is Alice\'s public key (6^5 mod 13)?',
+      options: [
+        '9',
+        '3',
+        '2',
+        '4'
+      ],
+      correct: 2,
+      explanation: '6^5 = 7776, and 7776 mod 13 = 2, matching the slide\'s worked example.'
+    },
+    {
+      category: 'Diffie-Hellman',
+      question: 'In that same numeric example, what shared secret do Alice and Bob both compute?',
+      options: [
+        '2',
+        '9',
+        '13',
+        '3'
+      ],
+      correct: 3,
+      explanation: 'Both sides independently compute the shared secret as 3, showing the protocol produces a matching value on both ends.'
+    },
+    {
+      category: 'DH Security',
+      question: 'Against which type of attacker is plain Diffie-Hellman considered safe?',
+      options: [
+        'Active attackers',
+        'Passive attackers observing the network',
+        'Both active and passive attackers',
+        'Neither active nor passive attackers'
+      ],
+      correct: 1,
+      explanation: 'The lecture states DH is safe against passive attackers who merely observe traffic, but not against active attackers.'
+    },
+    {
+      category: 'DH Security',
+      question: 'Why is plain Diffie-Hellman vulnerable to man-in-the-middle attacks?',
+      options: [
+        'It uses weak prime numbers',
+        'It does not offer authentication of the sender by default',
+        'It transmits the private key in cleartext',
+        'It requires a certificate authority to function'
+      ],
+      correct: 1,
+      explanation: 'DH does not authenticate who sent a given public value, so an active attacker can intercept and replace it without detection.'
+    },
+    {
+      category: 'DH Security',
+      question: 'In the Diffie-Hellman man-in-the-middle attack diagram, who is the attacker positioned between Alice and Bob?',
+      options: [
+        'Trent',
+        'Eve',
+        'Mallory',
+        'Oscar'
+      ],
+      correct: 2,
+      explanation: 'The lecture diagram names the active man-in-the-middle attacker "Mallory", who negotiates separate secrets with Alice and Bob.'
+    },
+    {
+      category: 'DH Security',
+      question: 'How is Diffie-Hellman typically protected against man-in-the-middle attacks in practice today?',
+      options: [
+        'By choosing a larger prime p only',
+        'By combining it with RSA/signatures to authenticate the exchanged public values',
+        'By encrypting the exchanged values with AES',
+        'By avoiding elliptic curves entirely'
+      ],
+      correct: 1,
+      explanation: 'Nowadays DH is used together with RSA: the public exponents are signed, giving "authenticated Diffie-Hellman" and protection against MITM.'
+    },
+    {
+      category: 'RSA vs DH',
+      question: 'According to the lecture, why isn\'t RSA alone used instead of Diffie-Hellman for establishing session keys?',
+      options: [
+        'RSA cannot generate public/private key pairs',
+        'RSA is comparatively slow and we want symmetric session keys such as AES',
+        'RSA does not support authentication at all',
+        'RSA requires elliptic curve parameters'
+      ],
+      correct: 1,
+      explanation: 'The slides give two reasons: RSA is much slower than symmetric crypto, and we want a symmetric session key (e.g. for AES), which DH helps establish.'
+    },
+    {
+      category: 'RSA vs DH',
+      question: 'In the "Putting it all together" comparison table, which capabilities does Diffie-Hellman NOT provide?',
+      options: [
+        'Key exchange only is missing',
+        'Encryption/decryption and digital signature',
+        'Only digital signature is missing',
+        'Only encryption/decryption is missing'
+      ],
+      correct: 1,
+      explanation: 'The table marks Diffie-Hellman as "No" for both Encryption/Decryption and Digital Signature, and "Yes" only for Key Exchange.'
+    },
+    {
+      category: 'RSA vs DH',
+      question: 'Which algorithm(s) in the comparison table support all three: encryption/decryption, digital signature, AND key exchange?',
+      options: [
+        'Diffie-Hellman only',
+        'RSA and Elliptic Curve',
+        'Elliptic Curve only',
+        'RSA only'
+      ],
+      correct: 1,
+      explanation: 'The table shows both RSA and Elliptic Curve marked "Yes" across all three categories, unlike plain Diffie-Hellman.'
+    },
+    {
+      category: 'Elliptic Curves',
+      question: 'What is the general equation form of an elliptic curve used in cryptography, as shown in the lecture?',
+      options: [
+        'y = x^2 + ax + b',
+        'y^2 = x^3 + ax + b',
+        'x^2 + y^2 = r^2',
+        'y^3 = x^2 + ax + b'
+      ],
+      correct: 1,
+      explanation: 'The lecture defines elliptic curves as plane algebraic curves of the form y^2 = x^3 + ax + b.'
+    },
+    {
+      category: 'Elliptic Curves',
+      question: 'What is the main advantage of Elliptic Curve Cryptography (ECC) over RSA, according to the slides?',
+      options: [
+        'ECC cannot be broken under any circumstances',
+        'ECC uses smaller keys for equivalent security, giving faster computation',
+        'ECC does not require a private key',
+        'ECC can only be used for digital signatures'
+      ],
+      correct: 1,
+      explanation: 'ECC\'s main advantage listed is smaller sized keys while providing equivalent security, which means faster computation.'
+    },
+    {
+      category: 'Elliptic Curves',
+      question: 'What mathematical problem underlies the security of elliptic curve cryptography?',
+      options: [
+        'The integer factorization problem',
+        'The elliptic curve discrete logarithm problem',
+        'The subset sum problem',
+        'The traveling salesman problem'
+      ],
+      correct: 1,
+      explanation: 'ECC security is based on the elliptic curve discrete logarithm problem: finding the discrete log of a curve element is infeasible.'
+    },
+    {
+      category: 'Elliptic Curves',
+      question: 'Which NIST Suite B algorithm is used for key exchange based on elliptic curves?',
+      options: [
+        'ECDSA',
+        'ECDH',
+        'RSA-OAEP',
+        'AES-GCM'
+      ],
+      correct: 1,
+      explanation: 'The lecture lists Elliptic Curve Diffie-Hellman (ECDH) as the Suite B algorithm for key exchange.'
+    },
+    {
+      category: 'Elliptic Curves',
+      question: 'Which NIST Suite B algorithm is used for digital signatures based on elliptic curves?',
+      options: [
+        'ECDH',
+        'ECDSA',
+        'HMAC',
+        'Plain Diffie-Hellman'
+      ],
+      correct: 1,
+      explanation: 'The Elliptic Curve Digital Signature Algorithm (ECDSA) is listed as the Suite B algorithm for digital signatures.'
+    },
+    {
+      category: 'Certificates',
+      question: 'What does a public-key certificate primarily consist of?',
+      options: [
+        'Only the private key of the owner',
+        'A public key plus the user ID of the owner, with the block signed by a trusted third party',
+        'A symmetric session key generated by AES',
+        'A hash of the message only'
+      ],
+      correct: 1,
+      explanation: 'A certificate binds a public key to a user ID, and the whole block is signed by a trusted third party (the CA).'
+    },
+    {
+      category: 'Certificates',
+      question: 'What is the role of a Certificate Authority (CA)?',
+      options: [
+        'It generates AES session keys for VPN tunnels',
+        'It is a trusted third party that signs certificates, binding public keys to identities',
+        'It performs the HMAC calculation for message integrity',
+        'It stores users\' private keys centrally'
+      ],
+      correct: 1,
+      explanation: 'The CA is a trusted third party (e.g. a government agency or financial institution) that signs users\' public keys to produce certificates.'
+    },
+    {
+      category: 'Certificates',
+      question: 'Why can certificates be placed in a public directory without special protection, according to the lecture?',
+      options: [
+        'Because they are encrypted with AES',
+        'Because they are unforgeable - only the CA can modify them without detection',
+        'Because they automatically expire after one day',
+        'Because they never contain identifying information'
+      ],
+      correct: 1,
+      explanation: 'Because no party other than the CA can modify a certificate undetected, certificates are unforgeable and safe to distribute openly.'
+    },
+    {
+      category: 'Certificates',
+      question: 'Which of the following is NOT part of the X.509 certificate structure described in the lecture?',
+      options: [
+        'Version Number',
+        'Subject Public Key Info',
+        'A symmetric AES session key',
+        'Certificate Signature'
+      ],
+      correct: 2,
+      explanation: 'X.509 certificates hold identity and public-key information plus a signature - they do not carry a symmetric session key.'
+    },
+    {
+      category: 'HMAC',
+      question: 'What is the main goal of HMAC, according to the lecture?',
+      options: [
+        'To encrypt a message for confidentiality',
+        'To achieve authenticated integrity of a sent message',
+        'To exchange a shared secret between two parties',
+        'To generate digital certificates'
+      ],
+      correct: 1,
+      explanation: 'HMAC\'s stated goal is authenticated integrity: proving that a message has not been tampered with.'
+    },
+    {
+      category: 'HMAC',
+      question: 'What does the receiver do to verify a message protected with HMAC?',
+      options: [
+        'Decrypt the message using the sender\'s public key',
+        'Recalculate the HMAC using the shared key and check whether it matches the received HMAC',
+        'Compare the length of the received message only',
+        'Check the expiry date on a certificate'
+      ],
+      correct: 1,
+      explanation: 'The receiver recomputes the HMAC over the received message using the shared key, and if it matches, the message is authentic and unaltered.'
+    },
+    {
+      category: 'HMAC',
+      question: 'What is required as a prerequisite for using the HMAC algorithm?',
+      options: [
+        'A public/private key pair',
+        'A pre-shared key',
+        'A certificate authority',
+        'An elliptic curve group'
+      ],
+      correct: 1,
+      explanation: 'HMAC requires a pre-shared key that both sender and receiver use to generate and verify the MAC value.'
+    },
+    {
+      category: 'Security Goals',
+      question: 'According to the lecture\'s Security Goals table, which primitives achieve confidentiality?',
+      options: [
+        'HMAC and SHA-1',
+        'AES (symmetric) and RSA/ECC (asymmetric)',
+        'Diffie-Hellman only',
+        'Certificates only'
+      ],
+      correct: 1,
+      explanation: 'Confidentiality is achieved via symmetric crypto like AES and asymmetric crypto like RSA/ECC.'
+    },
+    {
+      category: 'Security Goals',
+      question: 'Which primitives achieve integrity according to the Security Goals table?',
+      options: [
+        'RSA and ECC digital signatures',
+        'SHA-1/MD5 (hashing) and HMAC',
+        'Diffie-Hellman',
+        'AES only'
+      ],
+      correct: 1,
+      explanation: 'Integrity (detecting changes) is achieved through hashing algorithms like SHA-1/MD5 and through HMAC.'
+    },
+    {
+      category: 'Security Goals',
+      question: 'Which primitives achieve the "Key Exchange" security goal according to the table?',
+      options: [
+        'Diffie-Hellman and RSA/ECC',
+        'HMAC only',
+        'SHA-1/MD5 only',
+        'X.509 certificates only'
+      ],
+      correct: 0,
+      explanation: 'The Security Goals table lists Diffie-Hellman and RSA/ECC as achieving secure key exchange, e.g. during a TLS handshake.'
+    },
+    {
+      category: 'VPN Design',
+      question: 'In the VPN tunnel example, what is used first to authenticate the corporate VPN server to the client?',
+      options: [
+        'An HMAC key',
+        'An RSA/ECC public key certificate',
+        'A shared AES key',
+        'A certificate revocation list'
+      ],
+      correct: 1,
+      explanation: 'The server first presents an RSA public key certificate so the client can be sure it is talking to the real VPN server.'
+    },
+    {
+      category: 'VPN Design',
+      question: 'In the VPN example, what is derived from the Diffie-Hellman shared secret to produce the AES and HMAC keys?',
+      options: [
+        'The server\'s private key directly',
+        'A Master Secret, produced by hashing the shared secret',
+        'The client\'s own certificate',
+        'The CA\'s digital signature'
+      ],
+      correct: 1,
+      explanation: 'The Master Secret is computed as a hash of the DH shared secret, and the AES and HMAC keys are then derived from that Master Secret.'
+    },
+    {
+      category: 'VPN Design',
+      question: 'Why does the VPN example use two separate keys, one for AES encryption and one for HMAC?',
+      options: [
+        'To save computation time',
+        'Because using the same key for both encryption and integrity checking would be bad practice',
+        'Because AES keys must always be shorter than HMAC keys',
+        'Because HMAC requires an RSA key, not a symmetric key'
+      ],
+      correct: 1,
+      explanation: 'The lecture explicitly states that reusing the same key for both confidentiality (AES) and integrity (HMAC) purposes would be bad practice.'
+    },
+    {
+      category: 'VPN Design',
+      question: 'What security property is achieved by generating a fresh Diffie-Hellman exchange for every VPN session?',
+      options: [
+        'Data integrity',
+        'Perfect Forward Secrecy',
+        'Non-repudiation',
+        'Certificate revocation'
+      ],
+      correct: 1,
+      explanation: 'A new DH exchange per session gives Perfect Forward Secrecy: compromising today\'s keys does not reveal past sessions\' traffic.'
+    },
+    {
+      category: 'VPN Design',
+      question: 'In the VPN packet-sending steps, what order are the cryptographic operations applied to outgoing data?',
+      options: [
+        'Sign the data, then hash it, then send',
+        'Encrypt the data with AES, then compute an HMAC over the encrypted blob, then send both plus the IV',
+        'Compute HMAC first, then discard the key',
+        'Send the plaintext, then encrypt it afterward'
+      ],
+      correct: 1,
+      explanation: 'The lecture\'s steps are: encrypt with AES-256 to get an encrypted blob, then compute HMAC-SHA256 over that blob to get a tag, then send blob + IV + tag.'
+    }
+  ];
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  var order = shuffleArray(questions.map(function (q, i) { return i; }));
+  var total = order.length;
+
+  var states = [];
+  for (var i = 0; i < total; i++) {
+    states.push({
+      answered: false,
+      selectedShuffledPos: null,
+      optionOrder: null
+    });
+  }
+
+  var viewIndex = 0;
+  var furthestIndex = 0;
+  var finished = false;
+
+  var topBar = document.getElementById('topBar');
+  var progressInner = document.getElementById('progressInner');
+  var quizArea = document.getElementById('quizArea');
+
+  function countAnsweredCorrect() {
+    var correctCount = 0;
+    var answeredCount = 0;
+    for (var i = 0; i < states.length; i++) {
+      if (states[i].answered) {
+        answeredCount++;
+        var qIdx = order[i];
+        var q = questions[qIdx];
+        var chosenOriginal = states[i].optionOrder[states[i].selectedShuffledPos];
+        if (chosenOriginal === q.correct) {
+          correctCount++;
+        }
+      }
+    }
+    return { correct: correctCount, answered: answeredCount };
+  }
+
+  function updateTopBarAndProgress() {
+    var stats = countAnsweredCorrect();
+    topBar.textContent = '';
+    var scoreSpan = document.createElement('span');
+    scoreSpan.textContent = 'Score: ' + stats.correct + ' / ' + stats.answered;
+    var posSpan = document.createElement('span');
+    posSpan.textContent = 'Question ' + (viewIndex + 1) + ' of ' + total;
+    topBar.appendChild(posSpan);
+    topBar.appendChild(scoreSpan);
+    var pct = Math.round((stats.answered / total) * 100);
+    progressInner.style.width = pct + '%';
+  }
+
+  function renderQuestion() {
+    quizArea.textContent = '';
+    updateTopBarAndProgress();
+
+    var qIdx = order[viewIndex];
+    var q = questions[qIdx];
+    var state = states[viewIndex];
+
+    if (state.optionOrder === null) {
+      state.optionOrder = shuffleArray([0, 1, 2, 3]);
+    }
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.color = '#111827';
+
+    var badge = document.createElement('span');
+    badge.className = 'category-badge';
+    var color = categoryColors[q.category];
+    if (!color) {
+      color = '#6b7280';
+    }
+    badge.style.backgroundColor = color;
+    badge.textContent = q.category;
+    card.appendChild(badge);
+
+    var qText = document.createElement('p');
+    qText.className = 'question-text';
+    qText.textContent = q.question;
+    card.appendChild(qText);
+
+    var buttons = [];
+    for (var i = 0; i < 4; i++) {
+      var originalIdx = state.optionOrder[i];
+      var btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.type = 'button';
+      btn.textContent = q.options[originalIdx];
+
+      (function (buttonRef, shuffledPos, origIdx) {
+        buttonRef.addEventListener('click', function () {
+          if (state.answered) {
+            return;
+          }
+          state.answered = true;
+          state.selectedShuffledPos = shuffledPos;
+          if (viewIndex === furthestIndex && furthestIndex < total - 1) {
+            furthestIndex++;
+          }
+          renderQuestion();
+        });
+      })(btn, i, originalIdx);
+
+      buttons.push(btn);
+      card.appendChild(btn);
+    }
+
+    if (state.answered) {
+      for (var j = 0; j < 4; j++) {
+        buttons[j].disabled = true;
+        var origIdx2 = state.optionOrder[j];
+        if (origIdx2 === q.correct) {
+          buttons[j].classList.add('correct-answer');
+        } else if (j === state.selectedShuffledPos) {
+          buttons[j].classList.add('wrong-answer');
+        }
+      }
+
+      var explanation = document.createElement('div');
+      explanation.className = 'explanation';
+      var strongLabel = document.createElement('strong');
+      var chosenOriginal2 = state.optionOrder[state.selectedShuffledPos];
+      if (chosenOriginal2 === q.correct) {
+        strongLabel.textContent = 'Correct! ';
+      } else {
+        strongLabel.textContent = 'Not quite. ';
+      }
+      explanation.appendChild(strongLabel);
+      var explanationText = document.createElement('span');
+      explanationText.textContent = q.explanation;
+      explanation.appendChild(explanationText);
+      card.appendChild(explanation);
+    }
+
+    quizArea.appendChild(card);
+
+    var navRow = document.createElement('div');
+    navRow.className = 'nav-row';
+
+    var backBtn = document.createElement('button');
+    backBtn.className = 'nav-btn secondary';
+    backBtn.type = 'button';
+    backBtn.textContent = '\u2190 Back';
+    backBtn.disabled = (viewIndex === 0);
+    backBtn.addEventListener('click', function () {
+      if (viewIndex > 0) {
+        viewIndex--;
+        renderQuestion();
+      }
+    });
+    navRow.appendChild(backBtn);
+
+    var isLast = (viewIndex === total - 1);
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'nav-btn';
+    nextBtn.type = 'button';
+
+    if (isLast) {
+      nextBtn.textContent = 'See Results';
+      nextBtn.disabled = !state.answered;
+      nextBtn.addEventListener('click', function () {
+        if (states[total - 1].answered) {
+          showSummary();
+        }
+      });
+    } else {
+      nextBtn.textContent = 'Next \u2192';
+      var canGoNext = (viewIndex < furthestIndex);
+      nextBtn.disabled = !canGoNext;
+      nextBtn.addEventListener('click', function () {
+        if (viewIndex < furthestIndex) {
+          viewIndex++;
+          renderQuestion();
+        }
+      });
+    }
+    navRow.appendChild(nextBtn);
+
+    quizArea.appendChild(navRow);
+  }
+
+  function showSummary() {
+    finished = true;
+    quizArea.textContent = '';
+    topBar.textContent = '';
+    progressInner.style.width = '100%';
+
+    var stats = countAnsweredCorrect();
+    var pct = Math.round((stats.correct / total) * 100);
+
+    var card = document.createElement('div');
+    card.className = 'card summary-card';
+
+    var heading = document.createElement('h2');
+    heading.textContent = 'Quiz Complete!';
+    card.appendChild(heading);
+
+    var scoreDiv = document.createElement('div');
+    scoreDiv.className = 'summary-score';
+    scoreDiv.textContent = pct + '%';
+    card.appendChild(scoreDiv);
+
+    var detail = document.createElement('div');
+    detail.className = 'summary-detail';
+    detail.textContent = 'You answered ' + stats.correct + ' out of ' + total + ' questions correctly.';
+    card.appendChild(detail);
+
+    var restartBtn = document.createElement('button');
+    restartBtn.className = 'restart-btn';
+    restartBtn.type = 'button';
+    restartBtn.textContent = 'Restart Quiz';
+    restartBtn.addEventListener('click', function () {
+      window.location.reload();
+    });
+    card.appendChild(restartBtn);
+
+    quizArea.appendChild(card);
+  }
+
+  renderQuestion();
+});
+</script>
+</body>
+</html>

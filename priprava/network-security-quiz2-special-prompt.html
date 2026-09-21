@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Layer Security & IPsec Quiz</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #f1f5f9;
+    color: #111827;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  body {
+    padding: 20px 12px 60px 12px;
+  }
+  #app {
+    max-width: 760px;
+    margin: 0 auto;
+    color: #111827;
+  }
+  header#quiz-header {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    color: #111827;
+  }
+  header#quiz-header h1 {
+    font-size: 20px;
+    margin: 0 0 12px 0;
+    color: #0f172a;
+  }
+  #progress-track {
+    width: 100%;
+    height: 10px;
+    background-color: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  #progress-fill {
+    height: 100%;
+    background-color: #2563eb;
+    width: 0%;
+  }
+  #score-display {
+    font-size: 14px;
+    color: #334155;
+    font-weight: 600;
+  }
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 22px;
+    color: #111827;
+  }
+  .category-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+  }
+  .question-number {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .question-text {
+    font-size: 17px;
+    line-height: 1.5;
+    color: #0f172a;
+    margin: 0 0 18px 0;
+    font-weight: 600;
+  }
+  .options-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #1a1a2e;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .answer-btn:hover:not(:disabled) {
+    background-color: #eef2ff;
+    border-color: #94a3b8;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct-answer {
+    background-color: #dcfce7;
+    border-color: #16a34a;
+    color: #14532d;
+  }
+  .answer-btn.wrong-answer {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #7f1d1d;
+  }
+  .explanation {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1e3a5f;
+  }
+  .explanation strong {
+    color: #1e3a5f;
+  }
+  .order-list {
+    list-style: none;
+    margin: 0 0 14px 0;
+    padding: 0;
+  }
+  .order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    color: #111827;
+    font-size: 15px;
+  }
+  .order-item.result-correct {
+    background-color: #dcfce7;
+    border-color: #16a34a;
+    color: #14532d;
+  }
+  .order-item.result-incorrect {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #7f1d1d;
+  }
+  .order-item-text {
+    flex: 1;
+    color: inherit;
+  }
+  .order-btn-group {
+    display: flex;
+    gap: 6px;
+    margin-left: 10px;
+  }
+  .order-btn {
+    background-color: #e2e8f0;
+    border: 1px solid #94a3b8;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 13px;
+    color: #1a1a2e;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .order-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .check-btn {
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .check-btn:disabled {
+    background-color: #94a3b8;
+    cursor: default;
+  }
+  .order-correct-list {
+    margin-top: 12px;
+    padding: 12px 14px;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #111827;
+  }
+  .order-correct-list ol {
+    margin: 6px 0 0 18px;
+    padding: 0;
+    color: #111827;
+  }
+  textarea.open-textarea {
+    width: 100%;
+    min-height: 100px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: #111827;
+    background-color: #f8fafc;
+    resize: vertical;
+    margin-bottom: 12px;
+  }
+  .reveal-btn {
+    background-color: #7c3aed;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    margin-bottom: 12px;
+  }
+  .sample-answer {
+    background-color: #fef9c3;
+    border: 1px solid #eab308;
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #713f12;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .sample-answer strong {
+    color: #713f12;
+  }
+  .grade-btn-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .grade-btn {
+    flex: 1;
+    border-radius: 8px;
+    border: 1px solid #94a3b8;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    background-color: #f1f5f9;
+    color: #1a1a2e;
+  }
+  .grade-btn.selected-correct {
+    background-color: #dcfce7;
+    border-color: #16a34a;
+    color: #14532d;
+  }
+  .grade-btn.selected-incorrect {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #7f1d1d;
+  }
+  .grade-label {
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 4px;
+    color: #334155;
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .nav-btn {
+    background-color: #e2e8f0;
+    border: 1px solid #94a3b8;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .nav-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .nav-btn.primary {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+  }
+  .nav-btn.primary:disabled {
+    background-color: #94a3b8;
+    border-color: #94a3b8;
+    color: #f1f5f9;
+  }
+  .summary-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 30px 24px;
+    text-align: center;
+    color: #111827;
+  }
+  .summary-card h2 {
+    margin-top: 0;
+    color: #0f172a;
+  }
+  .summary-score {
+    font-size: 42px;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 10px 0;
+  }
+  .summary-sub {
+    color: #334155;
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+  .restart-btn {
+    background-color: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html, body {
+      background-color: #0f172a;
+      color: #f1f5f9;
+    }
+    #app {
+      color: #f1f5f9;
+    }
+    header#quiz-header {
+      background-color: #1e293b;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    header#quiz-header h1 {
+      color: #f8fafc;
+    }
+    #progress-track {
+      background-color: #334155;
+    }
+    #progress-fill {
+      background-color: #60a5fa;
+    }
+    #score-display {
+      color: #cbd5e1;
+    }
+    .card {
+      background-color: #1e293b;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    .category-badge {
+      color: #ffffff;
+    }
+    .question-number {
+      color: #94a3b8;
+    }
+    .question-text {
+      color: #f8fafc;
+    }
+    .answer-btn {
+      background-color: #334155;
+      border-color: #475569;
+      color: #f1f5f9;
+    }
+    .answer-btn:hover:not(:disabled) {
+      background-color: #3f4f68;
+      border-color: #64748b;
+    }
+    .answer-btn.correct-answer {
+      background-color: #14532d;
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+    .answer-btn.wrong-answer {
+      background-color: #7f1d1d;
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+    .explanation {
+      background-color: #1e3a5f;
+      border-color: #3b82f6;
+      color: #dbeafe;
+    }
+    .explanation strong {
+      color: #dbeafe;
+    }
+    .order-item {
+      background-color: #334155;
+      border-color: #475569;
+      color: #f1f5f9;
+    }
+    .order-item.result-correct {
+      background-color: #14532d;
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+    .order-item.result-incorrect {
+      background-color: #7f1d1d;
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+    .order-btn {
+      background-color: #475569;
+      border-color: #64748b;
+      color: #f1f5f9;
+    }
+    .check-btn {
+      background-color: #3b82f6;
+      color: #ffffff;
+    }
+    .check-btn:disabled {
+      background-color: #64748b;
+    }
+    .order-correct-list {
+      background-color: #334155;
+      border-color: #475569;
+      color: #f1f5f9;
+    }
+    .order-correct-list ol {
+      color: #f1f5f9;
+    }
+    textarea.open-textarea {
+      background-color: #334155;
+      border-color: #475569;
+      color: #f1f5f9;
+    }
+    .reveal-btn {
+      background-color: #8b5cf6;
+      color: #ffffff;
+    }
+    .sample-answer {
+      background-color: #4d3b06;
+      border-color: #ca8a04;
+      color: #fef3c7;
+    }
+    .sample-answer strong {
+      color: #fef3c7;
+    }
+    .grade-btn {
+      background-color: #334155;
+      border-color: #64748b;
+      color: #f1f5f9;
+    }
+    .grade-btn.selected-correct {
+      background-color: #14532d;
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+    .grade-btn.selected-incorrect {
+      background-color: #7f1d1d;
+      border-color: #ef4444;
+      color: #fecaca;
+    }
+    .grade-label {
+      color: #cbd5e1;
+    }
+    .nav-btn {
+      background-color: #334155;
+      border-color: #64748b;
+      color: #f1f5f9;
+    }
+    .nav-btn.primary {
+      background-color: #3b82f6;
+      border-color: #3b82f6;
+      color: #ffffff;
+    }
+    .nav-btn.primary:disabled {
+      background-color: #475569;
+      border-color: #475569;
+      color: #94a3b8;
+    }
+    .summary-card {
+      background-color: #1e293b;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    .summary-card h2 {
+      color: #f8fafc;
+    }
+    .summary-score {
+      color: #60a5fa;
+    }
+    .summary-sub {
+      color: #cbd5e1;
+    }
+    .restart-btn {
+      background-color: #22c55e;
+      color: #06210f;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="quiz-header">
+    <h1>Network Layer Security &amp; IPsec Quiz</h1>
+    <div id="progress-track"><div id="progress-fill"></div></div>
+    <div id="score-display">Score: 0 / 0</div>
+  </header>
+  <main id="quiz-content"></main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  function el(tag, className) {
+    var e = document.createElement(tag);
+    if (className) { e.className = className; }
+    return e;
+  }
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  var categoryColors = {
+    'OSI/TCP-IP': '#1d4ed8',
+    'Encapsulation': '#6d28d9',
+    'Internet Layer': '#047857',
+    'Protocols': '#92400e',
+    'IPsec Basics': '#b91c1c',
+    'IKE': '#be185d',
+    'AH': '#0e7490',
+    'ESP': '#4338ca',
+    'Crypto': '#854d0e',
+    'NAT': '#6b21a8',
+    'IPv6': '#0f766e'
+  };
+
+  var rawQuestions = [];
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'OSI/TCP-IP',
+    prompt: 'In the OSI model, which layer is the direct equivalent of the "Internet layer" in the TCP/IP model?',
+    options: [
+      { text: 'Network layer', correct: true },
+      { text: 'Transport layer', correct: false },
+      { text: 'Session layer', correct: false },
+      { text: 'Data Link layer', correct: false }
+    ],
+    explanation: 'The lecture title itself states this equivalence: OSI Network Layer Security is described as equivalent to Internet Layer Security of TCP/IP.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'OSI/TCP-IP',
+    prompt: 'In the OSI-to-TCP/IP comparison diagram, which three OSI layers together correspond to the single TCP/IP "Application" layer?',
+    options: [
+      { text: 'Application, Presentation, and Session', correct: true },
+      { text: 'Application, Transport, and Network', correct: false },
+      { text: 'Session, Transport, and Network', correct: false },
+      { text: 'Physical, Data Link, and Network', correct: false }
+    ],
+    explanation: 'The comparison diagram groups the OSI Application, Presentation, and Session layers into the single TCP/IP Application layer.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Encapsulation',
+    prompt: 'In the encapsulation process, what is the resulting data unit called once a header is added at the transport layer?',
+    options: [
+      { text: 'Segment', correct: true },
+      { text: 'Datagram', correct: false },
+      { text: 'Frame', correct: false },
+      { text: 'Message', correct: false }
+    ],
+    explanation: 'A message becomes a segment once the transport-layer header (Ht) is added.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Encapsulation',
+    prompt: 'What is the resulting data unit called once a header is added at the network layer?',
+    options: [
+      { text: 'Datagram', correct: true },
+      { text: 'Segment', correct: false },
+      { text: 'Frame', correct: false },
+      { text: 'Packet body', correct: false }
+    ],
+    explanation: 'Adding the network-layer header (Hn) to a segment produces a datagram.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Internet Layer',
+    prompt: 'Which of the following is one of the three basic functions of the Internet/Network layer for outgoing packets?',
+    options: [
+      { text: 'Select the next-hop host (gateway) and pass the packet to the link layer', correct: true },
+      { text: 'Encrypt the payload using AES', correct: false },
+      { text: 'Assign a TCP source port number', correct: false },
+      { text: 'Negotiate a TLS session', correct: false }
+    ],
+    explanation: 'For outgoing packets, the Internet layer selects the next-hop host and hands the packet to the link layer.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Internet Layer',
+    prompt: 'For incoming packets, what does the Internet/Network layer do according to the lecture?',
+    options: [
+      { text: 'Capture the packet and pass its payload up to the appropriate transport layer protocol', correct: true },
+      { text: 'Always discard fragmented packets', correct: false },
+      { text: 'Re-encrypt the packet with a new key', correct: false },
+      { text: 'Convert IPv4 addresses into IPv6 addresses', correct: false }
+    ],
+    explanation: 'For incoming packets, the layer captures them and passes the payload up to the appropriate transport-layer protocol.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Protocols',
+    prompt: 'What IP protocol number is assigned to TCP?',
+    options: [
+      { text: '6', correct: true },
+      { text: '17', correct: false },
+      { text: '1', correct: false },
+      { text: '50', correct: false }
+    ],
+    explanation: 'Protocol number 6 is Transmission Control Protocol (TCP).'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Protocols',
+    prompt: 'What IP protocol number is assigned to UDP?',
+    options: [
+      { text: '17', correct: true },
+      { text: '6', correct: false },
+      { text: '41', correct: false },
+      { text: '51', correct: false }
+    ],
+    explanation: 'Protocol number 17 is User Datagram Protocol (UDP).'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Protocols',
+    prompt: 'Which IP protocol number corresponds to ESP (Encapsulating Security Payload)?',
+    options: [
+      { text: '50', correct: true },
+      { text: '51', correct: false },
+      { text: '47', correct: false },
+      { text: '6', correct: false }
+    ],
+    explanation: 'Protocol number 50 is assigned to ESP.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Protocols',
+    prompt: 'Which IP protocol number corresponds to AH (Authentication Header)?',
+    options: [
+      { text: '51', correct: true },
+      { text: '50', correct: false },
+      { text: '4', correct: false },
+      { text: '17', correct: false }
+    ],
+    explanation: 'Protocol number 51 is assigned to AH.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'IPsec Basics',
+    prompt: 'What does IPsec use to authenticate peers, negotiate security parameters, and establish cryptographic keying material?',
+    options: [
+      { text: 'IKE (Internet Key Exchange)', correct: true },
+      { text: 'DNSSEC', correct: false },
+      { text: 'ARP', correct: false },
+      { text: 'SNMP', correct: false }
+    ],
+    explanation: 'IPsec relies on IKE to authenticate peers and establish the cryptographic keying material.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'AH',
+    prompt: 'Which security service does the Authentication Header (AH) protocol NOT provide?',
+    options: [
+      { text: 'Confidentiality (encryption)', correct: true },
+      { text: 'Data integrity', correct: false },
+      { text: 'Data-origin authentication', correct: false },
+      { text: 'Anti-replay protection', correct: false }
+    ],
+    explanation: 'AH provides data integrity, data-origin authentication, and anti-replay protection, but explicitly no confidentiality.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'ESP',
+    prompt: 'Which security service can ESP (Encapsulating Security Payload) provide that AH cannot?',
+    options: [
+      { text: 'Confidentiality (encryption) of the data', correct: true },
+      { text: 'Anti-replay protection', correct: false },
+      { text: 'Data-origin authentication', correct: false },
+      { text: 'Data integrity', correct: false }
+    ],
+    explanation: 'ESP provides confidentiality, which AH does not offer; both can provide integrity, authentication, and anti-replay protection.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'IPsec Basics',
+    prompt: 'In IPsec Transport mode, what part of the original packet is encapsulated/protected?',
+    options: [
+      { text: 'Only the IP payload (data)', correct: true },
+      { text: 'The entire original IP packet, including its header', correct: false },
+      { text: 'Only the Ethernet frame', correct: false },
+      { text: 'Nothing, transport mode adds no protection', correct: false }
+    ],
+    explanation: 'Transport mode encapsulates only the IP payload, and is common in host-to-host or server-to-server communication.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'IPsec Basics',
+    prompt: 'In IPsec Tunnel mode, what part of the original packet is encapsulated?',
+    options: [
+      { text: 'The entire original IP packet', correct: true },
+      { text: 'Only the IP payload', correct: false },
+      { text: 'Only the TCP header', correct: false },
+      { text: 'Only the source IP address', correct: false }
+    ],
+    explanation: 'Tunnel mode encapsulates the entire original IP packet, which is common in VPNs such as gateway-to-gateway or site-to-site setups.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'IKE',
+    prompt: 'What is the main purpose of IKEv1 Phase 1?',
+    options: [
+      { text: 'To establish an authenticated, protected IKE Security Association (IKE SA) between the peers', correct: true },
+      { text: 'To encrypt the actual user data traffic', correct: false },
+      { text: 'To transmit the pre-shared key in plaintext over the network', correct: false },
+      { text: 'To calculate the packet IP checksum', correct: false }
+    ],
+    explanation: 'Phase 1 (slow and heavy) authenticates the peers and creates the IKE SA, which protects only IKE control messages, not user data.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'IKE',
+    prompt: 'What does IKEv1 Phase 2 (Quick Mode) accomplish?',
+    options: [
+      { text: 'It creates an IPsec Security Association (IPsec SA) used to protect the actual data traffic', correct: true },
+      { text: 'It creates a brand-new Diffie-Hellman exchange completely independent of Phase 1', correct: false },
+      { text: 'It issues a new digital certificate to each peer', correct: false },
+      { text: 'It configures NAT mappings on both peers', correct: false }
+    ],
+    explanation: 'Quick Mode builds on the secure channel from Phase 1 to negotiate the encryption and integrity keys and methods for IPsec, producing an IPsec SA.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'Crypto',
+    prompt: 'Which algorithm allows two IKE peers to derive the same shared secret without ever transmitting that secret over the network?',
+    options: [
+      { text: 'Diffie-Hellman', correct: true },
+      { text: 'RSA encryption of the secret itself', correct: false },
+      { text: 'Simple XOR of both public IP addresses', correct: false },
+      { text: 'Base64 encoding of a password', correct: false }
+    ],
+    explanation: 'Using Diffie-Hellman, each peer independently derives the same shared key without ever sending that shared secret across the network.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'NAT',
+    prompt: 'Why does the Authentication Header (AH) protocol generally fail to work through a device performing NAT?',
+    options: [
+      { text: 'Because the AH integrity check covers header fields such as the source IP, and NAT rewriting that field invalidates the check', correct: true },
+      { text: 'Because AH always uses TCP port 80, which NAT devices block', correct: false },
+      { text: 'Because AH can only be used with IPv6, and NAT is an IPv4-only technology', correct: false },
+      { text: 'Because AH does not use sequence numbers', correct: false }
+    ],
+    explanation: 'The AH Integrity Check Value (ICV) covers header fields including the source IP; once NAT translates that address, the ICV no longer matches.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'NAT',
+    prompt: 'How does NAT Traversal (NAT-T) allow ESP traffic to pass through a NAT device?',
+    options: [
+      { text: 'It encapsulates the ESP packet inside a UDP packet, typically using destination port 4500', correct: true },
+      { text: 'It converts the ESP packet into an AH packet', correct: false },
+      { text: 'It disables NAT on the router entirely', correct: false },
+      { text: 'It removes the Security Parameters Index from the packet', correct: false }
+    ],
+    explanation: 'NAT-T wraps ESP inside UDP, commonly using port 4500, giving the NAT device port numbers to translate while leaving the ESP payload itself protected.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'IPv6',
+    prompt: 'Which statement correctly describes the relationship between IPsec and IPv6?',
+    options: [
+      { text: 'IPv6 was designed with IPsec support in mind, but IPsec is not automatically enabled just because IPv6 is used', correct: true },
+      { text: 'IPsec only works with IPv6 and cannot be used with IPv4 at all', correct: false },
+      { text: 'IPv6 makes IPsec completely unnecessary', correct: false },
+      { text: 'IPsec is a mandatory, always-active part of every IPv6 packet', correct: false }
+    ],
+    explanation: 'IPv6 was designed with IPsec in mind and modern IPv6 node requirements recommend IPsec support, but it is still not automatically enabled.'
+  });
+
+  rawQuestions.push({
+    type: 'mc',
+    category: 'IPsec Basics',
+    prompt: 'Why do two communicating peers using IPsec typically need a pair of Security Associations (SAs) rather than just one?',
+    options: [
+      { text: 'Because IPsec SAs are unidirectional, so one SA is needed for each direction of traffic', correct: true },
+      { text: 'Because one SA is needed for IPv4 and a separate one for IPv6', correct: false },
+      { text: 'Because one SA is always reserved specifically for NAT-T', correct: false },
+      { text: 'Because each SA automatically expires after exactly one packet', correct: false }
+    ],
+    explanation: 'IPsec SAs are unidirectional, so a pair of them is required for bidirectional (send and receive) data transfer.'
+  });
+
+  rawQuestions.push({
+    type: 'order',
+    category: 'Encapsulation',
+    prompt: 'Arrange these encapsulation data units in order, from the one produced first (closest to the application) to the one produced last (closest to the physical link).',
+    items: ['Message', 'Segment', 'Datagram', 'Frame'],
+    explanation: 'Encapsulation proceeds message (application) then segment (transport header added) then datagram (network header added) then frame (link header added).'
+  });
+
+  rawQuestions.push({
+    type: 'order',
+    category: 'OSI/TCP-IP',
+    prompt: 'Arrange the seven OSI model layers in order from the topmost (closest to the user/application) to the bottommost (closest to the physical medium).',
+    items: ['Application', 'Presentation', 'Session', 'Transport', 'Network', 'Data Link', 'Physical'],
+    explanation: 'The OSI stack, top to bottom, is: Application, Presentation, Session, Transport, Network, Data Link, Physical.'
+  });
+
+  rawQuestions.push({
+    type: 'order',
+    category: 'IKE',
+    prompt: 'Arrange these steps of the IKEv1 Phase 1 Diffie-Hellman key exchange process in the correct order.',
+    items: [
+      'Peers authenticate each other using a certificate or pre-shared key',
+      'Each side creates its own Diffie-Hellman private key',
+      'Public keys are exchanged over the public internet',
+      'Each side independently derives the same shared Diffie-Hellman key',
+      'Using the DH key, peers exchange key material and agreements',
+      'Each side generates a symmetric key from the DH key and the exchanged material'
+    ],
+    explanation: 'This mirrors the IKE Phase 1 diagram: authenticate, then create DH private keys, exchange public keys, derive the shared DH key, exchange key material, and finally generate the symmetric key that becomes the IKE Security Association.'
+  });
+
+  rawQuestions.push({
+    type: 'open',
+    category: 'IPsec Basics',
+    prompt: 'Explain the key difference between the Authentication Header (AH) and Encapsulating Security Payload (ESP) protocols in IPsec, including what each does and does not protect.',
+    sampleAnswer: 'AH provides data integrity, data-origin authentication, and anti-replay protection for the packet, but it does NOT provide confidentiality; it never encrypts anything, it only authenticates. ESP, on the other hand, provides confidentiality (encryption) of the payload, and can optionally also provide integrity, data-origin authentication, and anti-replay protection depending on how it is configured. In short: AH offers integrity and authentication only, with no encryption, while ESP offers encryption plus optional integrity and authentication.'
+  });
+
+  rawQuestions.push({
+    type: 'open',
+    category: 'NAT',
+    prompt: 'Explain why Authentication Header (AH) does not work through a device performing Network Address Translation (NAT), while Encapsulating Security Payload (ESP) can be made to work through NAT using NAT Traversal (NAT-T).',
+    sampleAnswer: 'NAT rewrites the source (and sometimes destination) IP address in the packet header. AH computes its Integrity Check Value (ICV) over the IP header itself as well as the payload, so when NAT changes the source IP, the ICV no longer matches and the packet fails integrity verification; AH has no way to tolerate this change. ESP, by contrast, does not protect the outer IP header with its ICV, it only protects the encrypted payload and ESP header, so a NAT device can rewrite the outer IP header without breaking ESP integrity checking. However, plain ESP also has no port numbers for NAT to use in its translation table, so NAT-T wraps the ESP packet inside a UDP packet, commonly using port 4500, giving NAT devices ports to translate while leaving the ESP payload itself untouched and still verifiable.'
+  });
+
+  rawQuestions.push({
+    type: 'open',
+    category: 'IKE',
+    prompt: 'Explain the difference between IKEv1 Phase 1 and Phase 2, and why the distinction between them matters.',
+    sampleAnswer: 'Phase 1 (slow and heavy) establishes an authenticated, protected control channel between the two peers, the IKE Security Association (IKE SA). It involves authenticating the peers via a pre-shared key or certificate, and using Diffie-Hellman to agree on a shared symmetric key. Crucially, the IKE SA created in Phase 1 is used only to protect further IKE control and negotiation messages, not the actual user data traffic. Phase 2 (Quick Mode) runs inside the secure channel established in Phase 1, and negotiates the actual encryption and integrity algorithms and keys that will be used to protect the real data traffic, resulting in one or more IPsec Security Associations (IPsec SAs). The distinction matters because it separates the expensive process of securely authenticating and establishing a control channel from the cheaper, more frequent process of negotiating and refreshing the keys actually used to encrypt data, and because IPsec SAs are unidirectional, Quick Mode is what actually sets up the keys used for bulk traffic protection.'
+  });
+
+  var order = shuffleArray(rawQuestions.map(function(q, idx) { return idx; }));
+
+  var questions = order.map(function(idx) {
+    var rq = rawQuestions[idx];
+    var q = {
+      type: rq.type,
+      category: rq.category,
+      prompt: rq.prompt,
+      explanation: rq.explanation,
+      answered: false,
+      correct: false
+    };
+    if (rq.type === 'mc') {
+      var optIdx = shuffleArray(rq.options.map(function(o, i) { return i; }));
+      q.options = optIdx.map(function(i) { return { text: rq.options[i].text, correct: rq.options[i].correct }; });
+      q.selected = null;
+    } else if (rq.type === 'order') {
+      q.items = rq.items.slice();
+      var n = q.items.length;
+      var displayIdx = shuffleArray(q.items.map(function(_, i) { return i; }));
+      q.arrangement = displayIdx.slice();
+    } else if (rq.type === 'open') {
+      q.sampleAnswer = rq.sampleAnswer;
+      q.userText = '';
+      q.revealed = false;
+      q.grade = null;
+    }
+    return q;
+  });
+
+  var total = questions.length;
+  var currentIndex = 0;
+  var frontier = 0;
+
+  var contentEl = document.getElementById('quiz-content');
+  var progressFillEl = document.getElementById('progress-fill');
+  var scoreDisplayEl = document.getElementById('score-display');
+
+  function computeScore() {
+    var s = 0;
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].answered && questions[i].correct) { s++; }
+    }
+    return s;
+  }
+
+  function answeredCount() {
+    var c = 0;
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].answered) { c++; }
+    }
+    return c;
+  }
+
+  function updateHeader() {
+    var pct = Math.round((answeredCount() / total) * 100);
+    progressFillEl.style.width = pct + '%';
+    scoreDisplayEl.textContent = 'Score: ' + computeScore() + ' / ' + total + ' (' + answeredCount() + '/' + total + ' answered)';
+  }
+
+  function makeCategoryBadge(category) {
+    var badge = el('span', 'category-badge');
+    badge.textContent = category;
+    var color = categoryColors[category] || '#334155';
+    badge.style.backgroundColor = color;
+    return badge;
+  }
+
+  function renderNav(card, q, isLast) {
+    var navRow = el('div', 'nav-row');
+
+    var backBtn = el('button', 'nav-btn');
+    backBtn.type = 'button';
+    backBtn.textContent = '\u2190 Zp\u011bt';
+    backBtn.disabled = (currentIndex === 0);
+    backBtn.addEventListener('click', function() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        render();
+      }
+    });
+
+    var nextBtn = el('button', 'nav-btn primary');
+    nextBtn.type = 'button';
+    if (isLast) {
+      nextBtn.textContent = 'Dokon\u010dit kv\u00edz';
+    } else {
+      nextBtn.textContent = 'Dal\u0161\u00ed \u2192';
+    }
+
+    var canAdvance = false;
+    if (currentIndex < frontier) {
+      canAdvance = true;
+    } else if (currentIndex === frontier && q.answered) {
+      canAdvance = true;
+    }
+    nextBtn.disabled = !canAdvance;
+
+    nextBtn.addEventListener('click', function() {
+      if (currentIndex === frontier && frontier < total - 1) {
+        frontier++;
+      }
+      if (isLast && currentIndex === frontier) {
+        renderSummary();
+        return;
+      }
+      currentIndex = Math.min(currentIndex + 1, total - 1);
+      render();
+    });
+
+    navRow.appendChild(backBtn);
+    navRow.appendChild(nextBtn);
+    card.appendChild(navRow);
+  }
+
+  function renderMC(card, q) {
+    var list = el('ul', 'options-list');
+    q.options.forEach(function(opt, i) {
+      var li = el('li');
+      var btn = el('button', 'answer-btn');
+      btn.type = 'button';
+      btn.textContent = opt.text;
+      if (q.answered) {
+        btn.disabled = true;
+        if (opt.correct) {
+          btn.className = 'answer-btn correct-answer';
+        } else if (q.selected === i) {
+          btn.className = 'answer-btn wrong-answer';
+        }
+      } else {
+        btn.addEventListener('click', function() {
+          q.selected = i;
+          q.answered = true;
+          q.correct = !!opt.correct;
+          updateHeader();
+          render();
+        });
+      }
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+    card.appendChild(list);
+
+    if (q.answered) {
+      var expl = el('div', 'explanation');
+      var strong = el('strong');
+      strong.textContent = q.correct ? 'Spr\u00e1vn\u011b! ' : 'Nespr\u00e1vn\u011b. ';
+      expl.appendChild(strong);
+      expl.appendChild(document.createTextNode(q.explanation));
+      card.appendChild(expl);
+    }
+  }
+
+  function renderOrder(card, q) {
+    var list = el('ul', 'order-list');
+    var n = q.items.length;
+
+    q.arrangement.forEach(function(itemIdx, pos) {
+      var li = el('li', 'order-item');
+      if (q.answered) {
+        li.className = 'order-item ' + (q.correct ? 'result-correct' : 'result-incorrect');
+      }
+      var textSpan = el('span', 'order-item-text');
+      textSpan.textContent = q.items[itemIdx];
+      li.appendChild(textSpan);
+
+      if (!q.answered) {
+        var btnGroup = el('div', 'order-btn-group');
+        var upBtn = el('button', 'order-btn');
+        upBtn.type = 'button';
+        upBtn.textContent = '\u2191';
+        upBtn.disabled = (pos === 0);
+        upBtn.addEventListener('click', function() {
+          var tmp = q.arrangement[pos - 1];
+          q.arrangement[pos - 1] = q.arrangement[pos];
+          q.arrangement[pos] = tmp;
+          render();
+        });
+        var downBtn = el('button', 'order-btn');
+        downBtn.type = 'button';
+        downBtn.textContent = '\u2193';
+        downBtn.disabled = (pos === n - 1);
+        downBtn.addEventListener('click', function() {
+          var tmp = q.arrangement[pos + 1];
+          q.arrangement[pos + 1] = q.arrangement[pos];
+          q.arrangement[pos] = tmp;
+          render();
+        });
+        btnGroup.appendChild(upBtn);
+        btnGroup.appendChild(downBtn);
+        li.appendChild(btnGroup);
+      }
+      list.appendChild(li);
+    });
+    card.appendChild(list);
+
+    if (!q.answered) {
+      var checkBtn = el('button', 'check-btn');
+      checkBtn.type = 'button';
+      checkBtn.textContent = 'Zkontrolovat';
+      checkBtn.addEventListener('click', function() {
+        var isCorrect = true;
+        for (var i = 0; i < n; i++) {
+          if (q.arrangement[i] !== i) { isCorrect = false; break; }
+        }
+        q.answered = true;
+        q.correct = isCorrect;
+        updateHeader();
+        render();
+      });
+      card.appendChild(checkBtn);
+    } else {
+      var expl = el('div', 'explanation');
+      var strong = el('strong');
+      strong.textContent = q.correct ? 'Spr\u00e1vn\u011b! ' : 'Nespr\u00e1vn\u011b. ';
+      expl.appendChild(strong);
+      expl.appendChild(document.createTextNode(q.explanation));
+      card.appendChild(expl);
+
+      var correctBox = el('div', 'order-correct-list');
+      var boxTitle = document.createTextNode('Spr\u00e1vn\u00e9 po\u0159ad\u00ed:');
+      correctBox.appendChild(boxTitle);
+      var ol = el('ol');
+      q.items.forEach(function(itemText) {
+        var oli = el('li');
+        oli.textContent = itemText;
+        ol.appendChild(oli);
+      });
+      correctBox.appendChild(ol);
+      card.appendChild(correctBox);
+    }
+  }
+
+  function renderOpen(card, q) {
+    var textarea = el('textarea', 'open-textarea');
+    textarea.value = q.userText;
+    textarea.placeholder = 'Napi\u0161te svou odpov\u011b\u010f zde...';
+    textarea.disabled = q.answered;
+    textarea.addEventListener('input', function() {
+      q.userText = textarea.value;
+    });
+    card.appendChild(textarea);
+
+    if (!q.revealed) {
+      var revealBtn = el('button', 'reveal-btn');
+      revealBtn.type = 'button';
+      revealBtn.textContent = 'Zobrazit vzorovou odpov\u011b\u010f';
+      revealBtn.addEventListener('click', function() {
+        q.revealed = true;
+        render();
+      });
+      card.appendChild(revealBtn);
+    } else {
+      var sampleBox = el('div', 'sample-answer');
+      var strong = el('strong');
+      strong.textContent = 'Vzorov\u00e1 odpov\u011b\u010f: ';
+      sampleBox.appendChild(strong);
+      sampleBox.appendChild(document.createTextNode(q.sampleAnswer));
+      card.appendChild(sampleBox);
+
+      if (!q.answered) {
+        var gradeRow = el('div', 'grade-btn-row');
+        var okBtn = el('button', 'grade-btn');
+        okBtn.type = 'button';
+        okBtn.textContent = 'Zvl\u00e1dl jsem';
+        okBtn.addEventListener('click', function() {
+          q.answered = true;
+          q.correct = true;
+          q.grade = 'correct';
+          updateHeader();
+          render();
+        });
+        var noBtn = el('button', 'grade-btn');
+        noBtn.type = 'button';
+        noBtn.textContent = 'Nezvl\u00e1dl jsem';
+        noBtn.addEventListener('click', function() {
+          q.answered = true;
+          q.correct = false;
+          q.grade = 'incorrect';
+          updateHeader();
+          render();
+        });
+        gradeRow.appendChild(okBtn);
+        gradeRow.appendChild(noBtn);
+        card.appendChild(gradeRow);
+      } else {
+        var label = el('div', 'grade-label');
+        label.textContent = q.grade === 'correct' ? 'Ozna\u010deno jako: Zvl\u00e1dl jsem' : 'Ozna\u010deno jako: Nezvl\u00e1dl jsem';
+        card.appendChild(label);
+      }
+    }
+  }
+
+  function render() {
+    contentEl.innerHTML = '';
+    var q = questions[currentIndex];
+
+    var card = el('div', 'card');
+
+    card.appendChild(makeCategoryBadge(q.category));
+
+    var qNum = el('div', 'question-number');
+    qNum.textContent = 'Ot\u00e1zka ' + (currentIndex + 1) + ' z ' + total;
+    card.appendChild(qNum);
+
+    var qText = el('div', 'question-text');
+    qText.textContent = q.prompt;
+    card.appendChild(qText);
+
+    if (q.type === 'mc') {
+      renderMC(card, q);
+    } else if (q.type === 'order') {
+      renderOrder(card, q);
+    } else if (q.type === 'open') {
+      renderOpen(card, q);
+    }
+
+    var isLast = (currentIndex === total - 1);
+    renderNav(card, q, isLast);
+
+    contentEl.appendChild(card);
+    updateHeader();
+  }
+
+  function renderSummary() {
+    contentEl.innerHTML = '';
+    var score = computeScore();
+    var pct = Math.round((score / total) * 100);
+
+    var card = el('div', 'summary-card');
+    var h2 = el('h2');
+    h2.textContent = 'V\u00fdsledek kv\u00edzu';
+    card.appendChild(h2);
+
+    var scoreDiv = el('div', 'summary-score');
+    scoreDiv.textContent = pct + '%';
+    card.appendChild(scoreDiv);
+
+    var sub = el('div', 'summary-sub');
+    sub.textContent = 'Spr\u00e1vn\u011b zodpov\u011bzeno ' + score + ' z ' + total + ' ot\u00e1zek.';
+    card.appendChild(sub);
+
+    var restartBtn = el('button', 'restart-btn');
+    restartBtn.type = 'button';
+    restartBtn.textContent = 'Spustit znovu';
+    restartBtn.addEventListener('click', function() {
+      window.location.reload();
+    });
+    card.appendChild(restartBtn);
+
+    contentEl.appendChild(card);
+
+    progressFillEl.style.width = '100%';
+    scoreDisplayEl.textContent = 'Score: ' + score + ' / ' + total + ' (' + total + '/' + total + ' answered)';
+  }
+
+  render();
+
+});
+</script>
+</body>
+</html>

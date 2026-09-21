@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lecture 8 Quiz: Application Security</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+  body {
+    padding: 24px 12px 60px 12px;
+  }
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 24px;
+    margin: 0 0 6px 0;
+    color: #111827;
+  }
+  .header p {
+    font-size: 14px;
+    color: #4b5563;
+    margin: 0;
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #374151;
+  }
+  .progress-outer {
+    width: 100%;
+    height: 10px;
+    background-color: #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-inner {
+    height: 100%;
+    background-color: #2563eb;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    color: #111827;
+  }
+  .category-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+  }
+  .question-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 18px 0;
+    line-height: 1.4;
+  }
+  .answer-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #1a1a2e;
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    font-family: inherit;
+  }
+  .answer-btn:hover:not(:disabled) {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+  }
+  .answer-btn:disabled {
+    cursor: default;
+  }
+  .answer-btn.correct-answer {
+    background-color: #d1fae5;
+    border-color: #059669;
+    color: #065f46;
+    font-weight: 600;
+  }
+  .answer-btn.wrong-answer {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+    font-weight: 600;
+  }
+  .explanation {
+    margin-top: 16px;
+    padding: 14px;
+    border-radius: 8px;
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
+    color: #0c4a6e;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .explanation strong {
+    color: #0c4a6e;
+  }
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-family: inherit;
+  }
+  .nav-btn:disabled {
+    background-color: #d1d5db;
+    color: #6b7280;
+    cursor: default;
+  }
+  .nav-btn.secondary {
+    background-color: #e5e7eb;
+    color: #111827;
+  }
+  .nav-btn.secondary:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+  }
+  .summary-card {
+    text-align: center;
+    padding: 32px 22px;
+  }
+  .summary-card h2 {
+    font-size: 22px;
+    margin: 0 0 10px 0;
+    color: #111827;
+  }
+  .summary-score {
+    font-size: 44px;
+    font-weight: 800;
+    color: #2563eb;
+    margin: 10px 0;
+  }
+  .summary-detail {
+    font-size: 15px;
+    color: #4b5563;
+    margin-bottom: 20px;
+  }
+  .restart-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html, body {
+      background-color: #0f172a;
+      color: #e5e7eb;
+    }
+    .header h1 {
+      color: #f1f5f9;
+    }
+    .header p {
+      color: #94a3b8;
+    }
+    .top-bar {
+      color: #cbd5e1;
+    }
+    .progress-outer {
+      background-color: #1e293b;
+    }
+    .progress-inner {
+      background-color: #3b82f6;
+    }
+    .card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      color: #e5e7eb;
+      box-shadow: none;
+    }
+    .question-text {
+      color: #f1f5f9;
+    }
+    .answer-btn {
+      background-color: #0f172a;
+      border-color: #475569;
+      color: #e5e7eb;
+    }
+    .answer-btn:hover:not(:disabled) {
+      border-color: #60a5fa;
+      background-color: #1e3a5f;
+    }
+    .answer-btn.correct-answer {
+      background-color: #064e3b;
+      border-color: #10b981;
+      color: #d1fae5;
+    }
+    .answer-btn.wrong-answer {
+      background-color: #450a0a;
+      border-color: #f87171;
+      color: #fecaca;
+    }
+    .explanation {
+      background-color: #0c2d3d;
+      border-color: #155e75;
+      color: #bae6fd;
+    }
+    .explanation strong {
+      color: #bae6fd;
+    }
+    .nav-btn {
+      background-color: #3b82f6;
+      color: #f8fafc;
+    }
+    .nav-btn:disabled {
+      background-color: #334155;
+      color: #64748b;
+    }
+    .nav-btn.secondary {
+      background-color: #334155;
+      color: #e5e7eb;
+    }
+    .nav-btn.secondary:disabled {
+      background-color: #1e293b;
+      color: #475569;
+    }
+    .summary-card h2 {
+      color: #f1f5f9;
+    }
+    .summary-score {
+      color: #60a5fa;
+    }
+    .summary-detail {
+      color: #94a3b8;
+    }
+    .restart-btn {
+      background-color: #3b82f6;
+      color: #f8fafc;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Fundamentals of Security and Cryptography</h1>
+      <p>Lecture 8: Application Security — Knowledge Quiz</p>
+    </div>
+    <div id="topBar" class="top-bar"></div>
+    <div class="progress-outer"><div class="progress-inner" id="progressInner"></div></div>
+    <div id="quizArea"></div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  var categoryColors = {
+    'Terminology': '#2563eb',
+    'Sources and Sinks': '#0891b2',
+    'Injection Attacks': '#ea580c',
+    'SQL Injection': '#dc2626',
+    'XSS': '#7c3aed',
+    'Command Injection': '#b45309',
+    'File Uploads': '#059669',
+    'Shells': '#4f46e5',
+    'APT Shells': '#db2777'
+  };
+
+  var questions = [
+    {
+      category: 'Terminology',
+      question: 'In the lecture\'s worked example, what does the "bug" refer to?',
+      options: [
+        'The hacker\'s crafted message sent to the server',
+        'The developer forgetting to sanitize user input before passing it to shell_exec',
+        'The backdoor downloaded and executed on the server',
+        'The ability for a user to run their own code'
+      ],
+      correct: 1,
+      explanation: 'The bug is the developer\'s mistake: using shell_exec but forgetting to sanitize the user-supplied input appended to it.'
+    },
+    {
+      category: 'Terminology',
+      question: 'In that same example, what does the "vulnerability" refer to?',
+      options: [
+        'The unsanitized shell_exec call by itself',
+        'The fact that a user could input their own code for the server to run',
+        'The backdoor being downloaded',
+        'The hacker noticing the flaw'
+      ],
+      correct: 1,
+      explanation: 'The vulnerability is the resulting weakness: by crafting a specific message, a user could get the server to run arbitrary code.'
+    },
+    {
+      category: 'Terminology',
+      question: 'What does "exploit" refer to in the example?',
+      options: [
+        'The original coding mistake',
+        'A hacker crafting and sending a specific message to trigger the vulnerability',
+        'The resulting weakness in the application',
+        'The backdoor executed on the server'
+      ],
+      correct: 1,
+      explanation: 'The exploit is the act of a hacker noticing the flaw and sending a specific crafted message to trigger it.'
+    },
+    {
+      category: 'Terminology',
+      question: 'What does "payload" refer to in the example?',
+      options: [
+        'The message sent to trigger the bug',
+        'Making the server download and execute a backdoor',
+        'The original PHP source code',
+        'The developer\'s mistake'
+      ],
+      correct: 1,
+      explanation: 'The payload is what actually gets executed as a result of the exploit: here, downloading and running a backdoor.'
+    },
+    {
+      category: 'Sources and Sinks',
+      question: 'According to the lecture, what is a "source" in the context of application security?',
+      options: [
+        'Any sensitive function such as a SQL or command function',
+        'Where user input enters the program - essentially anything the attacker controls that the target program does not',
+        'The database engine itself',
+        'The web server\'s configuration file'
+      ],
+      correct: 1,
+      explanation: 'Sources are where attacker-controlled input enters a program, such as GET parameters or externally fetched data.'
+    },
+    {
+      category: 'Sources and Sinks',
+      question: 'Which of the following is given as an example of a "sink"?',
+      options: [
+        'Parameters in a GET request',
+        'SQL functions, command functions, or admin capability functions',
+        'User-supplied input stored in the database',
+        'External data fetched by the target'
+      ],
+      correct: 1,
+      explanation: 'Sinks are the sensitive functions we want tainted data to flow into, such as SQL, command execution, or admin functions.'
+    },
+    {
+      category: 'Injection Attacks',
+      question: 'According to the lecture, what makes injection attacks possible?',
+      options: [
+        'Weak passwords',
+        'Treating user input as code',
+        'Using HTTPS instead of HTTP',
+        'Outdated browser versions'
+      ],
+      correct: 1,
+      explanation: 'Injection attacks are made possible when input that should be treated as data is instead treated as executable code.'
+    },
+    {
+      category: 'Injection Attacks',
+      question: 'Which of the following is listed as an example type of injection attack in the lecture?',
+      options: [
+        'Man-in-the-middle attack',
+        'Cross Site Scripting (XSS) attack',
+        'Brute force attack',
+        'Replay attack'
+      ],
+      correct: 1,
+      explanation: 'The lecture lists SQL injection, Cross Site Scripting, and command injection as examples of injection attacks.'
+    },
+    {
+      category: 'SQL Injection',
+      question: 'In the SQL injection example, what does supplying the input \'Emil\' OR 1 = 1); -- achieve?',
+      options: [
+        'It deletes the Students table',
+        'It changes the query so all students are returned, because the condition is now always true',
+        'It creates a new admin user',
+        'It crashes the database server'
+      ],
+      correct: 1,
+      explanation: 'Because "OR 1 = 1" is always true, the WHERE clause matches every row, so the query returns the entire Students table.'
+    },
+    {
+      category: 'SQL Injection',
+      question: 'What is the core lesson of the SQL injection example on the slide?',
+      options: [
+        'SQL databases are inherently insecure',
+        'Data that was meant to be treated as data ended up being treated as code',
+        'Flask cannot be used safely',
+        'Only NoSQL databases are vulnerable to this'
+      ],
+      correct: 1,
+      explanation: 'The slide concludes: "We thought it was data, but it was treated as code" - the fundamental cause of injection attacks.'
+    },
+    {
+      category: 'SQL Injection',
+      question: 'In the "Little Bobby Tables" xkcd comic referenced in the lecture, what happens to the school\'s records?',
+      options: [
+        'They are encrypted by ransomware',
+        'They are lost, because the son\'s name contained a SQL injection payload that dropped the Students table',
+        'They are leaked onto the internet',
+        'They are automatically backed up'
+      ],
+      correct: 1,
+      explanation: 'The son\'s name "Robert\'); DROP TABLE Students; --" was executed as SQL when inserted unsanitized, deleting the student records.'
+    },
+    {
+      category: 'SQL Injection',
+      question: 'According to the lecture, what is presented as the "real" solution to SQL injection, beyond just filtering special characters?',
+      options: [
+        'Disabling the database entirely',
+        'Using prepared statements',
+        'Renaming all database tables',
+        'Blocking all GET requests'
+      ],
+      correct: 1,
+      explanation: 'The lecture states that after trying to sanitize special characters, "hackers always find a way", and the real solution is prepared statements.'
+    },
+    {
+      category: 'SQL Injection',
+      question: 'How do prepared statements prevent SQL injection, according to the lecture\'s diagram?',
+      options: [
+        'They encrypt the entire query before sending it',
+        'The query structure is sent first without variables, and the variable values are sent separately afterward so they cannot alter the query\'s logic',
+        'They block all user input entirely',
+        'They run queries on a separate isolated server'
+      ],
+      correct: 1,
+      explanation: 'The database first receives the query template (e.g. "WHERE id = ?"), then receives the variable value separately, so the value can never change the query structure.'
+    },
+    {
+      category: 'XSS',
+      question: 'What does an attacker do in a Cross Site Scripting (XSS) attack?',
+      options: [
+        'Steal database credentials directly from the server',
+        'Inject malicious JavaScript into a website',
+        'Flood the server with excessive traffic',
+        'Modify the target\'s DNS records'
+      ],
+      correct: 1,
+      explanation: 'XSS involves an attacker injecting malicious JavaScript into a website, for example through a comment box.'
+    },
+    {
+      category: 'XSS',
+      question: 'According to the lecture\'s notes on XSS, whose browser executes the injected JavaScript?',
+      options: [
+        'The attacker\'s own browser',
+        'The browser of the victim who visits the vulnerable page',
+        'The web server\'s browser',
+        'No browser is involved at all'
+      ],
+      correct: 1,
+      explanation: 'Instead of attacking the server directly, the attacker targets other users: the injected JavaScript executes only in the visiting victim\'s browser.'
+    },
+    {
+      category: 'XSS',
+      question: 'What is Reflected XSS, according to the lecture?',
+      options: [
+        'The malicious script is stored permanently in the site\'s database',
+        'The server responds with content taken directly from the request (e.g. a search query) that is unsafely appended to the response',
+        'The vulnerability exists purely inside the DOM with no server involvement',
+        'The script only executes on the attacker\'s own machine'
+      ],
+      correct: 1,
+      explanation: 'In reflected XSS, a query parameter like a search term is echoed back into the page response without sanitization, e.g. via a crafted GET link.'
+    },
+    {
+      category: 'XSS',
+      question: 'What is Stored XSS, according to the lecture?',
+      options: [
+        'The malicious script is saved (e.g. as a comment) and executes every time another user views that stored content',
+        'The script only executes once immediately after being submitted',
+        'It requires no user input at all',
+        'It only works against DOM manipulation'
+      ],
+      correct: 0,
+      explanation: 'A malicious comment containing a script tag is stored by the server, and it runs as JavaScript every time a victim views that content, such as a profile picture\'s comments.'
+    },
+    {
+      category: 'XSS',
+      question: 'What distinguishes DOM-Based XSS from the other XSS types, according to the lecture?',
+      options: [
+        'It requires SQL database access',
+        'The server never returns the malicious script; the vulnerability occurs entirely client-side through JavaScript manipulating the DOM',
+        'It only affects mobile browsers',
+        'It requires stored user comments'
+      ],
+      correct: 1,
+      explanation: 'DOM-based XSS is described as the most complicated type: the server returns no XSS at all, it happens purely in the client through DOM manipulation, e.g. via the URL fragment.'
+    },
+    {
+      category: 'XSS',
+      question: 'Which of the following is listed in the lecture as a defense against XSS?',
+      options: [
+        'Increasing the server\'s available RAM',
+        'A Content Security Policy (CSP) header restricting where scripts can load and run from',
+        'Disabling HTTPS on the site',
+        'Using longer session tokens'
+      ],
+      correct: 1,
+      explanation: 'The lecture lists sanitizing input, using a Content Security Policy header, and specific XSS protection headers as defenses against XSS.'
+    },
+    {
+      category: 'Command Injection',
+      question: 'When is command injection possible, according to the lecture?',
+      options: [
+        'When applications need to use underlying OS commands and append user input to them',
+        'When applications only ever use SQL databases',
+        'When applications never accept any user input',
+        'When applications run entirely inside a sandboxed browser'
+      ],
+      correct: 0,
+      explanation: 'Command injection arises when an application needs to invoke OS commands and appends user-controlled input into those commands.'
+    },
+    {
+      category: 'Command Injection',
+      question: 'In the ping example, os.system(\'ping \' + request.get("host")), what does appending "; cat /etc/passwd" to the host input achieve?',
+      options: [
+        'It pings /etc/passwd instead of the intended host',
+        'It chains an additional command that reads and outputs the password file',
+        'It has no effect because os.system ignores semicolons',
+        'It causes a syntax error, stopping the attack'
+      ],
+      correct: 1,
+      explanation: 'The semicolon separates commands in a shell, so "google.com; cat /etc/passwd" runs the ping and then also reads out the password file.'
+    },
+    {
+      category: 'Command Injection',
+      question: 'According to the lecture, what is the recommended way to avoid command injection?',
+      options: [
+        'Encrypt all command output before displaying it',
+        'Avoid having to use OS commands at all, and sanitize user input where they are unavoidable',
+        'Only allow command injection through POST requests',
+        'Run all commands with administrator privileges'
+      ],
+      correct: 1,
+      explanation: 'The lecture\'s stated defense is to avoid using OS commands where possible, and to sanitize user input when they must be used.'
+    },
+    {
+      category: 'File Uploads',
+      question: 'According to the lecture, why is uploading an unrestricted .html file dangerous?',
+      options: [
+        'It gives the attacker a free XSS vulnerability',
+        'It automatically deletes the server\'s database',
+        'It always crashes the web server',
+        'It cannot be dangerous since HTML is not executable'
+      ],
+      correct: 0,
+      explanation: 'An uploaded .html file containing a script tag becomes hostable content that triggers XSS whenever a victim visits it.'
+    },
+    {
+      category: 'File Uploads',
+      question: 'Why is uploading a .php file dangerous on a PHP-enabled server, according to the lecture?',
+      options: [
+        'PHP files are always rejected by servers automatically',
+        'Visiting the uploaded .php file causes the server to execute arbitrary code chosen by the attacker',
+        'PHP files can only ever display static text',
+        'It only affects the uploader\'s own browser'
+      ],
+      correct: 1,
+      explanation: 'A .php file is executed by the server itself when visited, so an uploaded PHP file lets the attacker run arbitrary server-side code, e.g. via a "cmd" parameter passed to system().'
+    },
+    {
+      category: 'File Uploads',
+      question: 'What problem can an unrestricted HUGE file upload cause, according to the lecture?',
+      options: [
+        'It always corrupts the underlying database',
+        'It can exhaust webserver disk space or bandwidth, affecting availability',
+        'It automatically triggers an XSS attack',
+        'It bypasses authentication entirely'
+      ],
+      correct: 1,
+      explanation: 'Uploading extremely large files, or requesting them repeatedly from multiple hosts, can exhaust available disk space or bandwidth on the server.'
+    },
+    {
+      category: 'File Uploads',
+      question: 'Which of the following is listed as a mitigation against dangerous file uploads?',
+      options: [
+        'Allowing users to choose whatever name they like for the uploaded file',
+        'Checking the file\'s magic bytes to confirm it truly matches its claimed extension',
+        'Removing all file size limits',
+        'Allowing any file extension to be uploaded'
+      ],
+      correct: 1,
+      explanation: 'The lecture lists restricting upload size, whitelisting extensions (disallowing .php), renaming files randomly, and checking magic bytes as mitigations.'
+    },
+    {
+      category: 'Shells',
+      question: 'What is a "bind shell", according to the lecture?',
+      options: [
+        'The victim\'s server opens a port and waits for the attacker to connect to it',
+        'The attacker connects the victim to a VPN',
+        'The victim initiates a connection out to the attacker',
+        'It only works over UDP'
+      ],
+      correct: 0,
+      explanation: 'In a bind shell, the compromised server opens and listens on a port, and whoever connects to it gets shell access.'
+    },
+    {
+      category: 'Shells',
+      question: 'What is a "reverse shell", according to the lecture?',
+      options: [
+        'The attacker opens a port and listens, while the victim connects out to the attacker and sends shell data over that connection',
+        'The victim opens a port for the attacker to connect to',
+        'It requires no network connection at all',
+        'It only works with encrypted protocols'
+      ],
+      correct: 0,
+      explanation: 'In a reverse shell, the attacker listens on a port, and the compromised victim machine initiates an outbound connection back to the attacker.'
+    },
+    {
+      category: 'Shells',
+      question: 'Why does the lecture describe reverse shells as generally more reliable for an attacker than bind shells?',
+      options: [
+        'Reverse shells always use less bandwidth',
+        'Firewalls often block unsolicited inbound connections, but outbound connections initiated by the victim are less likely to be blocked',
+        'Reverse shells cannot be detected by any firewall',
+        'Bind shells require no open ports at all'
+      ],
+      correct: 1,
+      explanation: 'Bind shells require an inbound connection to an open port, which firewalls commonly block; reverse shells rely on outbound connections, which are less commonly restricted.'
+    },
+    {
+      category: 'Shells',
+      question: 'In the lecture\'s code execution context example, which user typically executes code when getting RCE on a Linux host running PHP via Apache?',
+      options: [
+        'root',
+        'www-data',
+        'Administrator',
+        'IIS APPPOOL\\ApplicationPool'
+      ],
+      correct: 1,
+      explanation: 'The lecture states that RCE on a Linux host running a PHP web app through Apache typically runs as the "www-data" user.'
+    },
+    {
+      category: 'APT Shells',
+      question: 'What does a C2 "beacon" do, according to the lecture\'s APT-level shells discussion?',
+      options: [
+        'It permanently deletes itself after one use',
+        'It reaches out periodically (e.g. every 60 seconds) to a command-and-control server, waiting for customized commands',
+        'It only runs once at system startup and never again',
+        'It requires no network connectivity at all'
+      ],
+      correct: 1,
+      explanation: 'A beacon keeps a connection open, reaching out at a regular interval to a C&C server to fetch commands from a central controller.'
+    },
+    {
+      category: 'APT Shells',
+      question: 'According to the lecture\'s "Boss" level description, how can a beacon be made to persist on a system?',
+      options: [
+        'By deleting all system logs',
+        'By adding it to a scheduler (e.g. cron), hooking it to actions the user performs often, or backdooring another process',
+        'By encrypting the entire disk',
+        'By disabling the firewall entirely'
+      ],
+      correct: 1,
+      explanation: 'The lecture lists scheduler entries, hooking into frequently-used user actions, and backdooring a legitimate process (e.g. the SSH daemon) as persistence techniques.'
+    },
+    {
+      category: 'APT Shells',
+      question: 'According to the "Mafia Boss" level, how do advanced threat actors hide beaconing traffic from detection?',
+      options: [
+        'By using plaintext HTTP so it is easy to read',
+        'By routing commands through a covert, trusted-looking channel over TLS, such as a legitimate cloud storage service',
+        'By turning off all encryption on the network',
+        'By beaconing directly to a known malicious IP address'
+      ],
+      correct: 1,
+      explanation: 'At the most advanced level, C2 traffic goes through a covert channel over TLS to a trusted source, such as commands fetched from a legitimate cloud folder, making it blend in with normal traffic.'
+    }
+  ];
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return a;
+  }
+
+  var order = shuffleArray(questions.map(function (q, i) { return i; }));
+  var total = order.length;
+
+  var states = [];
+  for (var i = 0; i < total; i++) {
+    states.push({
+      answered: false,
+      selectedShuffledPos: null,
+      optionOrder: null
+    });
+  }
+
+  var viewIndex = 0;
+  var furthestIndex = 0;
+  var finished = false;
+
+  var topBar = document.getElementById('topBar');
+  var progressInner = document.getElementById('progressInner');
+  var quizArea = document.getElementById('quizArea');
+
+  function countAnsweredCorrect() {
+    var correctCount = 0;
+    var answeredCount = 0;
+    for (var i = 0; i < states.length; i++) {
+      if (states[i].answered) {
+        answeredCount++;
+        var qIdx = order[i];
+        var q = questions[qIdx];
+        var chosenOriginal = states[i].optionOrder[states[i].selectedShuffledPos];
+        if (chosenOriginal === q.correct) {
+          correctCount++;
+        }
+      }
+    }
+    return { correct: correctCount, answered: answeredCount };
+  }
+
+  function updateTopBarAndProgress() {
+    var stats = countAnsweredCorrect();
+    topBar.textContent = '';
+    var scoreSpan = document.createElement('span');
+    scoreSpan.textContent = 'Score: ' + stats.correct + ' / ' + stats.answered;
+    var posSpan = document.createElement('span');
+    posSpan.textContent = 'Question ' + (viewIndex + 1) + ' of ' + total;
+    topBar.appendChild(posSpan);
+    topBar.appendChild(scoreSpan);
+    var pct = Math.round((stats.answered / total) * 100);
+    progressInner.style.width = pct + '%';
+  }
+
+  function renderQuestion() {
+    quizArea.textContent = '';
+    updateTopBarAndProgress();
+
+    var qIdx = order[viewIndex];
+    var q = questions[qIdx];
+    var state = states[viewIndex];
+
+    if (state.optionOrder === null) {
+      state.optionOrder = shuffleArray([0, 1, 2, 3]);
+    }
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.color = '#111827';
+
+    var badge = document.createElement('span');
+    badge.className = 'category-badge';
+    var color = categoryColors[q.category];
+    if (!color) {
+      color = '#6b7280';
+    }
+    badge.style.backgroundColor = color;
+    badge.textContent = q.category;
+    card.appendChild(badge);
+
+    var qText = document.createElement('p');
+    qText.className = 'question-text';
+    qText.textContent = q.question;
+    card.appendChild(qText);
+
+    var buttons = [];
+    for (var i = 0; i < 4; i++) {
+      var originalIdx = state.optionOrder[i];
+      var btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.type = 'button';
+      btn.textContent = q.options[originalIdx];
+
+      (function (buttonRef, shuffledPos, origIdx) {
+        buttonRef.addEventListener('click', function () {
+          if (state.answered) {
+            return;
+          }
+          state.answered = true;
+          state.selectedShuffledPos = shuffledPos;
+          if (viewIndex === furthestIndex && furthestIndex < total - 1) {
+            furthestIndex++;
+          }
+          renderQuestion();
+        });
+      })(btn, i, originalIdx);
+
+      buttons.push(btn);
+      card.appendChild(btn);
+    }
+
+    if (state.answered) {
+      for (var j = 0; j < 4; j++) {
+        buttons[j].disabled = true;
+        var origIdx2 = state.optionOrder[j];
+        if (origIdx2 === q.correct) {
+          buttons[j].classList.add('correct-answer');
+        } else if (j === state.selectedShuffledPos) {
+          buttons[j].classList.add('wrong-answer');
+        }
+      }
+
+      var explanation = document.createElement('div');
+      explanation.className = 'explanation';
+      var strongLabel = document.createElement('strong');
+      var chosenOriginal2 = state.optionOrder[state.selectedShuffledPos];
+      if (chosenOriginal2 === q.correct) {
+        strongLabel.textContent = 'Correct! ';
+      } else {
+        strongLabel.textContent = 'Not quite. ';
+      }
+      explanation.appendChild(strongLabel);
+      var explanationText = document.createElement('span');
+      explanationText.textContent = q.explanation;
+      explanation.appendChild(explanationText);
+      card.appendChild(explanation);
+    }
+
+    quizArea.appendChild(card);
+
+    var navRow = document.createElement('div');
+    navRow.className = 'nav-row';
+
+    var backBtn = document.createElement('button');
+    backBtn.className = 'nav-btn secondary';
+    backBtn.type = 'button';
+    backBtn.textContent = '\u2190 Back';
+    backBtn.disabled = (viewIndex === 0);
+    backBtn.addEventListener('click', function () {
+      if (viewIndex > 0) {
+        viewIndex--;
+        renderQuestion();
+      }
+    });
+    navRow.appendChild(backBtn);
+
+    var isLast = (viewIndex === total - 1);
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'nav-btn';
+    nextBtn.type = 'button';
+
+    if (isLast) {
+      nextBtn.textContent = 'See Results';
+      nextBtn.disabled = !state.answered;
+      nextBtn.addEventListener('click', function () {
+        if (states[total - 1].answered) {
+          showSummary();
+        }
+      });
+    } else {
+      nextBtn.textContent = 'Next \u2192';
+      var canGoNext = (viewIndex < furthestIndex);
+      nextBtn.disabled = !canGoNext;
+      nextBtn.addEventListener('click', function () {
+        if (viewIndex < furthestIndex) {
+          viewIndex++;
+          renderQuestion();
+        }
+      });
+    }
+    navRow.appendChild(nextBtn);
+
+    quizArea.appendChild(navRow);
+  }
+
+  function showSummary() {
+    finished = true;
+    quizArea.textContent = '';
+    topBar.textContent = '';
+    progressInner.style.width = '100%';
+
+    var stats = countAnsweredCorrect();
+    var pct = Math.round((stats.correct / total) * 100);
+
+    var card = document.createElement('div');
+    card.className = 'card summary-card';
+
+    var heading = document.createElement('h2');
+    heading.textContent = 'Quiz Complete!';
+    card.appendChild(heading);
+
+    var scoreDiv = document.createElement('div');
+    scoreDiv.className = 'summary-score';
+    scoreDiv.textContent = pct + '%';
+    card.appendChild(scoreDiv);
+
+    var detail = document.createElement('div');
+    detail.className = 'summary-detail';
+    detail.textContent = 'You answered ' + stats.correct + ' out of ' + total + ' questions correctly.';
+    card.appendChild(detail);
+
+    var restartBtn = document.createElement('button');
+    restartBtn.className = 'restart-btn';
+    restartBtn.type = 'button';
+    restartBtn.textContent = 'Restart Quiz';
+    restartBtn.addEventListener('click', function () {
+      window.location.reload();
+    });
+    card.appendChild(restartBtn);
+
+    quizArea.appendChild(card);
+  }
+
+  renderQuestion();
+});
+</script>
+</body>
+</html>
