@@ -7,7 +7,7 @@ import { useEffect } from 'react'
 
 interface ProtectedRouteProps {
   children: ReactNode
-  requiredRole?: 'ADMIN' | 'CUSTOMER' | 'ADMIN_OR_TECHNICIAN'
+  requiredRole?: 'ADMIN' | 'TECHNICIAN' | 'CUSTOMER' | 'ADMIN_OR_TECHNICIAN'
   fallback?: ReactNode
 }
 

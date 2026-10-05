@@ -71,7 +71,6 @@ const Navigation = () => {
         { name: t('nav.statistics'), href: '/statistics', icon: BarChart3 },
         { name: t('nav.settings'), href: '/settings', icon: Settings },
         { name: t('nav.userManagement'), href: '/users', icon: Users },
-        quizItem,
       ]
     } else if (user?.role === 'TECHNICIAN') {
       return [
@@ -85,12 +84,10 @@ const Navigation = () => {
       return [
         { name: t('nav.home'), href: '/', icon: Home },
         { name: t('nav.myOrders'), href: '/customer', icon: User },
-        quizItem,
       ]
     } else {
       return [
         { name: t('nav.home'), href: '/', icon: Home },
-        quizItem,
       ]
     }
   }
