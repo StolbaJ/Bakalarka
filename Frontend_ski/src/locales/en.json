@@ -87,7 +87,20 @@
     "databaseDesc": "View and manage ski inventory",
     "serviceTasks": "Service orders",
     "serviceTasksDesc": "Manage service orders",
-    "statisticsDesc": "Performance and trend analysis"
+    "statisticsDesc": "Performance and trend analysis",
+    "aboutEyebrow": "Bachelor thesis project",
+    "aboutTitle": "A production-oriented ski service platform",
+    "aboutDescription": "This application is a bachelor thesis project that digitizes ski inventory and service workflows. It connects customers, technicians and administrators in one system, from QR identification and service orders to status tracking and operational analytics.",
+    "aboutFrontendTitle": "Modern frontend",
+    "aboutFrontendText": "Next.js 15, React 19, TypeScript and responsive Tailwind CSS interfaces for desktop and mobile workflows.",
+    "aboutBackendTitle": "Robust backend",
+    "aboutBackendText": "Java 21 with Spring Boot REST APIs, Spring Data JPA, PostgreSQL 16 and versioned Flyway database migrations.",
+    "aboutSecurityTitle": "Security and observability",
+    "aboutSecurityText": "Role-based access, JWT authentication, Argon2 password hashing, validation, CSRF protection, health checks and Prometheus metrics.",
+    "aboutDeliveryTitle": "Integration-ready delivery",
+    "aboutDeliveryText": "Docker Compose deployment with Nginx, automated database backups, QR scanning and an architecture prepared for service-equipment integration.",
+    "aboutLookingFor": "What this demonstrates:",
+    "aboutLookingForText": "full-stack development, API and database design, secure authentication, responsive UX, testing and deployment of a real business workflow."
   },
   "orderLookup": {
     "title": "Order lookup",

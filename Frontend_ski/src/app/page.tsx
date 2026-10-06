@@ -8,7 +8,11 @@ import {
   BarChart3, 
   Clock,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
+  Code2,
+  Server,
+  ShieldCheck,
+  Workflow
 } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
@@ -18,6 +22,48 @@ import { apiClient, DashboardSummaryResponse } from '@/lib/api'
 
 function formatCount(value: number, locale: string): string {
   return value.toLocaleString(locale === 'cs' ? 'cs-CZ' : 'en-US')
+}
+
+function AboutProject() {
+  const { t } = useLanguage()
+
+  const highlights = [
+    { icon: Code2, title: t('home.aboutFrontendTitle'), text: t('home.aboutFrontendText') },
+    { icon: Server, title: t('home.aboutBackendTitle'), text: t('home.aboutBackendText') },
+    { icon: ShieldCheck, title: t('home.aboutSecurityTitle'), text: t('home.aboutSecurityText') },
+    { icon: Workflow, title: t('home.aboutDeliveryTitle'), text: t('home.aboutDeliveryText') },
+  ]
+
+  return (
+    <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 md:p-8">
+      <div className="max-w-3xl mb-6">
+        <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
+          {t('home.aboutEyebrow')}
+        </p>
+        <h2 className="text-2xl font-bold text-gray-900 mt-1">{t('home.aboutTitle')}</h2>
+        <p className="text-gray-600 mt-3 leading-relaxed">{t('home.aboutDescription')}</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {highlights.map(({ icon: Icon, title, text }) => (
+          <div key={title} className="flex gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Icon className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900">{title}</h3>
+              <p className="text-sm text-gray-600 mt-1 leading-relaxed">{text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 pt-5 border-t border-gray-100">
+        <p className="text-sm text-gray-600">
+          <span className="font-semibold text-gray-900">{t('home.aboutLookingFor')}</span>{' '}
+          {t('home.aboutLookingForText')}
+        </p>
+      </div>
+    </section>
+  )
 }
 
 export default function Home() {
@@ -143,6 +189,7 @@ export default function Home() {
             </Link>
           </div>
         )}
+        <AboutProject />
       </div>
     )
   }
@@ -210,6 +257,7 @@ export default function Home() {
             })}
           </div>
         </div>
+        <AboutProject />
       </div>
     )
   }

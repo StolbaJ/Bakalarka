@@ -87,7 +87,20 @@
     "databaseDesc": "Prohlížení a správa inventáře lyží",
     "serviceTasks": "Servisní zakázky",
     "serviceTasksDesc": "Správa servisních zakázek",
-    "statisticsDesc": "Analýza výkonnosti a trendů"
+    "statisticsDesc": "Analýza výkonnosti a trendů",
+    "aboutEyebrow": "Bakalářský projekt",
+    "aboutTitle": "Platforma pro servis lyží připravená pro reálný provoz",
+    "aboutDescription": "Tato aplikace je bakalářský projekt, který digitalizuje evidenci lyží a servisní procesy. Propojuje zákazníky, techniky a administrátory v jednom systému – od identifikace pomocí QR kódu a servisních zakázek až po sledování stavu a provozní statistiky.",
+    "aboutFrontendTitle": "Moderní frontend",
+    "aboutFrontendText": "Next.js 15, React 19, TypeScript a responzivní rozhraní v Tailwind CSS pro práci na počítači i mobilu.",
+    "aboutBackendTitle": "Robustní backend",
+    "aboutBackendText": "Java 21 se Spring Boot REST API, Spring Data JPA, PostgreSQL 16 a verzovanými migracemi databáze pomocí Flyway.",
+    "aboutSecurityTitle": "Bezpečnost a monitoring",
+    "aboutSecurityText": "Role-based přístup, JWT autentizace, hashování hesel pomocí Argon2, validace, CSRF ochrana, health checky a Prometheus metriky.",
+    "aboutDeliveryTitle": "Integrace a nasazení",
+    "aboutDeliveryText": "Nasazení pomocí Docker Compose a Nginx, automatické zálohy databáze, QR skenování a architektura připravená na napojení servisních zařízení.",
+    "aboutLookingFor": "Co projekt ukazuje:",
+    "aboutLookingForText": "full-stack vývoj, návrh API a databáze, bezpečnou autentizaci, responzivní UX, testování a nasazení reálného firemního procesu."
   },
   "orderLookup": {
     "title": "Vyhledání objednávky",
