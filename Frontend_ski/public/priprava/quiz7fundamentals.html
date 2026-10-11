@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kvíz: DES a AES</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+}
+.wrap { max-width: 760px; margin: 0 auto; }
+h1 { font-size: 22px; margin: 8px 0 14px; color: #111827; }
+.topbar { display: flex; justify-content: space-between; font-size: 14px; color: #374151; margin-bottom: 6px; }
+.topbar span { color: #374151; }
+.progress { height: 10px; background: #d1d5db; border-radius: 6px; overflow: hidden; }
+.progress-bar { height: 100%; width: 0; background: #2563eb; transition: width 0.3s; }
+.card { background: #ffffff; color: #111827; border: 1px solid #d1d5db; border-radius: 12px; padding: 20px; margin-top: 14px; }
+.badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin: 0 6px 10px 0; }
+.b-blue { background: #dbeafe; color: #1e3a8a; }
+.b-purple { background: #ede9fe; color: #4c1d95; }
+.b-orange { background: #ffedd5; color: #7c2d12; }
+.b-teal { background: #ccfbf1; color: #134e4a; }
+.b-red { background: #fee2e2; color: #7f1d1d; }
+.b-pink { background: #fce7f3; color: #831843; }
+.b-green { background: #dcfce7; color: #14532d; }
+.b-amber { background: #fef3c7; color: #78350f; }
+.b-type { background: #e5e7eb; color: #111827; }
+.question-text { font-size: 18px; font-weight: 600; line-height: 1.4; color: #111827; margin: 0 0 16px 0; }
+.answer-btn {
+  display: block; width: 100%; text-align: left; padding: 12px 14px; margin: 8px 0;
+  font-family: inherit; font-size: 15px; line-height: 1.4;
+  color: #1a1a2e; background: #f9fafb; border: 2px solid #d1d5db; border-radius: 8px; cursor: pointer;
+}
+.answer-btn:hover:not(:disabled) { background: #eef2ff; border-color: #6366f1; color: #1a1a2e; }
+.answer-btn:disabled { cursor: default; opacity: 1; color: #1a1a2e; }
+.answer-btn.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+.answer-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+.explanation {
+  margin-top: 14px; padding: 12px 14px; background: #eff6ff; border-left: 4px solid #2563eb;
+  border-radius: 6px; font-size: 14px; line-height: 1.5; color: #1e3a8a;
+}
+.explanation strong { color: #1e3a8a; }
+.explanation div { color: #1e3a8a; }
+.hint { font-size: 13px; color: #4b5563; margin: 0 0 10px 0; }
+.order-list { list-style: none; padding: 0; margin: 0; }
+.order-item {
+  display: flex; align-items: center; gap: 8px; padding: 10px 12px; margin: 6px 0;
+  background: #f9fafb; border: 2px solid #d1d5db; border-radius: 8px; color: #1a1a2e; font-size: 15px;
+}
+.order-item.draggable { cursor: grab; }
+.order-item.dragging { opacity: 0.5; }
+.order-item .num { font-weight: 700; color: #374151; min-width: 22px; }
+.order-item .txt { flex: 1; color: #1a1a2e; line-height: 1.4; }
+.order-item.correct { background: #dcfce7; border-color: #16a34a; }
+.order-item.correct .txt, .order-item.correct .num { color: #14532d; }
+.order-item.wrong { background: #fee2e2; border-color: #dc2626; }
+.order-item.wrong .txt, .order-item.wrong .num { color: #7f1d1d; }
+.mv-btn {
+  width: 34px; height: 34px; font-family: inherit; font-size: 14px; color: #111827; background: #e5e7eb;
+  border: 1px solid #9ca3af; border-radius: 6px; cursor: pointer;
+}
+.mv-btn:disabled { color: #6b7280; background: #f3f4f6; cursor: not-allowed; }
+.primary-btn {
+  margin-top: 12px; padding: 10px 18px; font-family: inherit; font-size: 15px; font-weight: 600;
+  color: #ffffff; background: #2563eb; border: none; border-radius: 8px; cursor: pointer;
+}
+.primary-btn:disabled { background: #d1d5db; color: #4b5563; cursor: not-allowed; }
+textarea {
+  width: 100%; min-height: 110px; padding: 10px; font-family: inherit; font-size: 15px;
+  color: #111827; background: #ffffff; border: 2px solid #d1d5db; border-radius: 8px; resize: vertical;
+}
+textarea:disabled { color: #111827; background: #f3f4f6; }
+.sample {
+  margin-top: 14px; padding: 12px 14px; background: #f0fdf4; border-left: 4px solid #16a34a;
+  border-radius: 6px; font-size: 14px; line-height: 1.55; color: #14532d;
+}
+.sample strong { color: #14532d; }
+.grade-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.grade-btn {
+  padding: 10px 18px; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff;
+  border: 3px solid transparent; border-radius: 8px; cursor: pointer;
+}
+.grade-good { background: #15803d; }
+.grade-bad { background: #b91c1c; }
+.grade-btn:disabled { cursor: default; }
+.grade-btn.dim { background: #d1d5db; color: #4b5563; }
+.grade-btn.chosen { border-color: #111827; }
+.nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.nav-btn {
+  padding: 10px 18px; font-family: inherit; font-size: 15px; font-weight: 600; color: #ffffff;
+  background: #2563eb; border: none; border-radius: 8px; cursor: pointer;
+}
+.nav-btn:disabled { background: #d1d5db; color: #4b5563; cursor: not-allowed; }
+.result { text-align: center; }
+.result h2 { font-size: 24px; margin: 0 0 10px 0; color: #111827; }
+.result-pct { font-size: 60px; font-weight: 800; color: #2563eb; margin: 6px 0; }
+.result p { font-size: 16px; line-height: 1.5; color: #111827; margin: 8px 0; }
+.result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+
+@media (prefers-color-scheme: dark) {
+  body { background: #0f172a; color: #f1f5f9; }
+  h1 { color: #f1f5f9; }
+  .topbar, .topbar span { color: #cbd5e1; }
+  .progress { background: #334155; }
+  .progress-bar { background: #60a5fa; }
+  .card { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+  .b-blue { background: #1e3a8a; color: #dbeafe; }
+  .b-purple { background: #4c1d95; color: #ede9fe; }
+  .b-orange { background: #7c2d12; color: #ffedd5; }
+  .b-teal { background: #134e4a; color: #ccfbf1; }
+  .b-red { background: #7f1d1d; color: #fee2e2; }
+  .b-pink { background: #831843; color: #fce7f3; }
+  .b-green { background: #14532d; color: #dcfce7; }
+  .b-amber { background: #78350f; color: #fef3c7; }
+  .b-type { background: #334155; color: #f1f5f9; }
+  .question-text { color: #f1f5f9; }
+  .answer-btn { color: #f1f5f9; background: #334155; border-color: #475569; }
+  .answer-btn:hover:not(:disabled) { background: #3b4a63; border-color: #818cf8; color: #f1f5f9; }
+  .answer-btn:disabled { color: #f1f5f9; }
+  .answer-btn.correct { background: #14532d; border-color: #4ade80; color: #dcfce7; }
+  .answer-btn.wrong { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+  .explanation { background: #1e3a8a; border-left-color: #93c5fd; color: #dbeafe; }
+  .explanation strong, .explanation div { color: #dbeafe; }
+  .hint { color: #cbd5e1; }
+  .order-item { background: #334155; border-color: #475569; color: #f1f5f9; }
+  .order-item .num { color: #cbd5e1; }
+  .order-item .txt { color: #f1f5f9; }
+  .order-item.correct { background: #14532d; border-color: #4ade80; }
+  .order-item.correct .txt, .order-item.correct .num { color: #dcfce7; }
+  .order-item.wrong { background: #7f1d1d; border-color: #f87171; }
+  .order-item.wrong .txt, .order-item.wrong .num { color: #fee2e2; }
+  .mv-btn { color: #f1f5f9; background: #475569; border-color: #64748b; }
+  .mv-btn:disabled { color: #94a3b8; background: #1e293b; }
+  .primary-btn { color: #0f172a; background: #93c5fd; }
+  .primary-btn:disabled { background: #475569; color: #cbd5e1; }
+  textarea { color: #f1f5f9; background: #0f172a; border-color: #475569; }
+  textarea:disabled { color: #f1f5f9; background: #1e293b; }
+  .sample { background: #14532d; border-left-color: #4ade80; color: #dcfce7; }
+  .sample strong { color: #dcfce7; }
+  .grade-btn { color: #ffffff; }
+  .grade-good { background: #15803d; }
+  .grade-bad { background: #b91c1c; }
+  .grade-btn.dim { background: #475569; color: #cbd5e1; }
+  .grade-btn.chosen { border-color: #f1f5f9; }
+  .nav-btn { color: #0f172a; background: #93c5fd; }
+  .nav-btn:disabled { background: #475569; color: #cbd5e1; }
+  .result h2 { color: #f1f5f9; }
+  .result-pct { color: #93c5fd; }
+  .result p { color: #f1f5f9; }
+}
+@media (max-width: 480px) {
+  body { padding: 10px; }
+  .card { padding: 14px; }
+  .question-text { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kvíz: DES a AES</h1>
+  <div id="app"></div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CATS = {
+    block: { label: 'Block Cipher', cls: 'b-blue' },
+    sec: { label: 'CPA Security', cls: 'b-purple' },
+    hist: { label: 'History', cls: 'b-orange' },
+    feistel: { label: 'Feistel', cls: 'b-teal' },
+    des: { label: 'DES', cls: 'b-red' },
+    tdes: { label: '2-DES / 3-DES', cls: 'b-pink' },
+    aes: { label: 'AES', cls: 'b-green' },
+    key: { label: 'Key Schedule', cls: 'b-amber' }
+  };
+
+  var TYPE_LABELS = { mc: 'Výběr', order: 'Řazení', open: 'Otevřená otázka' };
+
+  // MC: a[0] is always the correct answer (options are shuffled at runtime)
+  var BASE = [
+    { type: 'mc', cat: 'block',
+      q: 'What does the correctness property of a block cipher require?',
+      a: ['Decrypting a ciphertext with the same key returns the original message block',
+          'The ciphertext must be shorter than the message block',
+          'Decryption must be possible without knowing the key',
+          'The key must be at least as long as the message block'],
+      e: 'Correctness means DEC(K, ENC(K, M)) = M for every key K and every message block M.' },
+    { type: 'mc', cat: 'block',
+      q: 'A block cipher is easy to invert only under which condition?',
+      a: ['When the key is known',
+          'When the block size is small',
+          'When the ciphertext is long enough',
+          'When the algorithm is kept secret'],
+      e: 'Given the key, decryption is efficient. Without the key, inverting the cipher should be infeasible, and that is what gives privacy.' },
+    { type: 'mc', cat: 'sec',
+      q: 'In the CPA security game, what must the PPT adversary do to win?',
+      a: ['Tell whether the challenge ciphertext encrypts M0 or M1 better than random guessing',
+          'Recover the secret key K from the challenge ciphertext',
+          'Forge a valid ciphertext for a message of its own choice',
+          'Find two different messages with the same ciphertext'],
+      e: 'The adversary submits M0 and M1, the challenger encrypts Mb for a secret bit b, and the adversary has to guess b. The cipher is CPA secure if no efficient adversary does noticeably better than guessing.' },
+    { type: 'mc', cat: 'block',
+      q: 'Which goal does confusion pursue in a block cipher?',
+      a: ['Making the relationship between the key and the ciphertext as complex as possible',
+          'Making every plaintext bit affect as many ciphertext bits as possible',
+          'Making the key shorter without losing security',
+          'Making encryption faster than decryption'],
+      e: 'Confusion hides the key-ciphertext relationship, typically through keyed substitution (S-boxes, XOR with the key). Diffusion is the property that spreads plaintext bits.' },
+    { type: 'mc', cat: 'block',
+      q: 'Which operation mainly provides diffusion in a block cipher?',
+      a: ['Permutation',
+          'Keyed substitution',
+          'XOR with the key',
+          'Padding the message'],
+      e: 'Permutation moves and mixes bits so that each plaintext bit influences many ciphertext bits. Substitution and key mixing mostly provide confusion.' },
+    { type: 'mc', cat: 'block',
+      q: 'What does the avalanche effect describe?',
+      a: ['A small change in the plaintext or key changes a large part of the ciphertext',
+          'The ciphertext grows longer with every round',
+          'Short keys are automatically expanded into longer keys',
+          'Transmission errors in the ciphertext are repaired automatically'],
+      e: 'Thanks to confusion and diffusion over several rounds, flipping a single input bit changes about half of the output bits.' },
+    { type: 'mc', cat: 'hist',
+      q: 'Which two lessons were drawn from the cryptanalysis of the Enigma?',
+      a: ['Sample keys at random and make algorithms public',
+          'Keep algorithms secret and use short keys',
+          'Use more complex machines and keep key sizes small',
+          'Reuse keys for speed and publish only the ciphertexts'],
+      e: 'After World War II the lessons were to choose keys at random and not to rely on secrecy of the algorithm.' },
+    { type: 'mc', cat: 'hist',
+      q: 'Which design paradigm came out of the DES Cracker lesson, in contrast to the earlier post-war paradigm?',
+      a: ['Simple algorithms lead to simple security analysis',
+          'Complex algorithms lead to difficult cryptanalysis',
+          'Secret algorithms lead to better security',
+          'Longer keys make security analysis unnecessary'],
+      e: 'The post-war paradigm trusted complexity. After DES the field moved toward simple, public designs (such as AES) that are easier to analyse.' },
+    { type: 'mc', cat: 'feistel',
+      q: 'In one Feistel round with halves L0 and R0, round key K and function F, what is the new right half R1?',
+      a: ['L0 XOR F(R0, K)',
+          'R0 XOR F(L0, K)',
+          'F(L0 XOR R0, K)',
+          'L0 AND F(R0, K)'],
+      e: 'One Feistel round computes L1 = R0 and R1 = L0 XOR F(R0, K).' },
+    { type: 'mc', cat: 'feistel',
+      q: 'How is a Feistel cipher decrypted?',
+      a: ['By running the same structure with the round keys in reverse order',
+          'By applying the inverse of F in every round with the same key order',
+          'By swapping the roles of the key and the ciphertext',
+          'By adding an extra inversion round with a new key'],
+      e: 'Because L0 = R1 XOR F(L1, K), decryption only needs F in the forward direction. F itself does not have to be invertible.' },
+    { type: 'mc', cat: 'des',
+      q: 'On which structure is DES built?',
+      a: ['A 16-round Feistel network working on 64-bit blocks',
+          'A 10-round substitution-permutation network on 128-bit blocks',
+          'A stream cipher with a 56-bit internal state',
+          'A 10-round Feistel network on 128-bit blocks'],
+      e: 'DES encrypts 64-bit blocks in 16 Feistel rounds, surrounded by an initial permutation and its inverse.' },
+    { type: 'mc', cat: 'des',
+      q: 'Why is the effective DES key only 56 bits although 64 key bits are supplied?',
+      a: ['Eight bits are parity bits that are dropped by Permuted Choice 1',
+          'Eight bits are used to select the initial permutation',
+          'Eight bits are reserved for the round counter',
+          'Eight bits are replaced by random padding'],
+      e: 'Bits 8, 16, 24, 32, 40, 48, 56 and 64 are parity bits and are discarded, leaving 56 key bits.' },
+    { type: 'mc', cat: 'des',
+      q: 'What is the purpose of the expansion permutation inside the DES function F?',
+      a: ['It expands the 32-bit half block to 48 bits so it matches the round key',
+          'It expands the 56-bit key to 64 bits',
+          'It doubles the block to 128 bits before the S-boxes',
+          'It removes the parity bits from the message'],
+      e: 'F takes a 32-bit half block, expands it to 48 bits, XORs it with the 48-bit round key, and then compresses it back to 32 bits using the S-boxes.' },
+    { type: 'mc', cat: 'des',
+      q: 'DES S-box S1 receives the 6-bit input 001001. The outer bits (first and last) choose the row and the middle four bits choose the column. What is the 4-bit output?',
+      a: ['1110 (value 14)',
+          '0010 (value 2)',
+          '1101 (value 13)',
+          '0100 (value 4)'],
+      e: 'The outer bits 0 and 1 give row 01 and the middle bits 0100 give column 4. The S1 entry there is 14, which is 1110 in binary.' },
+    { type: 'mc', cat: 'hist',
+      q: 'What was the concern behind the conspiracy theory around DES?',
+      a: ['That the NSA had built a backdoor into the DES S-boxes',
+          'That NIST kept the DES algorithm secret',
+          'That DES keys were sent to the EFF',
+          'That 3-DES contained hidden parity bits'],
+      e: 'The design rationale of the S-boxes was not explained at first, so people suspected the NSA of weakening them on purpose.' },
+    { type: 'mc', cat: 'hist',
+      q: 'What did the DES Cracker released by the EFF in 1998 demonstrate?',
+      a: ['That a 56-bit DES key can be found by brute force in practical time',
+          'That the DES S-boxes contain a backdoor',
+          'That DES cannot be decrypted even with the key',
+          'That AES is vulnerable to brute force'],
+      e: 'The practical brute-force attack showed that the DES key was too small. The lessons were to increase the key size and to keep algorithms public.' },
+    { type: 'mc', cat: 'tdes',
+      q: 'What is 3-DES as shown in the lecture?',
+      a: ['A chain of three DES operations using three keys K1, K2 and K3',
+          'DES with three times as many rounds in a single pass',
+          'DES applied to three blocks in parallel',
+          'DES with three parity bits per key byte'],
+      e: '3-DES was the intermediate solution after DES became weak. It applies DES three times with independent keys.' },
+    { type: 'mc', cat: 'aes',
+      q: 'Which design goals drove the selection of AES?',
+      a: ['Simplicity, efficiency, code compactness and resistance against known attacks',
+          'Secrecy of the algorithm, large S-boxes and hardware-only design',
+          'Backward compatibility with DES keys and 64-bit blocks',
+          'A complex design that makes cryptanalysis difficult'],
+      e: 'AES followed the new paradigm: simple algorithms are easier to analyse, and it had to be efficient and compact in memory.' },
+    { type: 'mc', cat: 'aes',
+      q: 'How many rounds does AES use with a 256-bit key?',
+      a: ['14', '10', '12', '16'],
+      e: 'AES uses 10 rounds with a 128-bit key, 12 rounds with a 192-bit key and 14 rounds with a 256-bit key. The block size is always 128 bits.' },
+    { type: 'mc', cat: 'aes',
+      q: 'On what is the AES Substitute Bytes step based?',
+      a: ['The multiplicative inverse in GF(2^8), which is non-linear and has no fixed points',
+          'Left circular shifts of every byte',
+          'Multiplication of the state by a fixed 4x4 matrix',
+          'XOR of every byte with the round key'],
+      e: 'The byte substitution is derived from the multiplicative inverse in GF(2^8). It is non-linear, has no fixed points and is simple to implement.' },
+    { type: 'mc', cat: 'aes',
+      q: 'What does the AES Shift Rows step do?',
+      a: ['It cyclically shifts each row of the state by a different offset',
+          'It multiplies each row by a fixed matrix in GF(2^8)',
+          'It XORs each row with a row of the round key',
+          'It replaces every byte using an S-box'],
+      e: 'The first row stays in place and the other rows are cyclically shifted by different amounts, so bytes move between columns.' },
+    { type: 'mc', cat: 'aes',
+      q: 'What does the AES Mix Columns step do?',
+      a: ['It multiplies each column of the state by a fixed matrix over GF(2^8)',
+          'It cyclically shifts the columns of the state',
+          'It XORs the columns with round constants',
+          'It substitutes bytes using the multiplicative inverse'],
+      e: 'Each column is multiplied by a fixed matrix (entries 01, 02, 03), so every output byte depends on all four bytes of the column. This provides diffusion.' },
+    { type: 'mc', cat: 'aes',
+      q: 'What happens in the AES Add Round Key step?',
+      a: ['The state is XORed with the 128-bit round key',
+          'The state is multiplied by the round key in GF(2^8)',
+          'The round key is permuted using Permuted Choice 2',
+          'The state is cyclically shifted by the round key'],
+      e: 'Add Round Key is a bytewise XOR of the state matrix with the round key matrix. It is the only step that uses the key.' },
+    { type: 'mc', cat: 'key',
+      q: 'What is the role of the round constants RC in the AES key expansion?',
+      a: ['They are different in every round, which breaks the symmetry between round keys',
+          'They store the number of rounds for the chosen key size',
+          'They are XORed with the plaintext before the first round',
+          'They select which S-box is used in a round'],
+      e: 'The constants (01, 02, 04, 08, 10, 20, 40, 80, 1B, 36 in the first byte) double in GF(2^8) each round and make every round key different.' },
+    { type: 'mc', cat: 'key',
+      q: 'How many positions are the key halves shifted left in the DES key schedule?',
+      a: ['1 position in rounds 1, 2, 9 and 16, and 2 positions in all other rounds',
+          '2 positions in rounds 1, 2, 9 and 16, and 1 position in all other rounds',
+          'Always 1 position',
+          'Always 2 positions'],
+      e: 'The left circular shift is 1 in rounds 1, 2, 9 and 16 and 2 in the remaining rounds. Permuted Choice 2 then picks the 48-bit round key.' },
+
+    { type: 'order', cat: 'aes',
+      q: 'Put the steps of one regular (non-final) AES round into the correct order.',
+      items: ['Substitute Bytes', 'Shift Rows', 'Mix Columns', 'Add Round Key'],
+      e: 'A regular AES round runs Substitute Bytes, Shift Rows, Mix Columns and Add Round Key. The final round skips Mix Columns.' },
+    { type: 'order', cat: 'des',
+      q: 'Put the stages of the DES function F (the mangler) into the correct order.',
+      items: ['Expansion permutation (32 to 48 bits)', 'XOR with the 48-bit round key', 'Keyed substitution with the S-boxes (48 to 32 bits)', 'Transposition (permutation of 32 bits)'],
+      e: 'F expands the right half, mixes in the round key, substitutes through eight S-boxes and finally permutes the 32-bit result.' },
+    { type: 'order', cat: 'hist',
+      q: 'Put these events into chronological order.',
+      items: ['End of World War II and the cryptanalysis of the Enigma', 'NIST standardises DES', 'EFF releases the DES Cracker', 'NIST standardises AES'],
+      e: 'The order is 1945 (end of WWII), 1977 (DES standardised), 1998 (DES Cracker) and 2001 (AES standardised).' },
+    { type: 'order', cat: 'key',
+      q: 'Put the steps of the DES key scheduling for one round key into the correct order.',
+      items: ['Permuted Choice 1 drops the 8 parity bits', 'The 56 bits are split into a left and a right half', 'Each half is circularly shifted left', 'Permuted Choice 2 selects 48 bits', 'The round key is used in the Feistel round'],
+      e: 'The 64-bit key goes through Permuted Choice 1 (56 bits), is split into halves, each half is shifted left, and Permuted Choice 2 produces the 48-bit round key.' },
+
+    { type: 'open', cat: 'block',
+      q: 'Explain confusion and diffusion. Which operations provide each of them, and how do they lead to the avalanche effect?',
+      sample: 'Confusion makes the relationship between the key and the ciphertext complex. It is provided by keyed substitution (S-boxes and XOR with the key). Diffusion makes every plaintext bit affect as many ciphertext bits as possible, and it is provided by permutation. Repeating substitution and permutation over several rounds spreads a local change over the whole block, which is the avalanche effect: flipping one input bit changes a large part of the output.' },
+    { type: 'open', cat: 'feistel',
+      q: 'Why can a Feistel cipher be decrypted even if the function F is not invertible, and how exactly does decryption work?',
+      sample: 'One round computes L1 = R0 and R1 = L0 XOR F(R0, K). Given L1 and R1 we get R0 = L1 directly and then L0 = R1 XOR F(L1, K). So decryption only evaluates F in the forward direction and never has to invert it. For multiple rounds the same structure is used with the round keys in reverse order (K16 down to K1), so the encryption and decryption circuits are almost identical.' },
+    { type: 'open', cat: 'tdes',
+      q: 'Why is 2-DES not much stronger than DES, and how does 3-DES address this?',
+      sample: 'With two keys one would expect about twice the key length, but the meet-in-the-middle attack breaks 2-DES. The attacker takes a known plaintext/ciphertext pair, encrypts the plaintext under all possible first keys, decrypts the ciphertext under all possible second keys, and looks for a matching middle value. This costs roughly two single-DES key searches (plus memory) instead of a full search over both keys, so 2-DES gives only about one extra bit of security. 3-DES adds a third DES layer, which raises the cost of the same attack much higher and was used as an intermediate solution after DES became vulnerable to brute force.' }
+  ];
+
+  var app = document.getElementById('app');
+  var qs = [];
+  var states = [];
+  var cur = 0;
+  var finished = false;
+  var dragFrom = null;
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (text !== undefined) { e.textContent = text; }
+    return e;
+  }
+
+  function isSorted(a) {
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] !== i) { return false; }
+    }
+    return true;
+  }
+
+  function start() {
+    qs = shuffle(BASE);
+    states = [];
+    qs.forEach(function(q) {
+      var s = { answered: false, sel: null, grade: null, text: '', revealed: false, opts: null, order: null };
+      if (q.type === 'mc') {
+        s.opts = shuffle([0, 1, 2, 3]);
+      } else if (q.type === 'order') {
+        var o = [];
+        for (var i = 0; i < q.items.length; i++) { o.push(i); }
+        do { o = shuffle(o); } while (isSorted(o));
+        s.order = o;
+      }
+      states.push(s);
+    });
+    cur = 0;
+    finished = false;
+    render();
+  }
+
+  function answeredCount() {
+    var n = 0;
+    states.forEach(function(s) { if (s.answered) { n++; } });
+    return n;
+  }
+
+  function score() {
+    var n = 0;
+    states.forEach(function(s) { if (s.grade === 'ok') { n++; } });
+    return n;
+  }
+
+  function makeExplanation(prefix, body) {
+    var box = el('div', 'explanation');
+    var strong = el('strong', null, prefix + ' ');
+    box.appendChild(strong);
+    box.appendChild(document.createTextNode(body));
+    return box;
+  }
+
+  function moveItem(s, from, to) {
+    if (from === null || from === to || to < 0 || to >= s.order.length) { return; }
+    var it = s.order.splice(from, 1)[0];
+    s.order.splice(to, 0, it);
+    render();
+  }
+
+  function renderMC(card, q, s) {
+    s.opts.forEach(function(orig, pos) {
+      var b = el('button', 'answer-btn', q.a[orig]);
+      b.type = 'button';
+      if (s.answered) {
+        b.disabled = true;
+        if (orig === 0) { b.classList.add('correct'); }
+        else if (pos === s.sel) { b.classList.add('wrong'); }
+      } else {
+        b.addEventListener('click', function() {
+          s.answered = true;
+          s.sel = pos;
+          s.grade = (orig === 0) ? 'ok' : 'bad';
+          render();
+        });
+      }
+      card.appendChild(b);
+    });
+    if (s.answered) {
+      card.appendChild(makeExplanation(s.grade === 'ok' ? 'Správně!' : 'Špatně.', q.e));
+    }
+  }
+
+  function renderOrder(card, q, s) {
+    if (!s.answered) {
+      card.appendChild(el('p', 'hint', 'Přetáhni položky myší, nebo použij tlačítka ▲ / ▼. Pak klikni na Zkontrolovat.'));
+    }
+    var ul = el('ul', 'order-list');
+    s.order.forEach(function(item, pos) {
+      var li = el('li', 'order-item');
+      li.appendChild(el('span', 'num', (pos + 1) + '.'));
+      li.appendChild(el('span', 'txt', q.items[item]));
+      if (s.answered) {
+        li.classList.add(s.order[pos] === pos ? 'correct' : 'wrong');
+      } else {
+        li.classList.add('draggable');
+        li.draggable = true;
+        li.addEventListener('dragstart', function(e) {
+          dragFrom = pos;
+          li.classList.add('dragging');
+          if (e.dataTransfer) { e.dataTransfer.setData('text/plain', String(pos)); e.dataTransfer.effectAllowed = 'move'; }
+        });
+        li.addEventListener('dragover', function(e) { e.preventDefault(); });
+        li.addEventListener('drop', function(e) {
+          e.preventDefault();
+          var from = dragFrom;
+          dragFrom = null;
+          moveItem(s, from, pos);
+        });
+        li.addEventListener('dragend', function() { li.classList.remove('dragging'); dragFrom = null; });
+      }
+      var up = el('button', 'mv-btn', '▲');
+      up.type = 'button';
+      up.setAttribute('aria-label', 'Posunout nahoru');
+      var down = el('button', 'mv-btn', '▼');
+      down.type = 'button';
+      down.setAttribute('aria-label', 'Posunout dolů');
+      if (s.answered || pos === 0) { up.disabled = true; }
+      if (s.answered || pos === s.order.length - 1) { down.disabled = true; }
+      up.addEventListener('click', function() { moveItem(s, pos, pos - 1); });
+      down.addEventListener('click', function() { moveItem(s, pos, pos + 1); });
+      li.appendChild(up);
+      li.appendChild(down);
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+    if (!s.answered) {
+      var chk = el('button', 'primary-btn', 'Zkontrolovat');
+      chk.type = 'button';
+      chk.addEventListener('click', function() {
+        s.answered = true;
+        s.grade = isSorted(s.order) ? 'ok' : 'bad';
+        render();
+      });
+      card.appendChild(chk);
+    } else {
+      var box = makeExplanation(s.grade === 'ok' ? 'Správně!' : 'Špatně.', q.e);
+      var list = el('div', null, 'Correct order:');
+      list.style.marginTop = '8px';
+      box.appendChild(list);
+      q.items.forEach(function(t, i) {
+        var line = el('div', null, (i + 1) + '. ' + t);
+        box.appendChild(line);
+      });
+      card.appendChild(box);
+    }
+  }
+
+  function renderOpen(card, q, s) {
+    var ta = document.createElement('textarea');
+    ta.placeholder = 'Napiš svou odpověď (anglicky nebo česky)...';
+    ta.value = s.text;
+    ta.disabled = s.answered;
+    ta.addEventListener('input', function() { s.text = ta.value; });
+    card.appendChild(ta);
+
+    var reveal = el('button', 'primary-btn', 'Zobrazit vzorovou odpověď');
+    reveal.type = 'button';
+    if (s.revealed) {
+      reveal.disabled = true;
+    } else {
+      reveal.addEventListener('click', function() {
+        s.text = ta.value;
+        s.revealed = true;
+        render();
+      });
+    }
+    card.appendChild(reveal);
+
+    if (s.revealed) {
+      var sample = el('div', 'sample');
+      sample.appendChild(el('strong', null, 'Vzorová odpověď: '));
+      sample.appendChild(document.createTextNode(q.sample));
+      card.appendChild(sample);
+
+      var row = el('div', 'grade-row');
+      var good = el('button', 'grade-btn grade-good', 'Zvládl jsem');
+      good.type = 'button';
+      var bad = el('button', 'grade-btn grade-bad', 'Nezvládl jsem');
+      bad.type = 'button';
+      if (s.answered) {
+        good.disabled = true;
+        bad.disabled = true;
+        if (s.grade === 'ok') { good.classList.add('chosen'); bad.classList.add('dim'); }
+        else { bad.classList.add('chosen'); good.classList.add('dim'); }
+      } else {
+        good.addEventListener('click', function() { s.answered = true; s.grade = 'ok'; render(); });
+        bad.addEventListener('click', function() { s.answered = true; s.grade = 'bad'; render(); });
+      }
+      row.appendChild(good);
+      row.appendChild(bad);
+      card.appendChild(row);
+    }
+  }
+
+  function renderResults() {
+    var total = qs.length;
+    var sc = score();
+    var pct = Math.round(sc / total * 100);
+    var msg;
+    if (pct >= 90) { msg = 'Výborně, látku ovládáš.'; }
+    else if (pct >= 70) { msg = 'Dobrý výsledek, pár míst by chtělo zopakovat.'; }
+    else if (pct >= 50) { msg = 'Základ tam je, ale projdi si znovu slabší místa.'; }
+    else { msg = 'Doporučuji si přednášku projít znovu a kvíz zkusit ještě jednou.'; }
+
+    var card = el('div', 'card result');
+    card.appendChild(el('h2', null, 'Výsledek'));
+    card.appendChild(el('div', 'result-pct', pct + ' %'));
+    card.appendChild(el('p', null, 'Správně: ' + sc + ' z ' + total + ' otázek'));
+    card.appendChild(el('p', null, msg));
+    var actions = el('div', 'result-actions');
+    var review = el('button', 'nav-btn', 'Projít otázky');
+    review.type = 'button';
+    review.addEventListener('click', function() { finished = false; cur = 0; render(); window.scrollTo(0, 0); });
+    var again = el('button', 'nav-btn', 'Spustit znovu (nové zamíchání)');
+    again.type = 'button';
+    again.addEventListener('click', function() { start(); window.scrollTo(0, 0); });
+    actions.appendChild(review);
+    actions.appendChild(again);
+    card.appendChild(actions);
+    app.appendChild(card);
+  }
+
+  function render() {
+    app.innerHTML = '';
+    var total = qs.length;
+    var done = answeredCount();
+
+    var top = el('div', 'topbar');
+    var left = el('span', null, finished ? 'Hotovo' : 'Otázka ' + (cur + 1) + ' / ' + total);
+    var right = el('span', null, 'Skóre: ' + score() + ' / ' + done);
+    top.appendChild(left);
+    top.appendChild(right);
+    app.appendChild(top);
+
+    var prog = el('div', 'progress');
+    var bar = el('div', 'progress-bar');
+    bar.style.width = (done / total * 100) + '%';
+    prog.appendChild(bar);
+    app.appendChild(prog);
+
+    if (finished) {
+      renderResults();
+      return;
+    }
+
+    var q = qs[cur];
+    var s = states[cur];
+    var card = el('div', 'card');
+    var cat = CATS[q.cat];
+    card.appendChild(el('span', 'badge ' + cat.cls, cat.label));
+    card.appendChild(el('span', 'badge b-type', TYPE_LABELS[q.type]));
+    card.appendChild(el('p', 'question-text', q.q));
+
+    if (q.type === 'mc') { renderMC(card, q, s); }
+    else if (q.type === 'order') { renderOrder(card, q, s); }
+    else { renderOpen(card, q, s); }
+    app.appendChild(card);
+
+    var nav = el('div', 'nav');
+    var back = el('button', 'nav-btn', '← Zpět');
+    back.type = 'button';
+    back.disabled = (cur === 0);
+    back.addEventListener('click', function() { if (cur > 0) { cur--; render(); window.scrollTo(0, 0); } });
+    var isLast = (cur === total - 1);
+    var next = el('button', 'nav-btn', isLast ? 'Výsledek →' : 'Další →');
+    next.type = 'button';
+    next.disabled = !s.answered;
+    next.addEventListener('click', function() {
+      if (!states[cur].answered) { return; }
+      if (isLast) { finished = true; } else { cur++; }
+      render();
+      window.scrollTo(0, 0);
+    });
+    nav.appendChild(back);
+    nav.appendChild(next);
+    app.appendChild(nav);
+  }
+
+  start();
+});
+</script>
+</body>
+</html>
