@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Security Quiz - SSH + TLS</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 16px;
+  background: #f3f4f6;
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+.app { max-width: 780px; margin: 0 auto; }
+.topbar { margin-bottom: 14px; }
+.title { margin: 0 0 8px 0; font-size: 22px; font-weight: 700; color: #111827; }
+.stats { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.stat { font-size: 14px; font-weight: 600; color: #1f2937; }
+.progress-track { width: 100%; height: 10px; background: #d1d5db; border-radius: 6px; overflow: hidden; }
+.progress-bar { height: 100%; background: #2563eb; border-radius: 6px; transition: width 0.3s ease; }
+.card { background: #ffffff; color: #111827; border: 1px solid #d1d5db; border-radius: 12px; padding: 20px; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.3px; }
+.cat-ssh { background: #dbeafe; color: #1e3a8a; }
+.cat-tls { background: #ede9fe; color: #4c1d95; }
+.cat-telnet { background: #fef3c7; color: #78350f; }
+.cat-crypto { background: #dcfce7; color: #14532d; }
+.cat-attack { background: #fee2e2; color: #7f1d1d; }
+.type-tag { background: #e5e7eb; color: #1f2937; }
+.question-text { margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #111827; }
+.answers { display: flex; flex-direction: column; gap: 10px; }
+.answer-btn {
+  display: block; width: 100%; text-align: left; padding: 12px 14px;
+  background: #f9fafb; color: #1a1a2e; border: 2px solid #9ca3af; border-radius: 10px;
+  font-family: inherit; font-size: 15px; cursor: pointer;
+}
+.answer-btn:hover:not(:disabled) { background: #e5e7eb; color: #1a1a2e; }
+.answer-btn:disabled { cursor: default; background: #f9fafb; color: #1a1a2e; }
+.answer-btn.correct { background: #dcfce7; color: #14532d; border-color: #15803d; font-weight: 600; }
+.answer-btn.wrong { background: #fee2e2; color: #7f1d1d; border-color: #b91c1c; font-weight: 600; }
+.order-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.order-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: #f9fafb; color: #1a1a2e; border: 2px solid #9ca3af; border-radius: 10px;
+}
+.order-item.ok { background: #dcfce7; color: #14532d; border-color: #15803d; }
+.order-item.bad { background: #fee2e2; color: #7f1d1d; border-color: #b91c1c; }
+.order-num { min-width: 24px; font-weight: 700; color: inherit; }
+.order-item .order-num { color: #1a1a2e; }
+.order-item.ok .order-num { color: #14532d; }
+.order-item.bad .order-num { color: #7f1d1d; }
+.order-text { flex: 1; font-size: 15px; color: #1a1a2e; }
+.order-item.ok .order-text { color: #14532d; }
+.order-item.bad .order-text { color: #7f1d1d; }
+.order-btns { display: flex; gap: 6px; }
+.order-btn {
+  width: 36px; height: 36px; border: 2px solid #6b7280; border-radius: 8px;
+  background: #ffffff; color: #1f2937; font-size: 14px; cursor: pointer; font-family: inherit;
+}
+.order-btn:hover:not(:disabled) { background: #e5e7eb; color: #1f2937; }
+.order-btn:disabled { background: #e5e7eb; color: #4b5563; border-color: #9ca3af; cursor: default; }
+.action-btn {
+  padding: 10px 18px; border: 2px solid #1d4ed8; border-radius: 10px;
+  background: #2563eb; color: #ffffff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.action-btn:hover:not(:disabled) { background: #1d4ed8; color: #ffffff; }
+.action-btn:disabled { background: #d1d5db; color: #4b5563; border-color: #9ca3af; cursor: default; }
+.open-input {
+  display: block; width: 100%; min-height: 130px; padding: 10px 12px; margin-bottom: 12px;
+  background: #ffffff; color: #111827; border: 2px solid #6b7280; border-radius: 10px;
+  font-family: inherit; font-size: 15px; resize: vertical;
+}
+.open-input::placeholder { color: #6b7280; }
+.open-input:disabled { background: #f3f4f6; color: #111827; }
+.ref-box { margin: 12px 0; padding: 12px 14px; background: #eff6ff; color: #1e3a8a; border: 1px solid #93c5fd; border-radius: 10px; font-size: 15px; }
+.ref-title { display: block; margin-bottom: 4px; font-weight: 700; color: #1e3a8a; }
+.ref-text { margin: 0; color: #1e3a8a; }
+.grade-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.grade-btn {
+  padding: 10px 18px; border: 2px solid #6b7280; border-radius: 10px;
+  background: #f9fafb; color: #1a1a2e; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.grade-btn:hover:not(:disabled) { background: #e5e7eb; color: #1a1a2e; }
+.grade-btn:disabled { cursor: default; background: #f9fafb; color: #1a1a2e; }
+.grade-btn.pass { background: #dcfce7; color: #14532d; border-color: #15803d; }
+.grade-btn.fail { background: #fee2e2; color: #7f1d1d; border-color: #b91c1c; }
+.status { margin: 14px 0 0 0; font-size: 15px; font-weight: 700; }
+.status-ok { color: #14532d; }
+.status-bad { color: #7f1d1d; }
+.exp { margin-top: 10px; padding: 12px 14px; background: #eff6ff; color: #1e3a8a; border: 1px solid #93c5fd; border-radius: 10px; font-size: 15px; }
+.exp-text { margin: 0; color: #1e3a8a; }
+.exp-label { font-weight: 700; color: #1e3a8a; }
+.exp-list { margin: 8px 0 0 0; padding-left: 22px; color: #1e3a8a; }
+.exp-item { color: #1e3a8a; }
+.nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
+.nav-btn {
+  padding: 10px 20px; border: 2px solid #1d4ed8; border-radius: 10px;
+  background: #2563eb; color: #ffffff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.nav-btn:hover:not(:disabled) { background: #1d4ed8; color: #ffffff; }
+.nav-btn:disabled { background: #d1d5db; color: #4b5563; border-color: #9ca3af; cursor: default; }
+.result-title { margin: 0 0 8px 0; font-size: 24px; font-weight: 700; color: #111827; }
+.result-percent { margin: 0 0 4px 0; font-size: 48px; font-weight: 800; color: #1d4ed8; }
+.result-line { margin: 0 0 6px 0; font-size: 16px; color: #111827; }
+.result-sub { margin: 14px 0 6px 0; font-size: 16px; font-weight: 700; color: #111827; }
+.result-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #e5e7eb; font-size: 15px; color: #111827; }
+.result-row-name { color: #111827; }
+.result-row-val { font-weight: 700; color: #111827; }
+.result-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+
+@media (prefers-color-scheme: dark) {
+  body { background: #0f172a; color: #f3f4f6; }
+  .title { color: #f8fafc; }
+  .stat { color: #e2e8f0; }
+  .progress-track { background: #334155; }
+  .progress-bar { background: #60a5fa; }
+  .card { background: #1e293b; color: #f1f5f9; border-color: #475569; }
+  .cat-ssh { background: #1e3a8a; color: #dbeafe; }
+  .cat-tls { background: #4c1d95; color: #ede9fe; }
+  .cat-telnet { background: #78350f; color: #fef3c7; }
+  .cat-crypto { background: #14532d; color: #dcfce7; }
+  .cat-attack { background: #7f1d1d; color: #fee2e2; }
+  .type-tag { background: #374151; color: #f3f4f6; }
+  .question-text { color: #f8fafc; }
+  .answer-btn { background: #334155; color: #f8fafc; border-color: #64748b; }
+  .answer-btn:hover:not(:disabled) { background: #475569; color: #f8fafc; }
+  .answer-btn:disabled { background: #334155; color: #f8fafc; }
+  .answer-btn.correct { background: #14532d; color: #dcfce7; border-color: #4ade80; }
+  .answer-btn.wrong { background: #7f1d1d; color: #fee2e2; border-color: #f87171; }
+  .order-item { background: #334155; color: #f8fafc; border-color: #64748b; }
+  .order-item.ok { background: #14532d; color: #dcfce7; border-color: #4ade80; }
+  .order-item.bad { background: #7f1d1d; color: #fee2e2; border-color: #f87171; }
+  .order-num { color: #f8fafc; }
+  .order-item .order-num { color: #f8fafc; }
+  .order-item.ok .order-num { color: #dcfce7; }
+  .order-item.bad .order-num { color: #fee2e2; }
+  .order-text { color: #f8fafc; }
+  .order-item.ok .order-text { color: #dcfce7; }
+  .order-item.bad .order-text { color: #fee2e2; }
+  .order-btn { background: #1e293b; color: #f1f5f9; border-color: #94a3b8; }
+  .order-btn:hover:not(:disabled) { background: #475569; color: #f8fafc; }
+  .order-btn:disabled { background: #334155; color: #cbd5e1; border-color: #64748b; }
+  .action-btn { background: #60a5fa; color: #0b1220; border-color: #93c5fd; }
+  .action-btn:hover:not(:disabled) { background: #93c5fd; color: #0b1220; }
+  .action-btn:disabled { background: #334155; color: #cbd5e1; border-color: #64748b; }
+  .open-input { background: #0f172a; color: #f1f5f9; border-color: #94a3b8; }
+  .open-input::placeholder { color: #94a3b8; }
+  .open-input:disabled { background: #1e293b; color: #f1f5f9; }
+  .ref-box { background: #1e3a5f; color: #dbeafe; border-color: #3b82f6; }
+  .ref-title { color: #dbeafe; }
+  .ref-text { color: #dbeafe; }
+  .grade-btn { background: #334155; color: #f8fafc; border-color: #64748b; }
+  .grade-btn:hover:not(:disabled) { background: #475569; color: #f8fafc; }
+  .grade-btn:disabled { background: #334155; color: #f8fafc; }
+  .grade-btn.pass { background: #14532d; color: #dcfce7; border-color: #4ade80; }
+  .grade-btn.fail { background: #7f1d1d; color: #fee2e2; border-color: #f87171; }
+  .status-ok { color: #86efac; }
+  .status-bad { color: #fca5a5; }
+  .exp { background: #1e3a5f; color: #dbeafe; border-color: #3b82f6; }
+  .exp-text { color: #dbeafe; }
+  .exp-label { color: #dbeafe; }
+  .exp-list { color: #dbeafe; }
+  .exp-item { color: #dbeafe; }
+  .nav-btn { background: #60a5fa; color: #0b1220; border-color: #93c5fd; }
+  .nav-btn:hover:not(:disabled) { background: #93c5fd; color: #0b1220; }
+  .nav-btn:disabled { background: #334155; color: #cbd5e1; border-color: #64748b; }
+  .result-title { color: #f8fafc; }
+  .result-percent { color: #93c5fd; }
+  .result-line { color: #f1f5f9; }
+  .result-sub { color: #f8fafc; }
+  .result-row { color: #f1f5f9; border-bottom-color: #475569; }
+  .result-row-name { color: #f1f5f9; }
+  .result-row-val { color: #f8fafc; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CAT = { ssh: 'SSH', tls: 'TLS', telnet: 'Telnet', crypto: 'Cryptography', attack: 'Attacks' };
+  var TYPE_LABEL = { mc: 'Výběr', order: 'Řazení', open: 'Otevřená' };
+
+  var DATA = [
+    // ---------- MULTIPLE CHOICE ----------
+    { type: 'mc', cat: 'telnet',
+      q: 'Which statement about Telnet is correct?',
+      opts: [
+        'It runs over TCP on port 23 and sends everything, including credentials, in plaintext',
+        'It runs over UDP on port 22 and encrypts the session with a pre-shared key',
+        'It runs over TCP on port 443 and authenticates the server with a certificate',
+        'It runs over TCP on port 23 and protects data integrity with HMAC'
+      ], correct: 0,
+      exp: 'Telnet (TErminal NETwork) is an application layer protocol over TCP, port 23. It has no encryption, its basic username/password authentication is sent in plaintext, and it has no integrity protection.' },
+
+    { type: 'mc', cat: 'telnet',
+      q: 'In a Wireshark capture of a Telnet login, the typed name odd appears as oodddd. Why?',
+      opts: [
+        'Telnet works in character mode: each typed character is sent to the server, which echoes it back for display',
+        'The client retransmits every TCP segment twice to guarantee delivery',
+        'The server encrypts the login name and the client decrypts it, which doubles each character',
+        'Wireshark duplicates packets when it follows a TCP stream'
+      ], correct: 0,
+      exp: 'Each character is sent immediately and the server echoes it back so it appears on the terminal. The password is not echoed because the terminal does not need to display it.' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'Who created SSH, and what was it originally introduced to replace?',
+      opts: [
+        'Tatu Ylonen (Helsinki University of Technology, 1995); the insecure Berkeley remote access services on UNIX terminals',
+        'Whitfield Diffie (Stanford, 1976); the Kerberos authentication service',
+        'Tim Berners-Lee (CERN, 1991); the HTTP protocol',
+        'Vint Cerf (DARPA, 1974); the TCP protocol'
+      ], correct: 0,
+      exp: 'SSH was founded in 1995 by Tatu Ylonen and later commercialized by SSH Communications Security (Tectia SSH). OpenSSH is the free version. SSH runs over TCP on port 22.' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'Why is the SSH-1 integrity check considered weak?',
+      opts: [
+        'It used CRC-32, which is meant for detecting accidental errors, so attackers can craft modified packets that still pass the check',
+        'It used MD5, which is too slow for interactive sessions',
+        'It did not use any integrity check at all',
+        'It used HMAC, but the HMAC key was transmitted in plaintext'
+      ], correct: 0,
+      exp: 'CRC-32 is predictable and not cryptographically secure. In the CRC-32 compensation attack, an attacker manipulates data without detection. SSH-2 replaced it with cryptographic MACs (or AEAD).' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'Which three protocols make up the SSH-2 architecture?',
+      opts: [
+        'Transport Layer, User Authentication and Connection protocols',
+        'Handshake, Record and Alert protocols',
+        'Key Exchange, Change Cipher Spec and Heartbeat protocols',
+        'Physical, Data Link and Network protocols'
+      ], correct: 0,
+      exp: 'SSH-TRANS provides server authentication, confidentiality, integrity and optional compression; SSH-USERAUTH authenticates the user; SSH-CONN multiplexes the encrypted tunnel into several logical channels. SSH-1 was more monolithic.' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'If both the SSH client and server support all algorithms, whose preference decides the negotiated algorithm?',
+      opts: [
+        'The client: the server picks the first algorithm from the ranked client list that it also supports',
+        'The server: the client must accept the first algorithm in the server list',
+        'It is chosen randomly from the common algorithms',
+        'The one with the longest key, regardless of the order in either list'
+      ], correct: 0,
+      exp: 'The client sends a ranked list (key exchange, encryption, MAC, compression) and the server selects the first match. Therefore SSH prioritizes the client preferences.' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'How does algorithm selection in SSH differ from TLS 1.2?',
+      opts: [
+        'SSH has no predefined cipher suites; key exchange, encryption, MAC and compression are negotiated independently',
+        'SSH bundles all algorithms into one cipher suite, while TLS negotiates each one independently',
+        'SSH allows only one fixed algorithm per category, while TLS negotiates',
+        'SSH negotiates only the encryption algorithm; everything else is fixed'
+      ], correct: 0,
+      exp: 'TLS 1.2 uses cipher suites that bundle key exchange/authentication, encryption and MAC. SSH negotiates each algorithm independently, which gives flexibility and customization.' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'How does SSH public-key user authentication work?',
+      opts: [
+        'The client signs a challenge with its private key and the server verifies the signature with the stored client public key (authorized_keys)',
+        'The client sends its private key to the server through the encrypted channel',
+        'The server signs a challenge with its host private key and the client checks it against known_hosts',
+        'The client sends a hash of its password and the server compares it with its database'
+      ], correct: 0,
+      exp: 'The private key never leaves the client. This method is commonly used for password-less login. The third option describes server (host key) authentication.' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'SSH password authentication has no challenge-response step. Why is the password still not exposed in plaintext?',
+      opts: [
+        'The SSH Transport Layer Protocol has already established an encrypted session (for example via Diffie-Hellman) before user authentication starts',
+        'The password is first hashed with CRC-32',
+        'The password is split and sent over several TCP ports',
+        'The server stores the password in known_hosts and never asks for it'
+      ], correct: 0,
+      exp: 'SSH-TRANS runs first, so the password travels through the encrypted tunnel. Password authentication is still less secure than public-key authentication because of possible guessing or theft.' },
+
+    { type: 'mc', cat: 'ssh',
+      q: 'Which two methods can an SSH client use to verify the identity of the server?',
+      opts: [
+        'A local host key database (known_hosts) or certificates issued by a trusted CA',
+        'A DNS lookup of the server name or an ICMP ping',
+        'A username and password supplied by the server',
+        'A TLS Alert or Heartbeat message from the server'
+      ], correct: 0,
+      exp: 'The host key database requires maintaining many hostname-to-key associations. A CA simplifies verification by removing the need for individual host keys.' },
+
+    { type: 'mc', cat: 'attack',
+      q: 'What allows a man-in-the-middle attacker to succeed on the first SSH connection to a server?',
+      opts: [
+        'The user accepts the unverified host key of the attacker, which is then stored in known_hosts',
+        'SSH uses CRC-32 for integrity on the first connection',
+        'The attacker solves the Diffie-Hellman problem in real time',
+        'SSH falls back to Telnet if the server does not answer'
+      ], correct: 0,
+      exp: 'The attacker sends its own public key. Without verifying the key (manually or through a CA), the client cannot tell it talks to the attacker. Digital certificates, or careful manual verification, prevent this, including in combination with ARP spoofing.' },
+
+    { type: 'mc', cat: 'crypto',
+      q: 'In the SSH Diffie-Hellman exchange, the client has private key x, the server private key y, and e = g^x mod p, f = g^y mod p. How do both sides get the shared secret K?',
+      opts: [
+        'The client computes K = f^x mod p and the server computes K = e^y mod p',
+        'The server generates K randomly and sends it encrypted with the client public key',
+        'Both sides compute K = g^x * g^y without exchanging any public values',
+        'The client computes K = e^y mod p and the server computes K = f^x mod p'
+      ], correct: 0,
+      exp: 'Each side combines the public value of the other side with its own private key, so both obtain g^(xy) mod p. K is never transmitted over the network. The last option would require knowing the private key of the other side.' },
+
+    { type: 'mc', cat: 'crypto',
+      q: 'What does forward secrecy (for example ephemeral DH or ECDHE) guarantee?',
+      opts: [
+        'Unique keys are generated per session and discarded afterwards, so recorded sessions cannot be decrypted even if a private key is compromised later',
+        'The same session key is reused so that reconnections are faster',
+        'The server private key is rotated automatically every day',
+        'All messages are padded to the same length'
+      ], correct: 0,
+      exp: 'Ephemeral key exchange ties the session keys to the single session, so later compromise of a long-term private key does not reveal old traffic.' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'Where does TLS sit in the protocol stack?',
+      opts: [
+        'On top of TCP, below application protocols such as HTTP, FTP or SMTP, and it can be transparent to applications',
+        'Below IP, where it replaces the network layer',
+        'Inside the HTTP header only',
+        'On top of UDP only'
+      ], correct: 0,
+      exp: 'TLS is often described as a transport layer service, but it is not a standalone transport protocol: it operates on top of the transport protocol (usually TCP). It evolved from SSL and is defined in RFC 5246 (TLS 1.2).' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'What is the relationship between a TLS connection and a TLS session?',
+      opts: [
+        'A connection is short-lived and belongs to one session; a session can span several connections, which reuse its parameters through session resumption',
+        'A session is short-lived and can contain only one connection',
+        'They are two names for the same thing',
+        'A session lasts exactly as long as one HTTP request'
+      ], correct: 0,
+      exp: 'Sessions avoid renegotiating security parameters for every connection and save computation. Resumption can be session ID-based or session ticket-based.' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'Which TLS handshake messages are sent unencrypted?',
+      opts: [
+        'Early messages such as ClientHello and ServerHello, because keys and cipher suite are not yet established',
+        'All handshake messages, including Finished',
+        'Only the Finished messages',
+        'None: the handshake is always fully encrypted'
+      ], correct: 0,
+      exp: 'After the key exchange the symmetric keys are in place, so the final steps (such as Finished) are encrypted.' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'What is the purpose of the Change Cipher Spec Protocol?',
+      opts: [
+        'To signal the transition from plaintext to encrypted data: the negotiated algorithms and keys are applied from now on',
+        'To report fatal errors in the session',
+        'To check that the peer is still alive',
+        'To fragment and compress application data'
+      ], correct: 0,
+      exp: 'The client sends ChangeCipherSpec first, then the server sends it. After that the negotiated encryption and MAC algorithms are activated.' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'How are TLS alerts categorized and what does a fatal alert do?',
+      opts: [
+        'They are either warning or fatal; a fatal alert (for example an invalid certificate) terminates the session',
+        'They are either informational or critical; a critical alert only triggers session resumption',
+        'They are either warning or fatal; a fatal alert only slows the connection down',
+        'They are either request or response; a response alert renegotiates the cipher suite'
+      ], correct: 0,
+      exp: 'A warning can notify about a minor issue, such as a certificate close to expiration. Alert level 1 is warning (recoverable) and level 2 is fatal (unrecoverable).' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'What is the Heartbeat Protocol used for?',
+      opts: [
+        'Verifying that the connection is still alive without renegotiating, using a request and a response that echoes the same payload',
+        'Negotiating the cipher suite at the start of the connection',
+        'Encrypting application data with the shared secret key',
+        'Sending the server certificate to the client'
+      ], correct: 0,
+      exp: 'It is particularly useful in long-lived sessions (such as VPNs) to avoid unnecessary handshakes.' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'Which two services does the TLS Record Protocol provide?',
+      opts: [
+        'Confidentiality (encryption with a shared secret key) and message integrity (MAC)',
+        'Server authentication and key exchange',
+        'Compression and routing',
+        'Error reporting and liveness checking'
+      ], correct: 0,
+      exp: 'The Handshake Protocol defines the shared secret keys. The Record Protocol uses one for conventional encryption of TLS payloads and one for forming the message authentication code.' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'What distinguishes mutual TLS (mTLS) from the TLS usually used on websites?',
+      opts: [
+        'The server also requests and verifies a client certificate; mTLS is part of the TLS standard, not a new protocol',
+        'mTLS is a new protocol that replaced TLS in 2018',
+        'mTLS uses a different record format without a MAC',
+        'In mTLS only the client authenticates the server'
+      ], correct: 0,
+      exp: 'Standard website TLS uses one-way authentication (the client authenticates the server). In mTLS both sides authenticate each other, but the server needs to specifically ask the client for its certificate.' },
+
+    { type: 'mc', cat: 'tls',
+      q: 'Which statement about TLS 1.3 cipher suites is correct?',
+      opts: [
+        'All of them are AEAD (no separate MAC), and key exchange and authentication are negotiated separately, so the name has no WITH part',
+        'They still use CBC mode with HMAC-SHA1',
+        'They include the NULL cipher for fast connections',
+        'They bundle RSA key exchange, encryption and MAC in one name, exactly like TLS 1.2'
+      ], correct: 0,
+      exp: 'Examples are TLS_AES_128_GCM_SHA256 and TLS_CHACHA20_POLY1305_SHA256. AEAD (Authenticated Encryption with Associated Data) provides confidentiality and integrity at the same time.' },
+
+    // ---------- ORDERING ----------
+    { type: 'order', cat: 'ssh',
+      q: 'Put the steps of the SSH Transport Layer Protocol (SSH-TRANS) exchange into the correct order.',
+      items: [
+        'Identification string exchange (SSH-protoversion-softwareversion)',
+        'Algorithm negotiation (SSH_MSG_KEXINIT from both sides)',
+        'Key exchange (SSH_MSG_KEXDH_INIT and SSH_MSG_KEXDH_REPLY)',
+        'End of key exchange (SSH_MSG_NEWKEYS from both sides)',
+        'Service request (SSH_MSG_SERVICE_REQUEST)'
+      ],
+      exp: 'After the TCP connection is set up, the sides exchange version strings, negotiate algorithms, perform the key exchange, switch to the new keys and finally request a service such as a shell.' },
+
+    { type: 'order', cat: 'ssh',
+      q: 'Order the stages of the SSH process from start to finish.',
+      items: [
+        'Initiating the connection (plain TCP, both sides still unauthenticated)',
+        'Negotiation of protocols (key exchange, encryption and MAC algorithms)',
+        'Key exchange (Diffie-Hellman) producing the shared secret K',
+        'Server authentication (host key verification)',
+        'Session key derivation from K',
+        'Client authentication (password or public key)',
+        'Secure communication begins'
+      ],
+      exp: 'The server is authenticated before the client: only after the host key signature is verified and session keys are derived does the server ask the client to authenticate.' },
+
+    { type: 'order', cat: 'crypto',
+      q: 'Order the steps of the Diffie-Hellman key exchange as used in SSH.',
+      items: [
+        'The server sends the public parameters: prime p and base g',
+        'The client and the server each generate a private key (x and y)',
+        'Both compute their public values e = g^x mod p and f = g^y mod p',
+        'The client and the server exchange the public values e and f',
+        'Both independently compute the shared secret K'
+      ],
+      exp: 'Only public values travel over the network. The shared secret K is computed locally on both sides: K = f^x mod p on the client and K = e^y mod p on the server.' },
+
+    { type: 'order', cat: 'tls',
+      q: 'Order the operations that the TLS Record Protocol applies to application data.',
+      items: [
+        'Fragment the application data',
+        'Compress the fragment (optional)',
+        'Add the MAC',
+        'Encrypt',
+        'Append the TLS record header'
+      ],
+      exp: 'The record header carries the content type, major and minor version and the compressed length. The MAC is added before encryption.' },
+
+    { type: 'order', cat: 'tls',
+      q: 'Order the messages of the TLS handshake with mutual authentication (mTLS).',
+      items: [
+        'Client Hello',
+        'Server Hello',
+        'Server sends certificate',
+        'Server requests client certificate',
+        'Client sends certificate',
+        'Client sends cryptographic info',
+        'Client finished',
+        'Server finished',
+        'Communications are now encrypted'
+      ],
+      exp: 'Steps 4 and 5 (certificate request and client certificate) are what makes the handshake mutual. In standard one-way TLS they are skipped.' },
+
+    // ---------- OPEN-ENDED ----------
+    { type: 'open', cat: 'ssh',
+      q: 'Explain why SSH-2 replaced SSH-1. Compare the integrity protection, key exchange and design of the two versions, and explain what the CRC-32 compensation attack exploits.',
+      ref: 'SSH-1 used CRC-32 as the integrity check on the encrypted stream. CRC-32 only detects accidental errors; it is predictable and not cryptographically secure, so an attacker can craft malicious packets that still pass the check and manipulate data without being detected (the CRC-32 compensation attack). SSH-2 uses cryptographic MACs (HMAC), and modern implementations can use AEAD. For key exchange, SSH-1 used RSA-based session key establishment with a temporary server key plus host key, whereas SSH-2 uses modern DH/ECDH key exchange that gives fresh session keys, supports rekeying and stronger host-key and certificate-based trust. Design-wise SSH-2 is modular (Transport, User Authentication and Connection protocols), while SSH-1 is more monolithic. The two versions are incompatible, SSH-1 is obsolete and should not be used, and SSH-2 is the protocol used today.' },
+
+    { type: 'open', cat: 'attack',
+      q: 'Describe how an SSH session becomes secure: how the shared secret is created without being transmitted, how the client verifies the server, and how a man-in-the-middle attack on the first connection can still succeed and how to prevent it.',
+      ref: 'Client and server negotiate algorithms and then run a Diffie-Hellman key exchange: they exchange only public values (e = g^x mod p and f = g^y mod p) and each computes the same shared secret K locally, so K is never sent over the network. Session keys (encryption, MAC, IVs, separate for each direction) are derived from K and the session identifier H using a key derivation function. The server then proves its identity by signing with its host private key; the client verifies the signature with the server host public key, which it compares with the entry in known_hosts or validates through a CA certificate. On the first connection the client has no stored key, so an attacker positioned between the sides can present its own public key. If the user accepts the key without verifying the fingerprint, it is stored in known_hosts and the client builds an encrypted session with the attacker, who can read and modify the traffic, optionally forwarding it to the real server (often combined with ARP spoofing). Prevention: verify the host key fingerprint through a trusted channel or use digital certificates issued by a trusted CA.' },
+
+    { type: 'open', cat: 'tls',
+      q: 'Explain the roles of the TLS Handshake Protocol and the TLS Record Protocol, and why the first handshake messages are sent in plaintext while the later ones are encrypted.',
+      ref: 'The Handshake Protocol securely establishes the connection before data is transmitted: it negotiates the security parameters (cipher suite), performs the key exchange, authenticates the server (and optionally the client) with certificates, and derives a shared secret symmetric key used later for encryption. The Record Protocol then takes over for the rest of the session: it fragments application data, optionally compresses it, adds a MAC for message integrity, encrypts it with the shared secret key for confidentiality, and appends the record header. Early handshake messages such as ClientHello and ServerHello are sent in plaintext because at that point the keys and the cipher suite have not been established yet. Once the key exchange is complete and symmetric keys exist (signaled by Change Cipher Spec), the remaining handshake messages such as Finished are encrypted.' }
+  ];
+
+  var app = document.getElementById('app');
+  var Q = [];
+  var cur = 0;
+  var showResults = false;
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (text !== undefined) { e.textContent = text; }
+    return e;
+  }
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function range(n) {
+    var r = [];
+    for (var i = 0; i < n; i++) { r.push(i); }
+    return r;
+  }
+
+  function build(d) {
+    var s = { d: d, answered: false, correct: false };
+    if (d.type === 'mc') {
+      s.perm = shuffle(range(d.opts.length));
+      s.chosen = -1;
+    } else if (d.type === 'order') {
+      var o = shuffle(range(d.items.length));
+      var same = true;
+      while (same) {
+        same = o.every(function(v, i) { return v === i; });
+        if (same) { o = shuffle(o); }
+      }
+      s.order = o;
+    } else {
+      s.text = '';
+      s.revealed = false;
+      s.grade = null;
+    }
+    return s;
+  }
+
+  function init() {
+    Q = shuffle(DATA.slice()).map(build);
+    cur = 0;
+    showResults = false;
+    render();
+  }
+
+  function answeredCount() {
+    return Q.filter(function(s) { return s.answered; }).length;
+  }
+
+  function score() {
+    return Q.filter(function(s) { return s.answered && s.correct; }).length;
+  }
+
+  function renderTop() {
+    var top = el('div', 'topbar');
+    top.appendChild(el('h1', 'title', 'Network Security Quiz: SSH + TLS'));
+    var stats = el('div', 'stats');
+    var shown = showResults ? Q.length : (cur + 1);
+    stats.appendChild(el('span', 'stat', 'Otázka ' + shown + ' / ' + Q.length));
+    stats.appendChild(el('span', 'stat', 'Skóre: ' + score() + ' / ' + answeredCount()));
+    top.appendChild(stats);
+    var track = el('div', 'progress-track');
+    var bar = el('div', 'progress-bar');
+    bar.style.width = Math.round(100 * answeredCount() / Q.length) + '%';
+    track.appendChild(bar);
+    top.appendChild(track);
+    return top;
+  }
+
+  function addStatus(card, s) {
+    card.appendChild(el('p', 'status ' + (s.correct ? 'status-ok' : 'status-bad'), s.correct ? 'Správně!' : 'Špatně.'));
+  }
+
+  function addExp(card, s) {
+    var d = s.d;
+    var box = el('div', 'exp');
+    var p = el('p', 'exp-text');
+    p.appendChild(el('span', 'exp-label', 'Vysvětlení: '));
+    p.appendChild(document.createTextNode(d.exp));
+    box.appendChild(p);
+    if (d.type === 'order') {
+      box.appendChild(el('span', 'exp-label', 'Správné pořadí:'));
+      var ol = el('ol', 'exp-list');
+      d.items.forEach(function(it) { ol.appendChild(el('li', 'exp-item', it)); });
+      box.appendChild(ol);
+    }
+    card.appendChild(box);
+  }
+
+  function renderMC(card, s) {
+    var d = s.d;
+    var wrap = el('div', 'answers');
+    s.perm.forEach(function(orig) {
+      var b = el('button', 'answer-btn', d.opts[orig]);
+      b.type = 'button';
+      if (s.answered) {
+        b.disabled = true;
+        if (orig === d.correct) {
+          b.classList.add('correct');
+          b.textContent = d.opts[orig] + '  ✔';
+        } else if (orig === s.chosen) {
+          b.classList.add('wrong');
+          b.textContent = d.opts[orig] + '  ✘';
+        }
+      } else {
+        b.addEventListener('click', function() {
+          if (s.answered) { return; }
+          s.chosen = orig;
+          s.answered = true;
+          s.correct = (orig === d.correct);
+          render();
+        });
+      }
+      wrap.appendChild(b);
+    });
+    card.appendChild(wrap);
+    if (s.answered) {
+      addStatus(card, s);
+      addExp(card, s);
+    }
+  }
+
+  function swap(s, a, b) {
+    var t = s.order[a]; s.order[a] = s.order[b]; s.order[b] = t;
+    render();
+  }
+
+  function renderOrder(card, s) {
+    var d = s.d;
+    var list = el('div', 'order-list');
+    s.order.forEach(function(itemIdx, pos) {
+      var row = el('div', 'order-item');
+      if (s.answered) { row.classList.add(itemIdx === pos ? 'ok' : 'bad'); }
+      row.appendChild(el('span', 'order-num', (pos + 1) + '.'));
+      row.appendChild(el('span', 'order-text', d.items[itemIdx]));
+      var btns = el('div', 'order-btns');
+      var up = el('button', 'order-btn', '▲');
+      up.type = 'button';
+      up.setAttribute('aria-label', 'Posunout nahoru');
+      up.disabled = s.answered || pos === 0;
+      up.addEventListener('click', function() { swap(s, pos, pos - 1); });
+      var down = el('button', 'order-btn', '▼');
+      down.type = 'button';
+      down.setAttribute('aria-label', 'Posunout dolů');
+      down.disabled = s.answered || pos === s.order.length - 1;
+      down.addEventListener('click', function() { swap(s, pos, pos + 1); });
+      btns.appendChild(up);
+      btns.appendChild(down);
+      row.appendChild(btns);
+      list.appendChild(row);
+    });
+    card.appendChild(list);
+    if (!s.answered) {
+      var chk = el('button', 'action-btn', 'Zkontrolovat');
+      chk.type = 'button';
+      chk.addEventListener('click', function() {
+        s.answered = true;
+        s.correct = s.order.every(function(v, i) { return v === i; });
+        render();
+      });
+      card.appendChild(chk);
+    } else {
+      addStatus(card, s);
+      addExp(card, s);
+    }
+  }
+
+  function renderOpen(card, s) {
+    var d = s.d;
+    var ta = el('textarea', 'open-input');
+    ta.placeholder = 'Napiš svou odpověď (anglicky)...';
+    ta.value = s.text;
+    ta.disabled = s.revealed;
+    ta.addEventListener('input', function() { s.text = ta.value; });
+    card.appendChild(ta);
+
+    if (!s.revealed) {
+      var rev = el('button', 'action-btn', 'Zobrazit vzorovou odpověď');
+      rev.type = 'button';
+      rev.addEventListener('click', function() {
+        s.revealed = true;
+        render();
+      });
+      card.appendChild(rev);
+    } else {
+      var box = el('div', 'ref-box');
+      box.appendChild(el('span', 'ref-title', 'Vzorová odpověď:'));
+      box.appendChild(el('p', 'ref-text', d.ref));
+      card.appendChild(box);
+
+      var row = el('div', 'grade-row');
+      var ok = el('button', 'grade-btn', 'Zvládl jsem');
+      ok.type = 'button';
+      var ko = el('button', 'grade-btn', 'Nezvládl jsem');
+      ko.type = 'button';
+      if (s.answered) {
+        ok.disabled = true;
+        ko.disabled = true;
+        if (s.grade === 'pass') { ok.classList.add('pass'); }
+        if (s.grade === 'fail') { ko.classList.add('fail'); }
+      } else {
+        ok.addEventListener('click', function() {
+          s.grade = 'pass'; s.answered = true; s.correct = true; render();
+        });
+        ko.addEventListener('click', function() {
+          s.grade = 'fail'; s.answered = true; s.correct = false; render();
+        });
+      }
+      row.appendChild(ok);
+      row.appendChild(ko);
+      card.appendChild(row);
+    }
+  }
+
+  function renderQuestion() {
+    var s = Q[cur];
+    var d = s.d;
+    var card = el('div', 'card');
+    var tags = el('div', 'tags');
+    tags.appendChild(el('span', 'tag cat-' + d.cat, CAT[d.cat]));
+    tags.appendChild(el('span', 'tag type-tag', TYPE_LABEL[d.type]));
+    card.appendChild(tags);
+    card.appendChild(el('p', 'question-text', d.q));
+
+    if (d.type === 'mc') { renderMC(card, s); }
+    else if (d.type === 'order') { renderOrder(card, s); }
+    else { renderOpen(card, s); }
+
+    var nav = el('div', 'nav');
+    var back = el('button', 'nav-btn', '← Zpět');
+    back.type = 'button';
+    back.disabled = (cur === 0);
+    back.addEventListener('click', function() {
+      if (cur > 0) { cur--; render(); }
+    });
+    var last = (cur === Q.length - 1);
+    var next = el('button', 'nav-btn', last ? 'Zobrazit výsledek' : 'Další →');
+    next.type = 'button';
+    next.disabled = !s.answered;
+    next.addEventListener('click', function() {
+      if (!Q[cur].answered) { return; }
+      if (last) { showResults = true; } else { cur++; }
+      render();
+    });
+    nav.appendChild(back);
+    nav.appendChild(next);
+    card.appendChild(nav);
+    return card;
+  }
+
+  function renderResults() {
+    var card = el('div', 'card');
+    var sc = score();
+    var pct = Math.round(100 * sc / Q.length);
+    card.appendChild(el('h2', 'result-title', 'Výsledek'));
+    card.appendChild(el('p', 'result-percent', pct + ' %'));
+    card.appendChild(el('p', 'result-line', 'Správně: ' + sc + ' z ' + Q.length + ' otázek'));
+    var msg;
+    if (pct >= 90) { msg = 'Výborně, látku ovládáš.'; }
+    else if (pct >= 70) { msg = 'Dobrá práce, pár míst ještě stojí za zopakování.'; }
+    else if (pct >= 50) { msg = 'Ujde to, ale chce to látku projít znovu.'; }
+    else { msg = 'Doporučuji projít materiál znovu a zkusit to ještě jednou.'; }
+    card.appendChild(el('p', 'result-line', msg));
+
+    var byCat = {};
+    var byType = {};
+    Q.forEach(function(s) {
+      var c = s.d.cat, t = s.d.type;
+      if (!byCat[c]) { byCat[c] = { c: 0, t: 0 }; }
+      if (!byType[t]) { byType[t] = { c: 0, t: 0 }; }
+      byCat[c].t++; byType[t].t++;
+      if (s.correct) { byCat[c].c++; byType[t].c++; }
+    });
+
+    card.appendChild(el('p', 'result-sub', 'Podle tématu'));
+    Object.keys(byCat).forEach(function(k) {
+      var r = el('div', 'result-row');
+      r.appendChild(el('span', 'result-row-name', CAT[k]));
+      r.appendChild(el('span', 'result-row-val', byCat[k].c + ' / ' + byCat[k].t));
+      card.appendChild(r);
+    });
+
+    card.appendChild(el('p', 'result-sub', 'Podle typu otázky'));
+    Object.keys(byType).forEach(function(k) {
+      var r = el('div', 'result-row');
+      r.appendChild(el('span', 'result-row-name', TYPE_LABEL[k]));
+      r.appendChild(el('span', 'result-row-val', byType[k].c + ' / ' + byType[k].t));
+      card.appendChild(r);
+    });
+
+    var actions = el('div', 'result-actions');
+    var again = el('button', 'action-btn', 'Spustit znovu');
+    again.type = 'button';
+    again.addEventListener('click', function() { init(); });
+    var review = el('button', 'action-btn', 'Zpět k otázkám');
+    review.type = 'button';
+    review.addEventListener('click', function() {
+      showResults = false;
+      cur = Q.length - 1;
+      render();
+    });
+    actions.appendChild(again);
+    actions.appendChild(review);
+    card.appendChild(actions);
+    return card;
+  }
+
+  function render() {
+    while (app.firstChild) { app.removeChild(app.firstChild); }
+    app.appendChild(renderTop());
+    app.appendChild(showResults ? renderResults() : renderQuestion());
+  }
+
+  init();
+});
+</script>
+</body>
+</html>

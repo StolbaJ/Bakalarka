@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz - Bitcoin and Digital Signatures</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f3f4f6;
+  color: #111827;
+  line-height: 1.5;
+}
+.wrap { max-width: 760px; margin: 0 auto; padding: 16px; }
+.title { font-size: 20px; font-weight: 700; margin: 4px 0 12px; color: #111827; }
+.stats { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 14px; margin-bottom: 6px; }
+.stat { color: #374151; }
+.score { font-weight: 700; color: #111827; }
+.progress { height: 10px; background: #d1d5db; border-radius: 6px; overflow: hidden; margin-bottom: 16px; }
+.progress-fill { height: 100%; background: #2563eb; width: 0; transition: width 0.3s; }
+.card { background: #ffffff; color: #111827; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; }
+.cat-0 { background: #dbeafe; color: #1e3a8a; }
+.cat-1 { background: #fef3c7; color: #78350f; }
+.cat-2 { background: #fce7f3; color: #831843; }
+.cat-3 { background: #dcfce7; color: #14532d; }
+.cat-4 { background: #ede9fe; color: #4c1d95; }
+.cat-5 { background: #cffafe; color: #164e63; }
+.cat-6 { background: #ffedd5; color: #7c2d12; }
+.kind { font-size: 13px; color: #4b5563; margin-bottom: 6px; }
+.question-text { font-size: 18px; font-weight: 600; color: #111827; margin: 4px 0 14px; }
+.answers { display: flex; flex-direction: column; gap: 10px; }
+.answer-btn {
+  font-family: inherit; font-size: 16px; text-align: left; cursor: pointer;
+  background: #ffffff; color: #1a1a2e; border: 2px solid #d1d5db; border-radius: 10px; padding: 12px 14px;
+}
+.answer-btn:hover:not(:disabled) { border-color: #2563eb; background: #eff6ff; color: #1a1a2e; }
+.answer-btn:disabled { cursor: default; opacity: 1; color: #1a1a2e; background: #ffffff; }
+.answer-btn.correct, .answer-btn.correct:disabled { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+.answer-btn.wrong, .answer-btn.wrong:disabled { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+.order-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.order-item { display: flex; align-items: center; gap: 10px; background: #ffffff; color: #111827; border: 2px solid #d1d5db; border-radius: 10px; padding: 8px 10px; }
+.order-item.ok { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+.order-item.bad { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+.order-num { font-weight: 700; min-width: 22px; color: inherit; }
+.order-text { flex: 1; color: inherit; font-size: 15px; }
+.order-ctrl { display: flex; gap: 4px; }
+.move-btn { font-family: inherit; font-size: 14px; cursor: pointer; background: #e5e7eb; color: #111827; border: 1px solid #9ca3af; border-radius: 6px; width: 34px; height: 32px; }
+.move-btn:disabled { cursor: default; background: #e5e7eb; color: #4b5563; opacity: 0.6; }
+.action-btn, .nav-btn, .grade-btn {
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  background: #e5e7eb; color: #111827; border: 1px solid #9ca3af; border-radius: 8px; padding: 10px 16px;
+}
+.action-btn { background: #1d4ed8; color: #ffffff; border-color: #1d4ed8; }
+.nav-btn.primary { background: #1d4ed8; color: #ffffff; border-color: #1d4ed8; }
+.nav-btn:disabled, .action-btn:disabled, .grade-btn:disabled { cursor: default; background: #e5e7eb; color: #4b5563; border-color: #d1d5db; }
+.nav-btn.primary:disabled { background: #e5e7eb; color: #4b5563; border-color: #d1d5db; }
+.grade-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.grade-btn.ok { background: #dcfce7; color: #14532d; border-color: #16a34a; }
+.grade-btn.fail { background: #fee2e2; color: #7f1d1d; border-color: #dc2626; }
+.grade-btn.ok:disabled.chosen { background: #dcfce7; color: #14532d; border: 2px solid #16a34a; }
+.grade-btn.fail:disabled.chosen { background: #fee2e2; color: #7f1d1d; border: 2px solid #dc2626; }
+.grade-btn:disabled:not(.chosen) { background: #e5e7eb; color: #4b5563; }
+textarea {
+  width: 100%; min-height: 120px; font-family: inherit; font-size: 15px; padding: 10px;
+  background: #ffffff; color: #111827; border: 2px solid #d1d5db; border-radius: 10px; resize: vertical; margin-bottom: 10px;
+}
+textarea:disabled { background: #f3f4f6; color: #111827; }
+.ref-box { background: #eff6ff; color: #1e3a8a; border: 1px solid #93c5fd; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 15px; }
+.ref-title { font-weight: 700; color: #1e3a8a; margin-bottom: 4px; }
+.ref-text { color: #1e3a8a; }
+.explanation { background: #f9fafb; color: #111827; border-left: 4px solid #2563eb; border-radius: 6px; padding: 10px 14px; margin-top: 14px; font-size: 15px; }
+.exp-title { font-weight: 700; color: #111827; }
+.exp-text { color: #111827; }
+.exp-list { margin: 6px 0 0 20px; padding: 0; color: #111827; }
+.exp-list li { color: #111827; }
+.nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 18px; }
+.result-big { font-size: 48px; font-weight: 800; color: #1d4ed8; text-align: center; margin: 8px 0; }
+.result-sub { text-align: center; color: #374151; font-size: 16px; margin-bottom: 14px; }
+.result-msg { text-align: center; color: #111827; font-size: 17px; font-weight: 600; margin-bottom: 16px; }
+.cat-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid #e5e7eb; font-size: 14px; }
+.cat-row-score { color: #111827; font-weight: 700; }
+.result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+
+@media (prefers-color-scheme: dark) {
+  body { background: #0f172a; color: #f1f5f9; }
+  .title { color: #f1f5f9; }
+  .stat { color: #cbd5e1; }
+  .score { color: #f1f5f9; }
+  .progress { background: #334155; }
+  .progress-fill { background: #3b82f6; }
+  .card { background: #1e293b; color: #f1f5f9; border-color: #334155; box-shadow: none; }
+  .cat-0 { background: #1e3a8a; color: #dbeafe; }
+  .cat-1 { background: #78350f; color: #fef3c7; }
+  .cat-2 { background: #831843; color: #fce7f3; }
+  .cat-3 { background: #14532d; color: #dcfce7; }
+  .cat-4 { background: #4c1d95; color: #ede9fe; }
+  .cat-5 { background: #164e63; color: #cffafe; }
+  .cat-6 { background: #7c2d12; color: #ffedd5; }
+  .kind { color: #cbd5e1; }
+  .question-text { color: #f1f5f9; }
+  .answer-btn { background: #334155; color: #f1f5f9; border-color: #475569; }
+  .answer-btn:hover:not(:disabled) { background: #3b4a63; border-color: #60a5fa; color: #f1f5f9; }
+  .answer-btn:disabled { background: #334155; color: #f1f5f9; }
+  .answer-btn.correct, .answer-btn.correct:disabled { background: #14532d; border-color: #4ade80; color: #dcfce7; }
+  .answer-btn.wrong, .answer-btn.wrong:disabled { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+  .order-item { background: #334155; color: #f1f5f9; border-color: #475569; }
+  .order-item.ok { background: #14532d; border-color: #4ade80; color: #dcfce7; }
+  .order-item.bad { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+  .order-num { color: inherit; }
+  .order-text { color: inherit; }
+  .move-btn { background: #475569; color: #f1f5f9; border-color: #64748b; }
+  .move-btn:disabled { background: #334155; color: #cbd5e1; opacity: 0.6; }
+  .action-btn { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+  .nav-btn, .grade-btn { background: #334155; color: #f1f5f9; border-color: #475569; }
+  .nav-btn.primary { background: #2563eb; color: #ffffff; border-color: #2563eb; }
+  .nav-btn:disabled, .action-btn:disabled, .grade-btn:disabled { background: #334155; color: #cbd5e1; border-color: #475569; }
+  .nav-btn.primary:disabled { background: #334155; color: #cbd5e1; border-color: #475569; }
+  .grade-btn.ok { background: #14532d; color: #dcfce7; border-color: #4ade80; }
+  .grade-btn.fail { background: #7f1d1d; color: #fee2e2; border-color: #f87171; }
+  .grade-btn.ok:disabled.chosen { background: #14532d; color: #dcfce7; border: 2px solid #4ade80; }
+  .grade-btn.fail:disabled.chosen { background: #7f1d1d; color: #fee2e2; border: 2px solid #f87171; }
+  .grade-btn:disabled:not(.chosen) { background: #334155; color: #cbd5e1; }
+  textarea { background: #0f172a; color: #f1f5f9; border-color: #475569; }
+  textarea:disabled { background: #1e293b; color: #f1f5f9; }
+  .ref-box { background: #1e3a8a; color: #dbeafe; border-color: #3b82f6; }
+  .ref-title { color: #dbeafe; }
+  .ref-text { color: #dbeafe; }
+  .explanation { background: #0f172a; color: #f1f5f9; border-left-color: #60a5fa; }
+  .exp-title { color: #f1f5f9; }
+  .exp-text { color: #f1f5f9; }
+  .exp-list { color: #f1f5f9; }
+  .exp-list li { color: #f1f5f9; }
+  .result-big { color: #60a5fa; }
+  .result-sub { color: #cbd5e1; }
+  .result-msg { color: #f1f5f9; }
+  .cat-row { border-top-color: #334155; color: #f1f5f9; }
+  .cat-row-name { color: #f1f5f9; }
+  .cat-row-score { color: #f1f5f9; }
+}
+.cat-row-name { color: #111827; }
+@media (prefers-color-scheme: dark) { .cat-row-name { color: #f1f5f9; } }
+@media (max-width: 520px) {
+  .wrap { padding: 10px; }
+  .card { padding: 14px; }
+  .question-text { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CATS = [
+    'Bitcoin basics',
+    'Keys and addresses',
+    'Transactions',
+    'Blockchain and mining',
+    'Digital signatures',
+    'Signature algorithms',
+    'Timestamping'
+  ];
+
+  // t: mc (first answer in array a is the correct one, it gets shuffled at runtime)
+  // t: order (items are listed in the correct order, shuffled at runtime)
+  // t: open (ref is the reference answer)
+  var DATA = [
+    { t: 'mc', cat: 0,
+      q: 'Who holds the Bitcoin ledger?',
+      a: ['Everyone participating in the network holds a copy of it', 'Only a central bank', 'A single trusted company, like PayPal', 'Only the miners with the most computing power'],
+      e: 'Bitcoin is decentralized banking: everybody has a copy of the ledger and balance changes are propagated. In a centralized bank, one ledger is held by the bank.' },
+    { t: 'mc', cat: 0,
+      q: 'How is a payment such as Alice to Bob, 5.0 BTC, carried out in Bitcoin?',
+      a: ['The transaction is broadcast to the network and the copies of the ledger are updated', 'Alice sends the coins to a central server that updates the only ledger', 'Bob must first download and maintain the full ledger to receive the money', 'A miner manually edits the balances of both users'],
+      e: 'To send money you broadcast the transaction to the network. You do not have to maintain a ledger yourself just to send and receive Bitcoin.' },
+    { t: 'mc', cat: 1,
+      q: 'How many bytes does an uncompressed Bitcoin (ECDSA) public key have?',
+      a: ['65 bytes', '32 bytes', '33 bytes', '160 bytes'],
+      e: 'Private keys are always 32 bytes, uncompressed public keys are 65 bytes and compressed public keys are 33 bytes.' },
+    { t: 'mc', cat: 1,
+      q: 'What is a Bitcoin address calculated from?',
+      a: ['The ECDSA public key, by hashing it', 'The private key, directly', 'The hash of the previous block', 'The IP address of the sender'],
+      e: 'The Bitcoin address is derived from the public key of the ECDSA algorithm. The address can be shared, the private key must stay secret.' },
+    { t: 'mc', cat: 1,
+      q: 'Which hash computation generates the public key hash used for a Bitcoin address?',
+      a: ['RIPEMD160(SHA256(public key))', 'SHA256(RIPEMD160(public key))', 'SHA256(SHA256(private key))', 'RIPEMD160(private key)'],
+      e: 'The public key is first hashed with SHA256 and the result is hashed with RIPEMD160.' },
+    { t: 'mc', cat: 2,
+      q: 'What does a Bitcoin transaction include so that everyone in the network can verify it?',
+      a: ['The public key of the sender and the digital signature', 'The private key of the sender and the digital signature', 'Only the address of the sender', 'Only the receiver address and the amount'],
+      e: 'The sender reveals the public key and the digital signature, which allows everybody to verify the transaction.' },
+    { t: 'mc', cat: 2,
+      q: 'How does a verifier confirm that the public key in a transaction belongs to the sender address?',
+      a: ['It computes RIPEMD160(SHA256(pubkey)) and compares it with the sender address', 'It compares the signature with the hash of the previous block', 'It compares the public key with the private key of the sender', 'It compares the nonce with the target'],
+      e: 'If the regenerated hash matches the address, the public key belongs to that address. Then the signature is verified with that public key.' },
+    { t: 'mc', cat: 2,
+      q: 'Why is the digital signature different for every transaction, even when the same person signs?',
+      a: ['Because the signature is a bit pattern that depends on the message being signed', 'Because the private key changes after each transaction', 'Because miners re-sign every transaction', 'Because the network adds a random salt to every transaction'],
+      e: 'A signature depends on the message, so each transaction (Alice to Bob 5 BTC, Alice to Dave 12 BTC, ...) gets a different signature.' },
+    { t: 'mc', cat: 3,
+      q: 'What is a blockchain?',
+      a: ['A decentralized ledger organized in blocks that are linked through cryptographic validation', 'A central database run by a single authority', 'A list of the private keys of all users', 'An encrypted archive of e-mails'],
+      e: 'A blockchain is the foundational technology of Bitcoin: blocks are linked together cryptographically to ensure data integrity.' },
+    { t: 'mc', cat: 3,
+      q: 'What is the job of a Bitcoin miner in the proof of work?',
+      a: ['Find a nonce so that the double SHA-256 hash of the block data is less than or equal to the target', 'Guess the private key of the receiver', 'Find a nonce so that the hash is exactly zero', 'Encrypt the block with the public key of the miner'],
+      e: 'Miners compute SHA-256(SHA-256(T, D, R)) and search for the nonce R so that the digest is at most the target.' },
+    { t: 'mc', cat: 3,
+      q: 'Which data is hashed by a miner (T, D, R) in the mining formula?',
+      a: ['Text of unverified transactions, digest of the most recent block and a nonce', 'Only the nonce', 'Private key of the sender, address of the receiver and a nonce', 'Block number, miner name and current time only'],
+      e: 'T is the text from several unverified transactions, D is the digest of the most recent block and R is the nonce.' },
+    { t: 'mc', cat: 3,
+      q: 'The difficulty is adjusted so that 2016 blocks take about:',
+      a: ['2 weeks (14 days)', '2 days', '2 hours', '1 year'],
+      e: 'ExpectedTime is 2 weeks. The new target is the old target multiplied by actual time divided by expected time.' },
+    { t: 'mc', cat: 3,
+      q: 'The last 2016 blocks were found in only 10 days. What happens to the difficulty?',
+      a: ['It is increased (the target gets smaller)', 'It is decreased', 'It stays the same', 'The block reward is halved instead'],
+      e: 'Blocks came too fast, so mining was too easy. Target_new = Target_old x 10/14, which makes the difficulty about 40% higher.' },
+    { t: 'mc', cat: 3,
+      q: 'Two nodes find a valid proof of work at the same time and the chain forks. Which chain do Bitcoin nodes accept?',
+      a: ['The longest available chain; the shorter branch is abandoned', 'Both branches are kept forever', 'The branch with more transactions', 'The branch whose block was found first by timestamp'],
+      e: 'Bitcoin nodes always accept the longest available chain, so the blocks on the shorter branch are discarded.' },
+    { t: 'mc', cat: 3,
+      q: 'Why is it practically impossible to cheat by altering a transaction in an old block?',
+      a: ['The attacker would have to redo the proof of work for that block and all later blocks, faster than the rest of the network', 'The transactions are stored encrypted and cannot be read', 'The private keys of all users would be needed', 'A central server rejects any alteration'],
+      e: 'Altering block 74 when the network is working on block 91 means redoing the expensive computation of all blocks 74-90 and keeping up with the network.' },
+    { t: 'mc', cat: 3,
+      q: 'How do miners get their reward?',
+      a: ['They add a transaction with no inputs (newly generated coins) paying to their own address, plus transaction fees', 'A central bank pays them after each block', 'The receiver of each transaction pays them directly', 'They take coins from the previous miner'],
+      e: 'Before starting their work, miners add a transaction from the 0 address to their own address with the block reward plus the transaction fees.' },
+    { t: 'mc', cat: 3,
+      q: 'How does the Bitcoin block reward develop over time?',
+      a: ['It starts at 50 BTC and is halved every 210,000 blocks', 'It starts at 50 BTC and doubles every 210,000 blocks', 'It is fixed at 50 BTC forever', 'It is halved every 2016 blocks'],
+      e: 'The reward was 50 BTC for the first 210,000 blocks, then 25, then 12.5 and so on.' },
+    { t: 'mc', cat: 3,
+      q: 'What is the (approximate) maximum number of Bitcoins that will ever exist?',
+      a: ['Nearly 21 million', 'About 2.1 million', 'About 210 million', 'Unlimited'],
+      e: 'Because the reward halves each time, the sum is a geometric series that converges to nearly 21 million but never reaches it.' },
+    { t: 'mc', cat: 4,
+      q: 'Why does a MAC lack non-repudiation?',
+      a: ['Both parties share the same secret key, so either of them could have generated the MAC', 'Because MAC uses asymmetric keys that anybody can generate', 'Because MAC does not protect the integrity of the message', 'Because MAC can be verified only by third parties'],
+      e: 'With a shared symmetric key, Bob can create a valid MAC for any message and Alice cannot prove she did not send it.' },
+    { t: 'mc', cat: 4,
+      q: 'Which statement describes a digital signature compared to a MAC?',
+      a: ['It uses asymmetric cryptography, provides non-repudiation and can be verified publicly without a shared key', 'It uses a shared secret key and is verified only by the receiver', 'It provides only integrity but never authenticity', 'It must be kept secret by the signer and the receiver'],
+      e: 'Digital signatures are better suited for environments where authenticity and integrity must be verified publicly without a shared key.' },
+    { t: 'mc', cat: 4,
+      q: 'Which requirement must a digital signature fulfil?',
+      a: ['It must be computationally infeasible to forge it, either for a new message or for a given message', 'It must be independent of the message so that it can be reused', 'It must be as hard to verify as it is to produce', 'It must be kept secret by the signer'],
+      e: 'The signature must depend on the message and on information unique to the sender, be easy to produce and verify, and be infeasible to forge.' },
+    { t: 'mc', cat: 5,
+      q: 'How does the RSA approach to digital signatures work?',
+      a: ['The message is hashed, the hash is signed with the private key and verified with the public key', 'The message is encrypted with the public key and decrypted with the private key', 'The hash is signed with the public key and verified with the private key', 'The whole raw message is signed without hashing it'],
+      e: 'Signing is the reverse of encryption: private key signs, public key verifies. Hashing ensures integrity and efficiency, because signing raw data is slow.' },
+    { t: 'mc', cat: 5,
+      q: 'Which standard did NIST publish for the Digital Signature Algorithm (DSA)?',
+      a: ['FIPS 186, which makes use of the Secure Hash Algorithm (SHA)', 'FIPS 197, which makes use of AES', 'RFC 2104, which makes use of HMAC', 'PKCS #1, which makes use of MD5'],
+      e: 'DSA was published by NIST as FIPS 186. The latest version (186-3) also includes RSA and elliptic curve based signature algorithms.' },
+    { t: 'mc', cat: 5,
+      q: 'In DSA signing, which is the only computationally demanding task, and why does it help?',
+      a: ['Computing g^k mod p; the values of r can be pre-calculated, which can make signing faster', 'Hashing the message with SHA; it can be skipped', 'Generating the public key y; it must be done for every signature', 'Verifying r with the public key; it is done by the signer'],
+      e: 'r = (g^k mod p) mod q does not depend on the message, so a user can pre-compute a number of r values and use them when signing documents.' },
+    { t: 'mc', cat: 5,
+      q: 'Why is ECDSA widely used (e.g. in TLS certificates, Bitcoin and smart cards)?',
+      a: ['It gives the same security as DSA or RSA with much smaller keys and signatures', 'It uses much larger keys for stronger security', 'It does not need a hash function', 'It does not need a private key'],
+      e: 'ECDSA offers the same security level with smaller keys and signatures.' },
+    { t: 'mc', cat: 5,
+      q: 'When is an ECDSA signature accepted by the verifier?',
+      a: ['When the computed value v is equal to r', 'When v is equal to zero', 'When s is equal to r', 'When the computed point X is the point at infinity O'],
+      e: 'The verifier uses the public key, the domain parameters and s to compute v, and the signature is verified if v = r.' },
+    { t: 'mc', cat: 5,
+      q: 'What is the main idea of RSA-PSS (Probabilistic Signature Scheme)?',
+      a: ['It adds randomization (a random salt), so the same message gives different signatures and security can be proven to be related to RSA', 'It is deterministic, so the same message and key always give the same signature', 'It replaces RSA with elliptic curves', 'It replaces the hash function with a MAC'],
+      e: 'Plain RSA gives the exact same signature every time for the same message and key. RSA-PSS includes a random salt. It was first proposed by Bellare and Rogaway.' },
+    { t: 'mc', cat: 6,
+      q: 'Why are manual timestamps added by the signer not a reliable solution?',
+      a: ['The timestamp can be manipulated by the signer and is not independently verifiable', 'The timestamp makes the signature much slower to verify', 'The timestamp cannot be stored with the document', 'The timestamp is always rejected by the verifier'],
+      e: 'A reliable timestamp has to come from an independent entity, for example a Trusted Timestamping Authority (TSA) or a blockchain.' },
+    { t: 'mc', cat: 6,
+      q: 'What do you send to the receiver when a Trusted Timestamping Authority (TSA) is used?',
+      a: ['The document, your digital signature and the timestamp token of the TSA (with the signature of the TSA)', 'Only the document and the timestamp token', 'The document and the private key of the TSA', 'Only the hash of the document'],
+      e: 'The receiver needs the document itself, your digital signature and the timestamp token signed by the TSA.' },
+
+    { t: 'order', cat: 1,
+      q: 'Put the steps of generating a Bitcoin address into the correct order.',
+      items: ['Generate a private key', 'Derive the ECDSA public key from the private key', 'Hash the public key with SHA256', 'Hash the result with RIPEMD160', 'The result is the Bitcoin address'],
+      e: 'Private key, then public key, then SHA256, then RIPEMD160 and finally the BTC address. The private key is also used to create digital signatures.' },
+    { t: 'order', cat: 2,
+      q: 'Put the steps of verifying a Bitcoin transaction into the correct order.',
+      items: ['Extract the public key from the transaction input', 'Compute RIPEMD160(SHA256(pubkey))', 'Compare the result with the sender address', 'Use the public key to verify the signature', 'Both checks match: the transaction is valid'],
+      e: 'First the public key is linked to the address, then the signature proves that the sender owns the private key.' },
+    { t: 'order', cat: 5,
+      q: 'Put the steps of creating and verifying an RSA digital signature into the correct order.',
+      items: ['Alice hashes the message M', 'Alice encrypts the hash with her private key to get the signature S', 'Alice sends M together with S to Bob', 'Bob hashes the received message M', 'Bob decrypts S with the public key of Alice', 'Bob compares the two hash values'],
+      e: 'If the hash computed from M equals the hash recovered from S, the signature is valid.' },
+    { t: 'order', cat: 6,
+      q: 'Put the steps of getting a trusted timestamp from a TSA into the correct order.',
+      items: ['The requesting party calculates the hash of the data', 'The hash is sent to the TSA', 'The TSA adds a timestamp to the hash and calculates a new hash', 'The TSA applies its private key to create a digital signature', 'The signed timestamp and hash are returned to the requester', 'The requester stores the data and the timestamp token together'],
+      e: 'The TSA never sees the data itself, only its hash. Its signature over the hash and timestamp makes the time verifiable.' },
+
+    { t: 'open', cat: 4,
+      q: 'Explain why a MAC cannot provide non-repudiation (use the Alice and Bob scenario) and how digital signatures solve this problem.',
+      ref: 'A MAC is computed with a symmetric secret key that both Alice and Bob know. Bob can therefore create a valid MAC for any message he chooses, for example a forged "Transfer $1000 to Account ABC", and present it as if it came from Alice. Alice has no way to prove that she did not send it, because either of them could have generated the MAC. A digital signature uses an asymmetric key pair: only Alice knows the private key and signs with it, while anybody can verify the signature with her public key. Bob cannot forge her signature, Alice cannot deny a valid one and any third party can verify it to resolve a dispute.' },
+    { t: 'open', cat: 3,
+      q: 'Explain how proof of work, the longest-chain rule and the difficulty adjustment together make it infeasible to rewrite past Bitcoin transactions.',
+      ref: 'Every block contains a proof of work (a nonce such that the double SHA-256 of the block data is below the target) and the hash of the previous block, so changing a transaction in an old block changes its hash and invalidates all following blocks. The attacker would have to redo the expensive proof of work for that block and every later block, and do it faster than the rest of the network which keeps extending the chain. Nodes always accept the longest available chain, so a shorter altered branch is simply discarded. The difficulty adjustment (every 2016 blocks, aiming at 2 weeks) keeps the work per block high even when more computing power joins, and blocks deeper in the chain are therefore more secure.' },
+    { t: 'open', cat: 2,
+      q: 'The ledger identifies the sender by a Bitcoin address, which is only a hash of the public key. Explain how any node can still verify that a transaction was authorized by the owner of the coins.',
+      ref: 'The sender includes both the public key and the digital signature in the transaction. The verifier extracts the public key, computes RIPEMD160(SHA256(pubkey)) and compares it with the sender address; a match proves that the public key belongs to that address. Then the verifier uses the public key to verify the signature, which proves that the sender owns the matching private key. If both checks pass, the transaction is valid and ownership is proven cryptographically, without any shared secret or central authority.' }
+  ];
+
+  var app = document.getElementById('app');
+  var state = null;
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
+
+  function isSorted(arr) {
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] !== i) { return false; }
+    }
+    return true;
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (text !== undefined) { e.textContent = text; }
+    return e;
+  }
+
+  function buildQuestions() {
+    var qs = shuffle(DATA).map(function(d) {
+      var q = { d: d, answered: false, correct: false };
+      if (d.t === 'mc') {
+        var opts = d.a.map(function(txt, i) { return { text: txt, ok: i === 0 }; });
+        q.opts = shuffle(opts);
+        q.selected = -1;
+      } else if (d.t === 'order') {
+        var idx = d.items.map(function(x, i) { return i; });
+        var sh;
+        do { sh = shuffle(idx); } while (isSorted(sh));
+        q.order = sh;
+      } else {
+        q.text = '';
+        q.revealed = false;
+        q.grade = null;
+      }
+      return q;
+    });
+    state = { questions: qs, cur: 0, finished: false };
+  }
+
+  function countAnswered() {
+    var n = 0;
+    state.questions.forEach(function(q) { if (q.answered) { n++; } });
+    return n;
+  }
+
+  function countScore() {
+    var n = 0;
+    state.questions.forEach(function(q) { if (q.answered && q.correct) { n++; } });
+    return n;
+  }
+
+  function renderMC(card, q) {
+    var box = el('div', 'answers');
+    q.opts.forEach(function(o, i) {
+      var b = el('button', 'answer-btn', o.text);
+      b.type = 'button';
+      if (q.answered) {
+        b.disabled = true;
+        if (o.ok) { b.classList.add('correct'); }
+        else if (i === q.selected) { b.classList.add('wrong'); }
+      } else {
+        b.addEventListener('click', function() {
+          q.selected = i;
+          q.answered = true;
+          q.correct = o.ok;
+          render();
+        });
+      }
+      box.appendChild(b);
+    });
+    card.appendChild(box);
+  }
+
+  function renderOrder(card, q) {
+    var d = q.d;
+    var list = el('div', 'order-list');
+    q.order.forEach(function(itemIdx, pos) {
+      var row = el('div', 'order-item');
+      if (q.answered) { row.classList.add(itemIdx === pos ? 'ok' : 'bad'); }
+      row.appendChild(el('span', 'order-num', (pos + 1) + '.'));
+      row.appendChild(el('span', 'order-text', d.items[itemIdx]));
+      var ctr = el('span', 'order-ctrl');
+      var up = el('button', 'move-btn', '▲');
+      up.type = 'button';
+      up.setAttribute('aria-label', 'Posunout nahoru');
+      up.disabled = q.answered || pos === 0;
+      up.addEventListener('click', function() {
+        var t = q.order[pos]; q.order[pos] = q.order[pos - 1]; q.order[pos - 1] = t;
+        render();
+      });
+      var down = el('button', 'move-btn', '▼');
+      down.type = 'button';
+      down.setAttribute('aria-label', 'Posunout dolů');
+      down.disabled = q.answered || pos === q.order.length - 1;
+      down.addEventListener('click', function() {
+        var t = q.order[pos]; q.order[pos] = q.order[pos + 1]; q.order[pos + 1] = t;
+        render();
+      });
+      ctr.appendChild(up);
+      ctr.appendChild(down);
+      row.appendChild(ctr);
+      list.appendChild(row);
+    });
+    card.appendChild(list);
+    if (!q.answered) {
+      var chk = el('button', 'action-btn', 'Zkontrolovat');
+      chk.type = 'button';
+      chk.addEventListener('click', function() {
+        q.answered = true;
+        q.correct = isSorted(q.order);
+        render();
+      });
+      card.appendChild(chk);
+    }
+  }
+
+  function renderOpen(card, q) {
+    var ta = document.createElement('textarea');
+    ta.value = q.text;
+    ta.placeholder = 'Napiš svou odpověď...';
+    ta.disabled = q.revealed;
+    ta.addEventListener('input', function() { q.text = ta.value; });
+    card.appendChild(ta);
+
+    if (!q.revealed) {
+      var rv = el('button', 'action-btn', 'Zobrazit vzorovou odpověď');
+      rv.type = 'button';
+      rv.addEventListener('click', function() {
+        q.text = ta.value;
+        q.revealed = true;
+        render();
+      });
+      card.appendChild(rv);
+      return;
+    }
+
+    var ref = el('div', 'ref-box');
+    ref.appendChild(el('div', 'ref-title', 'Vzorová odpověď'));
+    ref.appendChild(el('div', 'ref-text', q.d.ref));
+    card.appendChild(ref);
+
+    var row = el('div', 'grade-row');
+    var ok = el('button', 'grade-btn ok', 'Zvládl jsem');
+    ok.type = 'button';
+    var fail = el('button', 'grade-btn fail', 'Nezvládl jsem');
+    fail.type = 'button';
+    if (q.answered) {
+      ok.disabled = true;
+      fail.disabled = true;
+      if (q.grade === 'ok') { ok.classList.add('chosen'); }
+      else { fail.classList.add('chosen'); }
+    } else {
+      ok.addEventListener('click', function() {
+        q.answered = true; q.correct = true; q.grade = 'ok'; render();
+      });
+      fail.addEventListener('click', function() {
+        q.answered = true; q.correct = false; q.grade = 'fail'; render();
+      });
+    }
+    row.appendChild(ok);
+    row.appendChild(fail);
+    card.appendChild(row);
+  }
+
+  function renderExplanation(card, q) {
+    var d = q.d;
+    if (!q.answered || d.t === 'open') { return; }
+    var ex = el('div', 'explanation');
+    var head = q.correct ? 'Správně. ' : 'Špatně. ';
+    ex.appendChild(el('span', 'exp-title', head));
+    ex.appendChild(el('span', 'exp-text', d.e));
+    if (d.t === 'order') {
+      ex.appendChild(el('div', 'exp-title', 'Správné pořadí:'));
+      var ol = el('ol', 'exp-list');
+      d.items.forEach(function(it) { ol.appendChild(el('li', '', it)); });
+      ex.appendChild(ol);
+    }
+    card.appendChild(ex);
+  }
+
+  function render() {
+    app.innerHTML = '';
+    if (state.finished) { renderResults(); return; }
+    var qs = state.questions;
+    var q = qs[state.cur];
+    var d = q.d;
+    var answered = countAnswered();
+    var score = countScore();
+
+    app.appendChild(el('div', 'title', 'Quiz: Bitcoin and Digital Signatures'));
+    var stats = el('div', 'stats');
+    stats.appendChild(el('span', 'stat', 'Otázka ' + (state.cur + 1) + ' / ' + qs.length));
+    stats.appendChild(el('span', 'stat', 'Zodpovězeno: ' + answered + ' / ' + qs.length));
+    stats.appendChild(el('span', 'stat score', 'Skóre: ' + score + ' / ' + answered));
+    app.appendChild(stats);
+    var prog = el('div', 'progress');
+    var fill = el('div', 'progress-fill');
+    fill.style.width = Math.round(100 * answered / qs.length) + '%';
+    prog.appendChild(fill);
+    app.appendChild(prog);
+
+    var card = el('div', 'card');
+    card.appendChild(el('span', 'tag cat-' + d.cat, CATS[d.cat]));
+    var hint;
+    if (d.t === 'mc') { hint = 'Vyber jednu správnou odpověď'; }
+    else if (d.t === 'order') { hint = 'Seřaď položky do správného pořadí pomocí tlačítek ▲ ▼'; }
+    else { hint = 'Otevřená otázka: napiš odpověď, porovnej se vzorovou a ohodnoť se sám'; }
+    card.appendChild(el('div', 'kind', hint));
+    card.appendChild(el('div', 'question-text', d.q));
+
+    if (d.t === 'mc') { renderMC(card, q); }
+    else if (d.t === 'order') { renderOrder(card, q); }
+    else { renderOpen(card, q); }
+
+    renderExplanation(card, q);
+
+    var nav = el('div', 'nav');
+    var back = el('button', 'nav-btn', '← Zpět');
+    back.type = 'button';
+    back.disabled = state.cur === 0;
+    back.addEventListener('click', function() {
+      if (state.cur > 0) { state.cur--; render(); window.scrollTo(0, 0); }
+    });
+    var isLast = state.cur === qs.length - 1;
+    var next = el('button', 'nav-btn primary', isLast ? 'Zobrazit výsledek' : 'Další →');
+    next.type = 'button';
+    next.disabled = !q.answered;
+    next.addEventListener('click', function() {
+      if (!q.answered) { return; }
+      if (isLast) { state.finished = true; }
+      else { state.cur++; }
+      render();
+      window.scrollTo(0, 0);
+    });
+    nav.appendChild(back);
+    nav.appendChild(next);
+    card.appendChild(nav);
+    app.appendChild(card);
+  }
+
+  function renderResults() {
+    var qs = state.questions;
+    var score = countScore();
+    var pct = Math.round(100 * score / qs.length);
+    app.appendChild(el('div', 'title', 'Quiz: Bitcoin and Digital Signatures'));
+    var prog = el('div', 'progress');
+    var fill = el('div', 'progress-fill');
+    fill.style.width = '100%';
+    prog.appendChild(fill);
+    app.appendChild(prog);
+
+    var card = el('div', 'card');
+    card.appendChild(el('div', 'question-text', 'Výsledek'));
+    card.appendChild(el('div', 'result-big', pct + ' %'));
+    card.appendChild(el('div', 'result-sub', 'Správně ' + score + ' z ' + qs.length + ' otázek'));
+    var msg;
+    if (pct >= 90) { msg = 'Výborně, látku máš skvěle zvládnutou.'; }
+    else if (pct >= 70) { msg = 'Dobrá práce, pár míst si ještě projdi.'; }
+    else if (pct >= 50) { msg = 'Základ tam je, ale chce to opakování.'; }
+    else { msg = 'Doporučuji projít slidy znovu a zkusit to ještě jednou.'; }
+    card.appendChild(el('div', 'result-msg', msg));
+
+    CATS.forEach(function(name, ci) {
+      var total = 0;
+      var ok = 0;
+      qs.forEach(function(q) {
+        if (q.d.cat === ci) {
+          total++;
+          if (q.correct) { ok++; }
+        }
+      });
+      if (total === 0) { return; }
+      var row = el('div', 'cat-row');
+      row.appendChild(el('span', 'tag cat-' + ci, name));
+      row.appendChild(el('span', 'cat-row-score', ok + ' / ' + total));
+      card.appendChild(row);
+    });
+
+    var actions = el('div', 'result-actions');
+    var review = el('button', 'nav-btn', 'Projít otázky');
+    review.type = 'button';
+    review.addEventListener('click', function() {
+      state.finished = false;
+      state.cur = 0;
+      render();
+      window.scrollTo(0, 0);
+    });
+    var again = el('button', 'nav-btn primary', 'Spustit znovu');
+    again.type = 'button';
+    again.addEventListener('click', function() {
+      buildQuestions();
+      render();
+      window.scrollTo(0, 0);
+    });
+    actions.appendChild(review);
+    actions.appendChild(again);
+    card.appendChild(actions);
+    app.appendChild(card);
+  }
+
+  buildQuestions();
+  render();
+});
+</script>
+</body>
+</html>

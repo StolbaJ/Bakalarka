@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz: Cryptographic Key Management and Distribution</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f3f4f6; color: #111827; line-height: 1.5; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 16px; color: #111827; }
+h1 { font-size: 1.35rem; margin: 8px 0 12px 0; color: #111827; }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; color: #111827; flex-wrap: wrap; gap: 6px; }
+.score { font-weight: 700; color: #111827; background: #ffffff; border: 1px solid #d1d5db; border-radius: 999px; padding: 4px 14px; }
+.counter { color: #374151; font-size: 0.95rem; }
+.progress-track { width: 100%; height: 12px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
+.progress-fill { height: 100%; width: 0; background: #2563eb; border-radius: 999px; transition: width 0.3s; }
+.card { background: #ffffff; color: #111827; border: 1px solid #d1d5db; border-radius: 14px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; color: #111827; }
+.tag { display: inline-block; font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.tag-c1 { background: #dbeafe; color: #1e3a8a; }
+.tag-c2 { background: #ede9fe; color: #4c1d95; }
+.tag-c3 { background: #ccfbf1; color: #134e4a; }
+.tag-c4 { background: #ffedd5; color: #7c2d12; }
+.tag-c5 { background: #fce7f3; color: #831843; }
+.tag-c6 { background: #dcfce7; color: #14532d; }
+.type-label { font-size: 0.8rem; color: #374151; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 999px; padding: 2px 10px; }
+.question-text { font-size: 1.1rem; font-weight: 600; margin: 0 0 16px 0; color: #111827; }
+.answer-btn { display: block; width: 100%; text-align: left; font-family: inherit; font-size: 1rem; padding: 12px 14px; margin: 0 0 10px 0; border: 2px solid #d1d5db; border-radius: 10px; background: #f9fafb; color: #1a1a2e; cursor: pointer; }
+.answer-btn:hover:not(:disabled) { border-color: #2563eb; background: #eff6ff; color: #1a1a2e; }
+.answer-btn:disabled { cursor: default; }
+.answer-btn.correct { background: #d1fae5; border-color: #059669; color: #064e3b; }
+.answer-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+.answer-btn.neutral { background: #f9fafb; color: #1a1a2e; border-color: #d1d5db; }
+.explanation { margin-top: 14px; padding: 12px 14px; border-left: 4px solid #2563eb; background: #eff6ff; color: #111827; border-radius: 6px; font-size: 0.97rem; }
+.explanation p { margin: 0 0 6px 0; color: #111827; }
+.explanation ol { margin: 6px 0 0 0; padding-left: 22px; color: #111827; }
+.explanation li { color: #111827; }
+.verdict { font-weight: 700; margin: 0 0 6px 0; }
+.verdict-ok { color: #065f46; }
+.verdict-bad { color: #991b1b; }
+.order-list { list-style: none; padding: 0; margin: 0 0 12px 0; }
+.order-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin: 0 0 8px 0; border: 2px solid #d1d5db; border-radius: 10px; background: #f9fafb; color: #1a1a2e; }
+.order-item.draggable { cursor: grab; }
+.order-item.dragover { border-color: #2563eb; background: #eff6ff; }
+.order-item.ok { background: #d1fae5; border-color: #059669; color: #064e3b; }
+.order-item.bad { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+.order-num { font-weight: 700; min-width: 24px; color: inherit; }
+.order-text { flex: 1; color: inherit; }
+.ord-btn { font-family: inherit; font-size: 1rem; width: 36px; height: 36px; border: 1px solid #9ca3af; border-radius: 8px; background: #ffffff; color: #1a1a2e; cursor: pointer; }
+.ord-btn:disabled { opacity: 0.45; cursor: default; }
+.action-btn { font-family: inherit; font-size: 1rem; font-weight: 600; padding: 10px 18px; border: none; border-radius: 10px; background: #1d4ed8; color: #ffffff; cursor: pointer; margin-right: 8px; margin-bottom: 8px; }
+.action-btn:disabled { background: #e5e7eb; color: #4b5563; cursor: default; }
+.grade-btn { font-family: inherit; font-size: 1rem; font-weight: 600; padding: 10px 18px; border: 3px solid transparent; border-radius: 10px; cursor: pointer; margin-right: 8px; margin-bottom: 8px; }
+.grade-ok { background: #047857; color: #ffffff; }
+.grade-bad { background: #b91c1c; color: #ffffff; }
+.grade-btn.sel { border-color: #111827; }
+.grade-btn.dim { background: #e5e7eb; color: #4b5563; }
+.grade-btn:disabled { cursor: default; }
+textarea.open-input { width: 100%; min-height: 130px; font-family: inherit; font-size: 1rem; padding: 10px; border: 2px solid #d1d5db; border-radius: 10px; background: #ffffff; color: #111827; resize: vertical; margin-bottom: 10px; }
+.model-answer { margin: 10px 0 12px 0; padding: 12px 14px; background: #fef9c3; border-left: 4px solid #ca8a04; color: #422006; border-radius: 6px; }
+.model-answer p { margin: 0 0 6px 0; color: #422006; }
+.nav { display: flex; justify-content: space-between; margin-top: 16px; gap: 10px; }
+.nav-btn { font-family: inherit; font-size: 1rem; font-weight: 600; padding: 10px 20px; border: none; border-radius: 10px; background: #1d4ed8; color: #ffffff; cursor: pointer; }
+.nav-btn:disabled { background: #e5e7eb; color: #4b5563; cursor: default; }
+.summary { text-align: center; color: #111827; }
+.summary h2 { color: #111827; margin: 0 0 8px 0; }
+.big-pct { font-size: 3.2rem; font-weight: 800; color: #1d4ed8; margin: 8px 0; }
+.summary p { color: #111827; margin: 6px 0; }
+@media (max-width: 480px) {
+  .wrap { padding: 10px; }
+  .card { padding: 14px; }
+  .question-text { font-size: 1.02rem; }
+}
+@media (prefers-color-scheme: dark) {
+  body { background: #0f172a; color: #f1f5f9; }
+  .wrap { color: #f1f5f9; }
+  h1 { color: #f1f5f9; }
+  .topbar { color: #f1f5f9; }
+  .score { background: #1e293b; color: #f1f5f9; border-color: #475569; }
+  .counter { color: #cbd5e1; }
+  .progress-track { background: #334155; }
+  .progress-fill { background: #60a5fa; }
+  .card { background: #1e293b; color: #f1f5f9; border-color: #475569; box-shadow: none; }
+  .meta { color: #f1f5f9; }
+  .tag-c1 { background: #1e3a8a; color: #dbeafe; }
+  .tag-c2 { background: #4c1d95; color: #ede9fe; }
+  .tag-c3 { background: #134e4a; color: #ccfbf1; }
+  .tag-c4 { background: #7c2d12; color: #ffedd5; }
+  .tag-c5 { background: #831843; color: #fce7f3; }
+  .tag-c6 { background: #14532d; color: #dcfce7; }
+  .type-label { background: #334155; color: #e2e8f0; border-color: #475569; }
+  .question-text { color: #f1f5f9; }
+  .answer-btn { background: #334155; color: #f1f5f9; border-color: #64748b; }
+  .answer-btn:hover:not(:disabled) { background: #3b4b66; color: #f1f5f9; border-color: #60a5fa; }
+  .answer-btn.correct { background: #064e3b; color: #d1fae5; border-color: #34d399; }
+  .answer-btn.wrong { background: #7f1d1d; color: #fee2e2; border-color: #f87171; }
+  .answer-btn.neutral { background: #334155; color: #f1f5f9; border-color: #64748b; }
+  .explanation { background: #172554; color: #f1f5f9; border-left-color: #60a5fa; }
+  .explanation p { color: #f1f5f9; }
+  .explanation ol { color: #f1f5f9; }
+  .explanation li { color: #f1f5f9; }
+  .verdict-ok { color: #6ee7b7; }
+  .verdict-bad { color: #fca5a5; }
+  .order-item { background: #334155; color: #f1f5f9; border-color: #64748b; }
+  .order-item.dragover { background: #3b4b66; border-color: #60a5fa; color: #f1f5f9; }
+  .order-item.ok { background: #064e3b; color: #d1fae5; border-color: #34d399; }
+  .order-item.bad { background: #7f1d1d; color: #fee2e2; border-color: #f87171; }
+  .order-num { color: inherit; }
+  .order-text { color: inherit; }
+  .ord-btn { background: #1e293b; color: #f1f5f9; border-color: #64748b; }
+  .action-btn { background: #3b82f6; color: #0f172a; }
+  .action-btn:disabled { background: #334155; color: #cbd5e1; }
+  .grade-ok { background: #34d399; color: #022c22; }
+  .grade-bad { background: #f87171; color: #450a0a; }
+  .grade-btn.sel { border-color: #f1f5f9; }
+  .grade-btn.dim { background: #334155; color: #cbd5e1; }
+  textarea.open-input { background: #0f172a; color: #f1f5f9; border-color: #64748b; }
+  .model-answer { background: #422006; color: #fef9c3; border-left-color: #facc15; }
+  .model-answer p { color: #fef9c3; }
+  .nav-btn { background: #3b82f6; color: #0f172a; }
+  .nav-btn:disabled { background: #334155; color: #cbd5e1; }
+  .summary { color: #f1f5f9; }
+  .summary h2 { color: #f1f5f9; }
+  .big-pct { color: #60a5fa; }
+  .summary p { color: #f1f5f9; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+  <h1>Quiz: Cryptographic Key Management and Distribution</h1>
+  <div id="app"></div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CATS = {
+    1: 'Key Management',
+    2: 'Symmetric Key Distribution',
+    3: 'Public-Key Distribution',
+    4: 'X.509 Certificates',
+    5: 'PKI',
+    6: 'Certificate Transparency'
+  };
+
+  var BANK = [
+    { type: 'mcq', cat: 1, q: 'According to Kerckhoffs principle, on what should the security of a cryptosystem depend?',
+      opts: ['Solely on the secrecy of the key', 'On keeping the algorithm secret', 'On the length of the transmitted message', 'On the speed of the algorithm'],
+      exp: 'A cryptosystem should stay secure even if the algorithm is public knowledge - only the key has to remain secret.' },
+    { type: 'mcq', cat: 1, q: 'Which set of activities does cryptographic key management involve?',
+      opts: ['Generation, protection, storage, exchange, replacement and use of keys', 'Only the generation of random numbers', 'Only the encryption of messages', 'Only the revocation of certificates'],
+      exp: 'Key management is the process of administering keys for a cryptosystem: generation, creation, protection, storage, exchange, replacement and use, plus selective restriction of certain keys.' },
+    { type: 'mcq', cat: 1, q: 'What does the term key distribution refer to?',
+      opts: ['Delivering a key to two parties who wish to exchange data without allowing others to see the key', 'Splitting one key into several shares', 'Deriving a key from a password', 'Securely destroying old keys'],
+      exp: 'Key distribution is the means of delivering a key to two communicating parties without letting anyone else see it.' },
+    { type: 'mcq', cat: 1, q: 'Why are frequent key changes desirable?',
+      opts: ['They limit the amount of data compromised if an attacker learns the key', 'They make encryption faster', 'They allow the use of shorter keys', 'They remove the need for authentication'],
+      exp: 'If a key is changed often, an attacker who learns one key can read only the data protected by that key.' },
+    { type: 'mcq', cat: 2, q: 'Which of the following is a valid way to achieve symmetric key distribution between A and B?',
+      opts: ['If A and B recently used a key, one party sends the new key encrypted with the old key', 'A broadcasts the new key to everybody in plaintext', 'The key is derived from the public key of a CA', 'B sends the key unencrypted over the Internet'],
+      exp: 'The listed options are: A selects a key and physically delivers it, a third party selects and physically delivers it, the new key is encrypted with the old key, or a third party C delivers it over encrypted links.' },
+    { type: 'mcq', cat: 2, q: 'What does a key distribution center (KDC) do?',
+      opts: ['Generates and distributes session keys', 'Signs X.509 certificates', 'Stores revoked certificates', 'Verifies identities before certificates are issued'],
+      exp: 'A KDC generates and distributes session keys, typically encrypting them with master keys shared with each entity.' },
+    { type: 'mcq', cat: 2, q: 'What is the role of a key translation center (KTC)?',
+      opts: ['It transfers symmetric keys for future communication', 'It generates and distributes session keys', 'It issues certificate revocation lists', 'It publishes public keys in a directory'],
+      exp: 'A KTC transfers (translates) symmetric keys for future communication, while a KDC generates the session keys itself.' },
+    { type: 'mcq', cat: 2, q: 'In the symmetric key hierarchy, which keys are used only once or are very short-lived?',
+      opts: ['Ephemeral keys', 'Master keys', 'Intermediate-level keys', 'Root CA keys'],
+      exp: 'Ephemeral keys are at the bottom of the hierarchy: highest frequency of use, shortest lifetime. Master keys live the longest.' },
+    { type: 'mcq', cat: 3, q: 'In the simple use of public-key encryption to establish a session key (Fig. 15.3), who generates the secret key Ks?',
+      opts: ['B, who encrypts it with the public key of A', 'A, who encrypts it with the private key of B', 'A third party, who sends it to both', 'A, who sends it in plaintext together with PUa'],
+      exp: 'A sends PUa and its identifier; B generates Ks and sends it back encrypted with PUa, so only A can decrypt it with PRa.' },
+    { type: 'mcq', cat: 3, q: 'How does Darth succeed in the man-in-the-middle attack on the simple public-key session key exchange?',
+      opts: ['He intercepts the public key of A and substitutes his own public key, so B encrypts Ks for him', 'He breaks the encryption of Ks by brute force', 'He steals the private key of Bob', 'He forges a certificate signed by the CA'],
+      exp: 'Darth sends PUd with the identifier of A to B, decrypts E(PUd, Ks) with PRd, and then re-encrypts Ks with PUa for Alice. All three end up sharing Ks.' },
+    { type: 'mcq', cat: 3, q: 'In Fig. 15.5 the key is sent as E(PUb, E(PRa, Ks)). What do the two encryptions provide?',
+      opts: ['The inner encryption with PRa authenticates A, the outer one with PUb provides confidentiality', 'The inner one provides confidentiality, the outer one authentication', 'Both only provide integrity', 'Both provide non-repudiation for B'],
+      exp: 'Only A can create the inner layer with its private key (authentication), and only B can remove the outer layer with its private key (confidentiality).' },
+    { type: 'mcq', cat: 3, q: 'What is the major weakness of public announcement of public keys?',
+      opts: ['Anyone can forge such a public announcement', 'It requires a trusted third party', 'It is too slow for large groups', 'It requires sharing the private key'],
+      exp: 'Anyone can pretend to be A and broadcast a fake public key in the name of A. It is convenient but not authenticated.' },
+    { type: 'mcq', cat: 3, q: 'What does a publicly available (passive) directory maintain?',
+      opts: ['A {name, public key} entry for each participant', 'A list of symmetric session keys', 'A hash of every message sent', 'Only the list of revoked certificates'],
+      exp: 'It works like a phonebook for public keys. Participants register their key in person or via secure authenticated communication. It is more secure than public announcement.' },
+    { type: 'mcq', cat: 3, q: 'Why can a public-key authority become a bottleneck?',
+      opts: ['A user must appeal to the authority for the public key of every other user it wishes to contact', 'It must store all private keys of the users', 'It has to encrypt every message between users', 'It can serve only one user at a time by design'],
+      exp: 'The first messages of the protocol can be used infrequently, because A and B can cache the public key of the other party for future use.' },
+    { type: 'mcq', cat: 3, q: 'What is the advantage of public-key certificates over a public-key authority?',
+      opts: ['Participants can exchange keys without contacting the authority, in a way that is as reliable as obtaining them directly from it', 'They remove the need for any trusted party', 'They make private keys unnecessary', 'They can be created by any participant'],
+      exp: 'A certificate is signed by the authority, so users can pass it to each other directly and the receiver can still verify it.' },
+    { type: 'mcq', cat: 4, q: 'X.509 is part of which series of recommendations?',
+      opts: ['X.500, which defines a directory service', 'X.400, which defines e-mail', 'ISO 27001, which defines security management', 'IEEE 802, which defines LANs'],
+      exp: 'X.509 defines a framework for authentication services provided by the X.500 directory to its users.' },
+    { type: 'mcq', cat: 4, q: 'With what is an X.509 certificate signed?',
+      opts: ['The private key of a trusted certification authority', 'The private key of the user named in it', 'The public key of the CA', 'A symmetric session key'],
+      exp: 'Each certificate contains the public key of a user and is signed with the private key of a trusted CA.' },
+    { type: 'mcq', cat: 4, q: 'Which statement about algorithms in X.509 is correct?',
+      opts: ['It does not dictate a specific algorithm but recommends RSA', 'It mandates DSA with SHA-1', 'It mandates AES encryption', 'It mandates Diffie-Hellman'],
+      exp: 'X.509 is based on public-key cryptography and digital signatures, but does not dictate a specific algorithm or hash function.' },
+    { type: 'mcq', cat: 4, q: 'What are the three main categories of X.509 version 3 certificate extensions?',
+      opts: ['Key and policy information, subject and issuer attributes, certification path constraints', 'Encryption, hashing, signing', 'Version, serial number, validity', 'Registration, revocation, repository'],
+      exp: 'Version 3 added optional extensions instead of continuing to add fields to a fixed format. Each extension has an identifier, a criticality indicator and a value.' },
+    { type: 'mcq', cat: 4, q: 'What does the notation Y<<X>> denote?',
+      opts: ['The certificate of user X issued by certification authority Y', 'The signing of X by user Y', 'The public key of X encrypted by Y', 'The revocation list of Y'],
+      exp: 'Y{I} denotes the signing of I by Y, which consists of I with an encrypted hash code appended.' },
+    { type: 'mcq', cat: 4, q: 'What does a Certificate Revocation List (CRL) contain?',
+      opts: ['All revoked but not expired certificates issued by that CA', 'All certificates issued by any CA', 'The private keys of compromised users', 'Only expired certificates of one user'],
+      exp: 'A CRL is issued per certification authority, not per user. Reasons for revocation include a compromised private key of the user, the user no longer being certified, or a compromised CA certificate.' },
+    { type: 'mcq', cat: 5, q: 'What is the purpose of a PKI?',
+      opts: ['Enabling secure, convenient and efficient acquisition of public keys', 'Encrypting bulk data faster than symmetric ciphers', 'Replacing digital signatures', 'Generating only symmetric session keys'],
+      exp: 'A PKI is the set of policies, processes, server platforms, software and workstations used to administer certificates and public-private key pairs, including the ability to issue, maintain and revoke certificates.' },
+    { type: 'mcq', cat: 5, q: 'What is the role of the Registration Authority (RA) in a PKI?',
+      opts: ['An optional component that verifies the identity of entities before certificates are issued', 'It signs the certificates', 'It stores certificates and CRLs', 'It uses certificate information to make trust decisions'],
+      exp: 'The RA assists the CA and handles administrative tasks of registration. The CA signs, the repository stores, and the relying party makes trust decisions.' },
+    { type: 'mcq', cat: 5, q: 'Which PKI component is implemented via LDAP, HTTP, FTP or directory services?',
+      opts: ['Repository', 'Registration authority', 'Relying party', 'Certification authority'],
+      exp: 'The repository is the storage and retrieval system for certificates and CRLs.' },
+    { type: 'mcq', cat: 5, q: 'According to the PKI requirements, who can create and update certificates?',
+      opts: ['Only the certificate authority', 'Any participant', 'Only the end entity', 'Only the relying party'],
+      exp: 'Any participant can read and verify a certificate (including its currency), but only the CA can create and update certificates.' },
+    { type: 'mcq', cat: 5, q: 'What is the main risk when a CA gets hacked?',
+      opts: ['An attacker could issue any certificate without the CA knowing', 'All symmetric keys are automatically rotated', 'Only expired certificates become invalid', 'Nothing, because certificates are unforgeable'],
+      exp: 'The certification approach forces users to put a lot of faith in CAs. A hacked CA puts users at an even greater risk.' },
+    { type: 'mcq', cat: 6, q: 'What happened in 2011 that motivated Certificate Transparency?',
+      opts: ['DigiNotar had issued fraudulent (rogue) certificates for domains like google.com', 'RSA was broken', 'Chrome dropped support for X.509', 'The X.500 directory was shut down'],
+      exp: 'Browsers trusted those certificates because they came from a trusted CA. The lesson: there was no public visibility into which certificates CAs were issuing.' },
+    { type: 'mcq', cat: 6, q: 'What is the core idea of Certificate Transparency?',
+      opts: ['Every newly issued certificate must be publicly logged in an append-only, cryptographically verifiable log', 'Certificates are encrypted so nobody can read them', 'Certificates never expire', 'Only one CA is allowed to issue certificates'],
+      exp: 'CT improves the trust and visibility of HTTPS certificates.' },
+    { type: 'mcq', cat: 6, q: 'What is a Signed Certificate Timestamp (SCT)?',
+      opts: ['A receipt from the log showing that the certificate has been publicly logged', 'The private key of the CA', 'A list of revoked certificates', 'The hash of the user password'],
+      exp: 'It is like a proof-of-submission issued by the log. It is embedded in the original certificate as an extension to X.509 v3.' },
+    { type: 'mcq', cat: 6, q: 'What happens in Chrome and other browsers if the SCTs of a certificate are missing?',
+      opts: ['An untrusted certificate warning is shown', 'The page loads normally', 'The browser silently downgrades to HTTP', 'The certificate is automatically re-issued'],
+      exp: 'A better way than querying logs directly (which exposes browsing history to a third party) is to require the server to present SCTs.' },
+    { type: 'mcq', cat: 6, q: 'What is a precertificate?',
+      opts: ['A temporary certificate-like object submitted to a CT log before final issuance', 'A certificate issued by a registration authority', 'A revoked certificate', 'A certificate without a public key'],
+      exp: 'The log returns an SCT, which the CA embeds in the final certificate as proof that it has been submitted for public logging.' },
+    { type: 'mcq', cat: 6, q: 'What do CT log monitors (e.g. those run by Google or Cloudflare) do?',
+      opts: ['Watch all CT logs for newly issued certificates and raise an alert for suspicious or unexpected ones', 'Encrypt traffic between browsers and servers', 'Issue the certificates for the domain owners', 'Store the private keys of all CAs'],
+      exp: 'Monitors check, for example, whether a certificate for your domain was issued unexpectedly, and generate an alert immediately.' },
+
+    { type: 'order', cat: 6, q: 'Put the steps of issuing a certificate with Certificate Transparency into the correct order.',
+      items: ['CA creates a precertificate', 'CA submits it to a CT log', 'CT log returns an SCT', 'CA puts the SCT into the final certificate', 'Final certificate is issued'],
+      exp: 'The precertificate is logged first, and the returned SCT is embedded into the final certificate.' },
+    { type: 'order', cat: 3, q: 'Order the steps of the simple use of public-key encryption to establish a session key (Fig. 15.3).',
+      items: ['A generates a key pair and sends PUa and IDA to B', 'B generates a secret key Ks', 'B encrypts Ks with PUa and sends it to A', 'A decrypts it with PRa to recover Ks', 'A discards PUa and PRa, B discards PUa'],
+      exp: 'Because only A can decrypt the message, only A and B know Ks. The key pair is then discarded.' },
+    { type: 'order', cat: 3, q: 'Order the steps of the man-in-the-middle attack from Fig. 15.4.',
+      items: ['A sends PUa and IDA intended for B', 'D intercepts it, creates its own key pair and sends PUd and IDA to B', 'B generates Ks and sends E(PUd, Ks)', 'D intercepts the message and recovers Ks using PRd', 'D transmits E(PUa, Ks) to A'],
+      exp: 'In the end Alice, Bob and Darth share the same key.' },
+    { type: 'order', cat: 6, q: 'Put the events of the Certificate Transparency timeline into chronological order.',
+      items: ['Google discovers a CA issuing rogue certificates for man-in-the-middle attacks', 'Google launches Certificate Transparency logs', 'Chrome requires EV certificates to be logged in CT logs', 'Chrome requires all certificates to be logged in CT logs'],
+      exp: 'The order is 2011, 2013, 2015, 2018.' },
+    { type: 'order', cat: 2, q: 'Order the keys of the symmetric key hierarchy by INCREASING lifetime (shortest first).',
+      items: ['Ephemeral keys', 'Intermediate-level keys', 'Master keys'],
+      exp: 'Lifetime increases towards the top of the hierarchy, while the frequency of use increases towards the bottom.' },
+
+    { type: 'open', cat: 3, q: 'Explain why the simple public-key session key exchange is vulnerable to a man-in-the-middle attack, and how certificates solve this problem.',
+      model: 'In the simple exchange, A sends its public key and identifier unauthenticated. An attacker D can intercept the message, replace the public key with its own and send it to B. B then encrypts the secret key Ks with the public key of D, so D can decrypt it, and D re-encrypts Ks for A, so that nobody notices. The core problem is that the public key is not bound to an identity. A certificate binds the identity to the public key and is signed by a trusted CA with its private key. Anyone who has the public key of the CA can verify the certificate, and nobody else can modify it undetected, so D cannot substitute its own key.',
+      exp: 'Key points: unauthenticated public key, substitution by D, binding of identity and key via a CA signature, verification with the CA public key.' },
+    { type: 'open', cat: 5, q: 'Explain why a PKI can fail as a system of trust, using DigiNotar as an example, and how Certificate Transparency helps to mitigate this.',
+      model: 'A PKI forces users to put a lot of faith in CAs. If a CA is hacked or misbehaves, an attacker can get fraudulent certificates for any domain (DigiNotar issued rogue certificates for google.com, yahoo.com and others), and browsers trust them because they come from a trusted CA. The CA itself may not even know. The lesson was that there was no public visibility into what CAs issue. Certificate Transparency requires every newly issued certificate to be logged in a public, append-only, cryptographically verifiable log. The CA obtains an SCT as a receipt, which is embedded in the certificate, and browsers show a warning if SCTs are missing. Monitors watch the logs and alert domain owners about unexpected certificates, so misissuance is detected.',
+      exp: 'Key points: blind trust in CAs, rogue certificates, no visibility, public append-only logs, SCT, monitors.' },
+    { type: 'open', cat: 3, q: 'Compare the four approaches to distribution of public keys (public announcement, public directory, public-key authority, public-key certificates) in terms of security and drawbacks.',
+      model: 'Public announcement: anyone broadcasts their key, which is convenient, but anyone can forge such an announcement. Publicly available directory: like a phonebook with a {name, public key} entry for each participant. Registration must be in person or via secure authenticated communication, so it has higher security than announcement. Public-key authority: tighter control over distribution, because users obtain keys from the authority with signed responses, but it can become a bottleneck, since a user must ask the authority for every other user it wants to contact (caching reduces this). Public-key certificates: keys are exchanged directly without contacting the authority, and are just as reliable, because the certificate is signed by the CA and cannot be modified undetected. Certificates are the most scalable approach.',
+      exp: 'Key points: forgery of announcements, registration in the directory, bottleneck of the authority, certificates need no online authority.' }
+  ];
+
+  var app = document.getElementById('app');
+  var state = [];
+  var cur = 0;
+  var finished = false;
+  var dragFrom = -1;
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function el(tag, cls, txt) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (txt !== undefined) { e.textContent = txt; }
+    return e;
+  }
+
+  function buildState(b) {
+    var s = { b: b, answered: false, result: false };
+    if (b.type === 'mcq') {
+      s.opts = shuffle(b.opts.map(function(t, i) { return { t: t, c: i === 0 }; }));
+      s.chosen = -1;
+      s.correctIdx = 0;
+      for (var i = 0; i < s.opts.length; i++) { if (s.opts[i].c) { s.correctIdx = i; } }
+    } else if (b.type === 'order') {
+      var idx = b.items.map(function(x, i) { return i; });
+      var sh = shuffle(idx);
+      var same = true;
+      while (same) {
+        same = true;
+        for (var k = 0; k < sh.length; k++) { if (sh[k] !== k) { same = false; } }
+        if (same) { sh = shuffle(idx); }
+      }
+      s.order = sh;
+    } else {
+      s.text = '';
+      s.shown = false;
+      s.grade = null;
+    }
+    return s;
+  }
+
+  function init() {
+    state = shuffle(BANK).map(buildState);
+    cur = 0;
+    finished = false;
+    render();
+  }
+
+  function countStats() {
+    var ans = 0, sc = 0;
+    for (var i = 0; i < state.length; i++) {
+      if (state[i].answered) { ans++; if (state[i].result) { sc++; } }
+    }
+    return { ans: ans, sc: sc };
+  }
+
+  function typeLabel(t) {
+    if (t === 'mcq') { return 'Výběr z možností'; }
+    if (t === 'order') { return 'Seřaď do pořadí'; }
+    return 'Otevřená odpověď';
+  }
+
+  function render() {
+    app.innerHTML = '';
+    var N = state.length;
+    var st = countStats();
+
+    var top = el('div', 'topbar');
+    top.appendChild(el('div', 'counter', finished ? 'Hotovo' : 'Otázka ' + (cur + 1) + ' / ' + N));
+    top.appendChild(el('div', 'score', 'Skóre: ' + st.sc + ' / ' + st.ans));
+    app.appendChild(top);
+
+    var track = el('div', 'progress-track');
+    var fill = el('div', 'progress-fill');
+    fill.style.width = Math.round(st.ans / N * 100) + '%';
+    track.appendChild(fill);
+    app.appendChild(track);
+
+    if (finished) { renderSummary(st, N); return; }
+
+    var s = state[cur];
+    var card = el('div', 'card');
+    var meta = el('div', 'meta');
+    meta.appendChild(el('span', 'tag tag-c' + s.b.cat, CATS[s.b.cat]));
+    meta.appendChild(el('span', 'type-label', typeLabel(s.b.type)));
+    card.appendChild(meta);
+    card.appendChild(el('p', 'question-text', s.b.q));
+
+    if (s.b.type === 'mcq') { renderMcq(card, s); }
+    else if (s.b.type === 'order') { renderOrder(card, s); }
+    else { renderOpen(card, s); }
+
+    app.appendChild(card);
+
+    var nav = el('div', 'nav');
+    var back = el('button', 'nav-btn', '← Zpět');
+    back.disabled = (cur === 0);
+    back.addEventListener('click', function() { if (cur > 0) { cur--; render(); } });
+    var next = el('button', 'nav-btn', cur === N - 1 ? 'Zobrazit výsledek' : 'Další →');
+    next.disabled = !s.answered;
+    next.addEventListener('click', function() {
+      if (!state[cur].answered) { return; }
+      if (cur < N - 1) { cur++; } else { finished = true; }
+      render();
+    });
+    nav.appendChild(back);
+    nav.appendChild(next);
+    app.appendChild(nav);
+  }
+
+  function renderMcq(card, s) {
+    s.opts.forEach(function(o, i) {
+      var btn = el('button', 'answer-btn', o.t);
+      if (s.answered) {
+        btn.disabled = true;
+        if (o.c) { btn.className += ' correct'; }
+        else if (i === s.chosen) { btn.className += ' wrong'; }
+        else { btn.className += ' neutral'; }
+      } else {
+        btn.addEventListener('click', function() {
+          s.answered = true;
+          s.chosen = i;
+          s.result = (i === s.correctIdx);
+          render();
+        });
+      }
+      card.appendChild(btn);
+    });
+    if (s.answered) {
+      var ex = el('div', 'explanation');
+      ex.appendChild(el('p', 'verdict ' + (s.result ? 'verdict-ok' : 'verdict-bad'), s.result ? '✓ Correct' : '✗ Incorrect - the correct answer is highlighted in green.'));
+      ex.appendChild(el('p', '', s.b.exp));
+      card.appendChild(ex);
+    }
+  }
+
+  function moveItem(s, from, to) {
+    if (to < 0 || to >= s.order.length || from === to) { return; }
+    var v = s.order.splice(from, 1)[0];
+    s.order.splice(to, 0, v);
+  }
+
+  function renderOrder(card, s) {
+    var ul = el('ul', 'order-list');
+    s.order.forEach(function(itemIdx, pos) {
+      var li = el('li', 'order-item');
+      if (s.answered) {
+        li.className += (itemIdx === pos) ? ' ok' : ' bad';
+      } else {
+        li.className += ' draggable';
+        li.draggable = true;
+        li.addEventListener('dragstart', function(ev) {
+          dragFrom = pos;
+          if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', String(pos)); } catch (e) {} }
+        });
+        li.addEventListener('dragover', function(ev) { ev.preventDefault(); li.classList.add('dragover'); });
+        li.addEventListener('dragleave', function() { li.classList.remove('dragover'); });
+        li.addEventListener('drop', function(ev) {
+          ev.preventDefault();
+          if (dragFrom >= 0) { moveItem(s, dragFrom, pos); }
+          dragFrom = -1;
+          render();
+        });
+      }
+      li.appendChild(el('span', 'order-num', (pos + 1) + '.'));
+      li.appendChild(el('span', 'order-text', s.b.items[itemIdx]));
+      var up = el('button', 'ord-btn', '↑');
+      var down = el('button', 'ord-btn', '↓');
+      up.title = 'Posunout nahoru';
+      down.title = 'Posunout dolů';
+      up.disabled = s.answered || pos === 0;
+      down.disabled = s.answered || pos === s.order.length - 1;
+      up.addEventListener('click', function() { moveItem(s, pos, pos - 1); render(); });
+      down.addEventListener('click', function() { moveItem(s, pos, pos + 1); render(); });
+      li.appendChild(up);
+      li.appendChild(down);
+      ul.appendChild(li);
+    });
+    card.appendChild(ul);
+
+    var chk = el('button', 'action-btn', 'Zkontrolovat');
+    chk.disabled = s.answered;
+    chk.addEventListener('click', function() {
+      var ok = true;
+      for (var i = 0; i < s.order.length; i++) { if (s.order[i] !== i) { ok = false; } }
+      s.answered = true;
+      s.result = ok;
+      render();
+    });
+    card.appendChild(chk);
+
+    if (s.answered) {
+      var ex = el('div', 'explanation');
+      ex.appendChild(el('p', 'verdict ' + (s.result ? 'verdict-ok' : 'verdict-bad'), s.result ? '✓ Correct order' : '✗ Incorrect order - items in green were in the right place, red ones were not.'));
+      ex.appendChild(el('p', '', 'Correct order:'));
+      var ol = el('ol');
+      s.b.items.forEach(function(t) { ol.appendChild(el('li', '', t)); });
+      ex.appendChild(ol);
+      ex.appendChild(el('p', '', s.b.exp));
+      card.appendChild(ex);
+    }
+  }
+
+  function renderOpen(card, s) {
+    var ta = el('textarea', 'open-input');
+    ta.placeholder = 'Write your answer here...';
+    ta.value = s.text;
+    ta.disabled = s.shown;
+    ta.addEventListener('input', function() { s.text = ta.value; });
+    card.appendChild(ta);
+
+    var show = el('button', 'action-btn', 'Zobrazit vzorovou odpověď');
+    show.disabled = s.shown;
+    show.addEventListener('click', function() {
+      s.text = ta.value;
+      s.shown = true;
+      render();
+    });
+    card.appendChild(show);
+
+    if (s.shown) {
+      var box = el('div', 'model-answer');
+      box.appendChild(el('p', 'verdict', 'Model answer:'));
+      box.appendChild(el('p', '', s.b.model));
+      card.appendChild(box);
+
+      var row = el('div');
+      var okB = el('button', 'grade-btn grade-ok', 'Zvládl jsem');
+      var badB = el('button', 'grade-btn grade-bad', 'Nezvládl jsem');
+      if (s.answered) {
+        okB.disabled = true;
+        badB.disabled = true;
+        if (s.grade === 'ok') { okB.className += ' sel'; badB.className += ' dim'; }
+        else { badB.className += ' sel'; okB.className += ' dim'; }
+      } else {
+        okB.addEventListener('click', function() { s.grade = 'ok'; s.answered = true; s.result = true; render(); });
+        badB.addEventListener('click', function() { s.grade = 'bad'; s.answered = true; s.result = false; render(); });
+      }
+      row.appendChild(okB);
+      row.appendChild(badB);
+      card.appendChild(row);
+
+      if (s.answered) {
+        var ex = el('div', 'explanation');
+        ex.appendChild(el('p', '', s.b.exp));
+        card.appendChild(ex);
+      }
+    }
+  }
+
+  function renderSummary(st, N) {
+    var pct = Math.round(st.sc / N * 100);
+    var card = el('div', 'card summary');
+    card.appendChild(el('h2', '', 'Výsledek kvízu'));
+    card.appendChild(el('div', 'big-pct', pct + ' %'));
+    card.appendChild(el('p', '', 'Správně: ' + st.sc + ' z ' + N + ' otázek'));
+    var msg;
+    if (pct >= 90) { msg = 'Výborně! Látku umíš skvěle.'; }
+    else if (pct >= 70) { msg = 'Dobrá práce, pár věcí si ještě projdi.'; }
+    else if (pct >= 50) { msg = 'Základ tam je, ale chce to ještě zopakovat.'; }
+    else { msg = 'Doporučuji projít slidy znovu a zkusit to ještě jednou.'; }
+    card.appendChild(el('p', '', msg));
+    var nav = el('div', 'nav');
+    var back = el('button', 'nav-btn', '← Zpět na otázky');
+    back.addEventListener('click', function() { finished = false; cur = state.length - 1; render(); });
+    var again = el('button', 'nav-btn', 'Začít znovu');
+    again.addEventListener('click', function() { init(); });
+    nav.appendChild(back);
+    nav.appendChild(again);
+    card.appendChild(nav);
+    app.appendChild(card);
+  }
+
+  init();
+});
+</script>
+</body>
+</html>

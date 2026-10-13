@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kvíz: Communication Protocols (IoT & Cloud Security)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 16px; background: #f3f4f6; color: #111827;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 16px; line-height: 1.5;
+        }
+        .wrap { max-width: 760px; margin: 0 auto; }
+        h1 { font-size: 20px; margin: 0 0 12px 0; color: #111827; }
+        .meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 14px; color: #374151; margin-bottom: 6px; }
+        .progress-track { height: 10px; background: #d1d5db; border-radius: 6px; overflow: hidden; margin-bottom: 14px; }
+        .progress-fill { height: 100%; width: 0; background: #2563eb; transition: width 0.3s; }
+        .card { background: #ffffff; color: #111827; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
+        .tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+        .cat-0 { background: #dbeafe; color: #1e3a8a; }
+        .cat-1 { background: #ede9fe; color: #4c1d95; }
+        .cat-2 { background: #fce7f3; color: #831843; }
+        .cat-3 { background: #dcfce7; color: #14532d; }
+        .cat-4 { background: #fee2e2; color: #7f1d1d; }
+        .cat-5 { background: #fef3c7; color: #78350f; }
+        .cat-6 { background: #cffafe; color: #164e63; }
+        .cat-7 { background: #e0e7ff; color: #312e81; }
+        .cat-8 { background: #ecfccb; color: #365314; }
+        .cat-9 { background: #ffedd5; color: #7c2d12; }
+        .type-note { font-size: 13px; color: #4b5563; margin: 0 0 8px 0; }
+        .question-text { font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 16px 0; }
+        .answer-btn {
+            display: block; width: 100%; text-align: left; margin: 0 0 10px 0; padding: 12px 14px;
+            background: #f9fafb; color: #1a1a2e; border: 2px solid #d1d5db; border-radius: 10px;
+            font-family: inherit; font-size: 15px; cursor: pointer;
+        }
+        .answer-btn:hover:not(:disabled) { background: #eff6ff; border-color: #2563eb; }
+        .answer-btn:disabled { color: #1a1a2e; opacity: 1; cursor: default; }
+        .answer-btn.correct, .answer-btn.correct:disabled { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+        .answer-btn.wrong, .answer-btn.wrong:disabled { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+        .explanation { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #f3f4f6; color: #111827; border-left: 4px solid #2563eb; font-size: 15px; }
+        .explanation .verdict { font-weight: 700; color: #111827; }
+        .explanation.ok { border-left-color: #16a34a; }
+        .explanation.bad { border-left-color: #dc2626; }
+        .order-row { display: flex; align-items: center; gap: 8px; margin: 0 0 8px 0; padding: 8px 10px; background: #f9fafb; color: #1a1a2e; border: 2px solid #d1d5db; border-radius: 10px; }
+        .order-row.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+        .order-row.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+        .order-num { font-weight: 700; min-width: 22px; color: inherit; }
+        .order-text { flex: 1; font-size: 15px; color: inherit; }
+        .arrow-btn { width: 36px; height: 36px; border: 1px solid #9ca3af; background: #ffffff; color: #111827; border-radius: 8px; font-size: 16px; cursor: pointer; font-family: inherit; }
+        .arrow-btn:disabled { background: #e5e7eb; color: #4b5563; cursor: default; }
+        .correct-order { margin: 8px 0 0 0; padding-left: 22px; color: #111827; }
+        .correct-order li { color: #111827; margin-bottom: 4px; }
+        textarea {
+            width: 100%; min-height: 120px; padding: 10px; font-family: inherit; font-size: 15px;
+            background: #ffffff; color: #111827; border: 2px solid #d1d5db; border-radius: 10px; resize: vertical;
+        }
+        textarea:disabled { background: #f3f4f6; color: #111827; }
+        .model-answer { margin-top: 12px; padding: 12px 14px; background: #eff6ff; color: #1e3a8a; border-left: 4px solid #2563eb; border-radius: 10px; font-size: 15px; }
+        .model-answer b { color: #1e3a8a; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .btn { padding: 10px 18px; border-radius: 10px; border: none; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; background: #2563eb; color: #ffffff; }
+        .btn:disabled { background: #e5e7eb; color: #4b5563; cursor: default; }
+        .btn.good { background: #15803d; color: #ffffff; }
+        .btn.bad { background: #b91c1c; color: #ffffff; }
+        .btn.chosen { outline: 3px solid #111827; }
+        .nav { display: flex; justify-content: space-between; margin-top: 18px; gap: 10px; }
+        .nav-btn { padding: 10px 18px; border-radius: 10px; border: none; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; background: #2563eb; color: #ffffff; }
+        .nav-btn:disabled { background: #e5e7eb; color: #4b5563; cursor: default; }
+        .results { text-align: center; }
+        .results h2 { color: #111827; margin: 0 0 8px 0; }
+        .big { font-size: 48px; font-weight: 800; color: #2563eb; margin: 8px 0; }
+        .results p { color: #111827; }
+
+        @media (prefers-color-scheme: dark) {
+            body { background: #0f172a; color: #f1f5f9; }
+            h1 { color: #f1f5f9; }
+            .meta { color: #cbd5e1; }
+            .progress-track { background: #334155; }
+            .progress-fill { background: #60a5fa; }
+            .card { background: #1e293b; color: #f1f5f9; border-color: #334155; }
+            .cat-0 { background: #1e3a8a; color: #dbeafe; }
+            .cat-1 { background: #4c1d95; color: #ede9fe; }
+            .cat-2 { background: #831843; color: #fce7f3; }
+            .cat-3 { background: #14532d; color: #dcfce7; }
+            .cat-4 { background: #7f1d1d; color: #fee2e2; }
+            .cat-5 { background: #78350f; color: #fef3c7; }
+            .cat-6 { background: #164e63; color: #cffafe; }
+            .cat-7 { background: #312e81; color: #e0e7ff; }
+            .cat-8 { background: #365314; color: #ecfccb; }
+            .cat-9 { background: #7c2d12; color: #ffedd5; }
+            .type-note { color: #cbd5e1; }
+            .question-text { color: #f1f5f9; }
+            .answer-btn { background: #334155; color: #f1f5f9; border-color: #475569; }
+            .answer-btn:hover:not(:disabled) { background: #3b4a63; border-color: #60a5fa; }
+            .answer-btn:disabled { color: #f1f5f9; }
+            .answer-btn.correct, .answer-btn.correct:disabled { background: #14532d; border-color: #4ade80; color: #dcfce7; }
+            .answer-btn.wrong, .answer-btn.wrong:disabled { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+            .explanation { background: #0f172a; color: #f1f5f9; border-left-color: #60a5fa; }
+            .explanation .verdict { color: #f1f5f9; }
+            .explanation.ok { border-left-color: #4ade80; }
+            .explanation.bad { border-left-color: #f87171; }
+            .order-row { background: #334155; color: #f1f5f9; border-color: #475569; }
+            .order-row.correct { background: #14532d; border-color: #4ade80; color: #dcfce7; }
+            .order-row.wrong { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+            .order-num { color: inherit; }
+            .order-text { color: inherit; }
+            .arrow-btn { background: #1e293b; color: #f1f5f9; border-color: #64748b; }
+            .arrow-btn:disabled { background: #334155; color: #cbd5e1; }
+            .correct-order { color: #f1f5f9; }
+            .correct-order li { color: #f1f5f9; }
+            textarea { background: #0f172a; color: #f1f5f9; border-color: #475569; }
+            textarea:disabled { background: #1e293b; color: #f1f5f9; }
+            .model-answer { background: #1e3a8a; color: #dbeafe; border-left-color: #60a5fa; }
+            .model-answer b { color: #dbeafe; }
+            .btn { background: #60a5fa; color: #0f172a; }
+            .btn:disabled { background: #334155; color: #cbd5e1; }
+            .btn.good { background: #4ade80; color: #052e16; }
+            .btn.bad { background: #f87171; color: #450a0a; }
+            .btn.chosen { outline-color: #f1f5f9; }
+            .nav-btn { background: #60a5fa; color: #0f172a; }
+            .nav-btn:disabled { background: #334155; color: #cbd5e1; }
+            .results h2 { color: #f1f5f9; }
+            .big { color: #60a5fa; }
+            .results p { color: #f1f5f9; }
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .card { padding: 14px; }
+            .question-text { font-size: 17px; }
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Quiz: Communication Protocols (Security in IoT and Cloud)</h1>
+    <div id="app"></div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var CATS = ['Communication paradigms', 'Space and time coupling', 'Publish-Subscribe', 'MQTT', 'MQTT security',
+            'DDS / AMQP / CoAP', 'HTTP', 'Connectivity', 'Merkle tree', 'Sensor networks vs IoT'];
+
+        var RAW = [
+            // ---------- MULTIPLE CHOICE (a = correct, w = wrong) ----------
+            { t: 'mc', c: 0, q: 'Which two communication models are described as popular for IoT-Cloud environments?',
+                a: 'Request-Reply and Publish-Subscribe',
+                w: ['Broadcast and Unicast', 'Polling and Interrupt', 'Master-Slave and Peer-Review'],
+                e: 'The lecture names Request-Reply (client-server interactions) and Publish-Subscribe (event dissemination via a broker) as the two popular models.' },
+            { t: 'mc', c: 0, q: 'Why is request-reply communication normally synchronous?',
+                a: 'The client process blocks until the reply arrives from the server',
+                w: ['Messages are stored in a broker queue until delivered', 'Sender and receiver have independent lifetimes', 'The server never sends an acknowledgement'],
+                e: 'In the normal case the client blocks and waits for the reply. The reply also works as an acknowledgement, which makes the exchange reliable.' },
+            { t: 'mc', c: 0, q: 'What does the note "direct communication does NOT mean one-hop communication" in request-reply mean?',
+                a: 'Sender and receiver are directly coupled, even if the messages travel over several hops',
+                w: ['Request-reply always uses exactly one network hop', 'Request-reply always requires a broker in the middle', 'Direct communication can only happen inside a LAN'],
+                e: 'Direct coupling is about the sender knowing and addressing the receiver, not about the number of network hops.' },
+            { t: 'mc', c: 0, q: 'Which is a limitation of request-reply (point-to-point) communication?',
+                a: 'Participants must exist at the same time and know each other address and identity',
+                w: ['The sender cannot know whether the receiver exists', 'It can only be used with UDP', 'It cannot be used for client-server interactions'],
+                e: 'Point-to-point needs both parties alive at the same time and aware of each other. It is also not a good way to talk to several participants.' },
+            { t: 'mc', c: 1, q: 'What does space uncoupling mean?',
+                a: 'The sender does not need to know the identity of the receiver(s) and vice versa',
+                w: ['Sender and receiver must run at exactly the same time', 'Sender and receiver must be in the same physical location', 'Messages can never be stored by the channel'],
+                e: 'Space uncoupling means that participants can be replaced, updated, replicated or migrated without the other side needing to know.' },
+            { t: 'mc', c: 1, q: 'What does time uncoupling require from the communication channel?',
+                a: 'Persistence (the channel must keep messages)',
+                w: ['A direct TCP connection', 'Synchronous blocking of the sender', 'Encryption of all messages'],
+                e: 'Time uncoupling means independent lifetimes of sender and receiver, so the channel has to keep messages until the receiver is available.' },
+            { t: 'mc', c: 1, q: 'Which combination of coupling properties does publish-subscribe provide?',
+                a: 'Space uncoupled and time uncoupled',
+                w: ['Space coupled and time coupled', 'Space uncoupled and time coupled', 'Space coupled and time uncoupled'],
+                e: 'Interacting parties do not need to know each other and do not need to be active at the same time.' },
+            { t: 'mc', c: 1, q: 'In the space/time coupling table, IP multicast is an example of which category?',
+                a: 'Space uncoupled, time coupled',
+                w: ['Space coupled, time coupled', 'Space coupled, time uncoupled', 'Space uncoupled, time uncoupled'],
+                e: 'The sender does not need to know the receivers, but the receivers must exist at that moment. Email and text messaging are space coupled but time uncoupled.' },
+            { t: 'mc', c: 2, q: 'For which scenario is indirect communication particularly well suited?',
+                a: 'Very many participants that connect and disconnect often and where receivers are unknown and change',
+                w: ['A single client talking to a single known server', 'Communication that must be strictly blocking and synchronous', 'Transfers where every receiver must be known in advance'],
+                e: 'Indirect communication is good for frequent connect/disconnect, event dissemination to changing receivers, and very large numbers of participants.' },
+            { t: 'mc', c: 2, q: 'What is the main difference between Event Driven Architecture (EDA) and Pub/Sub?',
+                a: 'EDA describes the whole architecture of a system, Pub/Sub is a messaging pattern used by it',
+                w: ['EDA is a protocol, Pub/Sub is a programming language', 'EDA uses request-reply, Pub/Sub does not', 'They are completely unrelated concepts'],
+                e: 'They are extremely similar. EDA is the system architecture, Pub/Sub is a messaging pattern the system uses, though not exclusively.' },
+            { t: 'mc', c: 3, q: 'Which paradigm and transport does MQTT use?',
+                a: 'Publish-Subscribe over TCP, with a broker',
+                w: ['Request-Reply over UDP', 'Publish-Subscribe over UDP without a broker', 'Request-Reply over TCP'],
+                e: 'MQTT is a lightweight publish-subscribe protocol for constrained IoT devices. Publishers send messages to a broker, which delivers them to subscribers.' },
+            { t: 'mc', c: 3, q: 'What is the job of an MQTT broker?',
+                a: 'To filter messages based on topic and distribute them to subscribers',
+                w: ['To encrypt all messages end to end', 'To store sensor firmware', 'To authenticate the physical sensors using hardware keys'],
+                e: 'MQTT is topic-based: each message has a topic and the broker routes it to the clients subscribed to a matching topic.' },
+            { t: 'mc', c: 3, q: 'How does the multi-level wildcard (#) work in MQTT?',
+                a: 'It must be the last character of the topic and matches all topics beginning with the preceding pattern, at any depth',
+                w: ['It replaces exactly one topic level', 'It can be placed anywhere in the topic', 'It subscribes only to the topic directly above it'],
+                e: 'The # wildcard covers multiple levels and must be last. Subscribing to # alone delivers all messages sent to the broker. The single-level wildcard is +.' },
+            { t: 'mc', c: 3, q: 'Which topic is matched by the subscription myhome/groundfloor/+/temperature?',
+                a: 'myhome/groundfloor/kitchen/temperature',
+                w: ['myhome/groundfloor/kitchen/fridge/temperature', 'myhome/firstfloor/kitchen/temperature', 'myhome/groundfloor/kitchen/brightness'],
+                e: 'The + wildcard replaces exactly one level. An extra level (fridge), a different floor or a different last level does not match.' },
+            { t: 'mc', c: 4, q: 'What security features does MQTT provide by default?',
+                a: 'No authentication and no encryption between clients and broker',
+                w: ['Mandatory TLS and certificates', 'Built-in digital signatures on every message', 'Built-in topic-level access control'],
+                e: 'By default any client can connect and publish or subscribe to any topic, and traffic (even credentials) travels in clear text. Security must be added separately.' },
+            { t: 'mc', c: 4, q: 'Which countermeasure protects MQTT communication against eavesdropping and MitM attacks on the channel?',
+                a: 'Using TLS to encrypt communication between clients and broker',
+                w: ['Increasing the number of topics', 'Using wildcards in all subscriptions', 'Switching the broker to a different port number only'],
+                e: 'MQTT can be run with TLS. Message integrity can additionally be protected by digital signatures or encryption of the messages.' },
+            { t: 'mc', c: 4, q: 'Which attack on MQTT floods the broker with a large number of requests until it crashes or becomes unresponsive?',
+                a: 'Denial of Service (DoS)',
+                w: ['Brute-force attack', 'Man-in-the-Middle attack', 'Merkle root forgery'],
+                e: 'Brute-force targets credentials, MitM intercepts or modifies traffic. DoS floods the broker. Placing the broker behind a firewall helps against DoS.' },
+            { t: 'mc', c: 5, q: 'Which statement about DDS (Data Distribution Service) is correct?',
+                a: 'It is decentralized publish-subscribe without a broker, runs over UDP (TCP also supported), and suits low-latency IIoT',
+                w: ['It is a request-reply protocol running only over TCP', 'It requires a central broker like MQTT', 'It is designed only for low-bandwidth battery sensors without any QoS'],
+                e: 'DDS is useful where high performance and low latency are needed, such as Industrial IoT, and it provides authentication, access control and data tagging.' },
+            { t: 'mc', c: 5, q: 'How does AMQP compare to MQTT?',
+                a: 'AMQP has more features but is heavier, so it is preferred for devices that are not constrained',
+                w: ['AMQP is lighter than MQTT and preferred for very constrained devices', 'AMQP is request-reply only', 'AMQP runs only over UDP'],
+                e: 'AMQP is publish-subscribe over TCP with several QoS levels and topologies (client-to-client, client-to-broker, broker-to-broker), at the cost of more processing and memory.' },
+            { t: 'mc', c: 5, q: 'Which paradigm and transport does CoAP use?',
+                a: 'Request-Reply over UDP',
+                w: ['Publish-Subscribe over TCP', 'Publish-Subscribe over UDP', 'Request-Reply over TCP only'],
+                e: 'CoAP is a lightweight request-reply protocol for constrained devices and networks. It supports multicast and has built-in security, but UDP can be less reliable than TCP.' },
+            { t: 'mc', c: 6, q: 'What is the purpose of the HTTP PUT method?',
+                a: 'To update or replace existing data',
+                w: ['To retrieve information', 'To remove data', 'To submit new data to be processed only'],
+                e: 'GET retrieves, POST submits, PUT updates or replaces, DELETE removes. HTTP follows the request-reply paradigm.' },
+            { t: 'mc', c: 7, q: 'What is the difference between communication protocols and connectivity technologies?',
+                a: 'Protocols describe how data is exchanged, connectivity technologies describe where and how devices connect',
+                w: ['Protocols describe radio frequencies, connectivity technologies describe message formats', 'They are the same thing', 'Protocols are only used in the cloud, connectivity only at the edge'],
+                e: 'For example MQTT or CoAP are communication protocols, while Wi-Fi, Zigbee, LoRaWAN or NB-IoT are connectivity technologies.' },
+            { t: 'mc', c: 7, q: 'Which connectivity technology is so low-power that it can run without any energy storage?',
+                a: 'NFC',
+                w: ['Wi-Fi', '4G', 'Bluetooth'],
+                e: 'NFC is a really low-power, very short-range technology. Sigfox and LoRaWAN are extremely long-range and extremely low-power, but with low bandwidth.' },
+            { t: 'mc', c: 8, q: 'What is the Merkle root?',
+                a: 'The single hash left at the top after hashing pairs of nodes repeatedly',
+                w: ['The first transaction in the block', 'The secret key used to sign all leaves', 'The list of all leaf hashes concatenated'],
+                e: 'A Merkle tree is a binary tree where each parent combines the hashes of two children. The top node is the Merkle root (root hash).' },
+            { t: 'mc', c: 8, q: 'Why is the size of a Merkle proof logarithmic in the number of data blocks?',
+                a: 'Only one sibling hash per tree level is needed, and each level up halves the problem',
+                w: ['All leaf hashes must be sent but they are compressed', 'The proof contains only the root hash', 'Each block requires a separate digital signature'],
+                e: 'With n blocks the tree has about log2(n) levels, so one million blocks need only about 20 hashes in a proof.' },
+            { t: 'mc', c: 9, q: 'Which statement about sensor networks and IoT is correct?',
+                a: 'Sensor networks came before IoT, and a sensor network can be part of a broader IoT system',
+                w: ['IoT is a subset of sensor networks that appeared earlier', 'The two are exactly the same concept', 'Sensor networks always require cloud connectivity'],
+                e: 'The term Internet of Things was coined by Kevin Ashton in 1999 (linked to RFID and supply chains). IoT is the larger ecosystem of sensing, connectivity, services and automation.' },
+
+            // ---------- ORDERING ----------
+            { t: 'order', c: 2, q: 'Put the steps of a topic-based publish-subscribe exchange (e.g. MQTT) into the correct order.',
+                items: ['A subscriber subscribes to a topic at the broker', 'A publisher publishes a message with a topic to the broker', 'The broker filters the message based on its topic', 'The broker distributes the message to the matching subscribers'],
+                e: 'The subscription must exist first. Then the publisher sends a message, the broker filters by topic and distributes it to matching subscribers.' },
+            { t: 'order', c: 0, q: 'Put the steps of an ASYNCHRONOUS request-reply exchange into the correct order.',
+                items: ['The client makes a request to the server', 'The client continues working while the server processes the request', 'The server sends the response', 'The client gets the response and does something with it'],
+                e: 'Unlike the synchronous case, the client does not block. It continues working and handles the response when it arrives.' },
+            { t: 'order', c: 8, q: 'Put the steps of building a Merkle tree into the correct order.',
+                items: ['Hash each data block to create the leaf nodes', 'Hash pairs of leaf hashes to create parent nodes', 'Repeat pairwise hashing level by level going upward', 'Only one hash remains: the Merkle root'],
+                e: 'The tree is built bottom-up by repeatedly hashing pairs until a single root hash remains.' },
+            { t: 'order', c: 8, q: 'You want to prove that transaction C belongs to a block with 8 transactions (A-H). Put the verification steps into the correct order.',
+                items: ['Take C and combine it with its sibling D to compute H(C,D)', 'Combine with H(A,B) to compute the left-hand parent hash', 'Combine with H(H(E,F),H(G,H)) to compute the root', 'Compare the recomputed root with the trusted stored Merkle root'],
+                e: 'Only 3 other values (D, H(A,B), H(H(E,F),H(G,H))) are needed instead of all 7 other transactions.' },
+
+            // ---------- OPEN-ENDED ----------
+            { t: 'open', c: 1, q: 'Compare Request-Reply and Publish-Subscribe. Explain the difference in coupling (space and time), and say in which situations each is a better choice.',
+                m: 'Request-reply is direct communication: sender and receiver are coupled in space (they must know each other address and identity) and in time (both must exist at the same moment; the client typically blocks until the reply arrives, which also serves as an acknowledgement). It gives reliability and consistency but scales poorly with many clients and servers and is not good for talking to several participants. Publish-subscribe is indirect communication through an intermediary (broker): publishers and subscribers do not know each other (space uncoupling) and do not have to be active at the same time (time uncoupling, which needs persistence in the channel). It reduces network traffic and improves scalability, and suits very large numbers of participants that connect and disconnect often and event dissemination to unknown, changing receivers. Examples: REST HTTP and CoAP for request-reply; MQTT, AMQP and DDS for publish-subscribe.' },
+            { t: 'open', c: 4, q: 'Explain why MQTT is insecure by default, which attacks this enables, and which countermeasures should be applied.',
+                m: 'By default MQTT has no authentication and no encryption: any client can connect to the broker and publish or subscribe to any topic, and traffic (including credentials) is sent in clear text and can be intercepted. This enables brute-force attacks on credentials (when authentication is enabled), denial of service by flooding the broker, and man-in-the-middle attacks where an attacker eavesdrops on or modifies messages. Countermeasures: enable authentication (username/password or certificates), use TLS for encryption, implement access control per topic based on client credentials, limit network access by placing the broker behind a firewall reachable only from trusted networks, and use message integrity checks (digital signatures or encryption of messages).' },
+            { t: 'open', c: 8, q: 'Explain how a Merkle tree works and why a Merkle proof is logarithmic in size. Why is this useful in constrained environments such as IoT?',
+                m: 'A Merkle tree is a binary tree of hashes: leaves are hashes of data blocks, each parent hashes the combination of its two children, and this is repeated until one hash remains, the Merkle root. To prove that a block belongs to the dataset, the verifier needs only the block and one sibling hash per tree level, recomputes the path to the root, and compares it with the trusted root. Because every level up halves the number of nodes, the number of levels (and thus the proof size) grows as log2(n); for 1,000,000 blocks only about 20 hashes are needed. If any block is modified, all hashes on its path to the root change, so the root no longer matches (tamper detection). This keeps communication and storage overhead low, which matters in IoT, sensor networks, firmware updates and blockchains where bandwidth and storage are limited.' }
+        ];
+
+        var app = document.getElementById('app');
+        var qs = [];
+        var st = [];
+        var cur = 0;
+        var finished = false;
+
+        function shuffle(arr) {
+            var a = arr.slice();
+            for (var i = a.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+            }
+            return a;
+        }
+
+        function el(tag, cls, text) {
+            var n = document.createElement(tag);
+            if (cls) { n.className = cls; }
+            if (text !== undefined) { n.textContent = text; }
+            return n;
+        }
+
+        function init() {
+            qs = shuffle(RAW);
+            st = [];
+            cur = 0;
+            finished = false;
+            for (var i = 0; i < qs.length; i++) {
+                var q = qs[i];
+                var s = { done: false, right: false };
+                if (q.t === 'mc') {
+                    var opts = [{ t: q.a, ok: true }];
+                    for (var k = 0; k < q.w.length; k++) { opts.push({ t: q.w[k], ok: false }); }
+                    s.opts = shuffle(opts);
+                    s.sel = -1;
+                } else if (q.t === 'order') {
+                    var idx = [];
+                    for (var m = 0; m < q.items.length; m++) { idx.push(m); }
+                    var seq = shuffle(idx);
+                    var same = true;
+                    while (same) {
+                        same = true;
+                        for (var z = 0; z < seq.length; z++) { if (seq[z] !== z) { same = false; } }
+                        // same stays true only if the loop found no difference; recompute properly below
+                        var identical = true;
+                        for (var y = 0; y < seq.length; y++) { if (seq[y] !== y) { identical = false; } }
+                        if (identical) { seq = shuffle(idx); same = true; } else { same = false; }
+                    }
+                    s.seq = seq;
+                } else {
+                    s.text = '';
+                    s.revealed = false;
+                    s.grade = '';
+                }
+                st.push(s);
+            }
+        }
+
+        function answeredCount() {
+            var n = 0;
+            for (var i = 0; i < st.length; i++) { if (st[i].done) { n++; } }
+            return n;
+        }
+        function score() {
+            var n = 0;
+            for (var i = 0; i < st.length; i++) { if (st[i].done && st[i].right) { n++; } }
+            return n;
+        }
+
+        function finishQuestion(right) {
+            st[cur].done = true;
+            st[cur].right = right;
+            render();
+        }
+
+        function renderMC(card, q, s) {
+            var letters = ['A', 'B', 'C', 'D'];
+            var box = el('div');
+            for (var i = 0; i < s.opts.length; i++) {
+                (function (i) {
+                    var b = el('button', 'answer-btn', letters[i] + ') ' + s.opts[i].t);
+                    b.type = 'button';
+                    if (s.done) {
+                        b.disabled = true;
+                        if (s.opts[i].ok) { b.className += ' correct'; }
+                        else if (i === s.sel) { b.className += ' wrong'; }
+                    } else {
+                        b.addEventListener('click', function () {
+                            s.sel = i;
+                            finishQuestion(s.opts[i].ok);
+                        });
+                    }
+                    box.appendChild(b);
+                })(i);
+            }
+            card.appendChild(box);
+            if (s.done) {
+                var ex = el('div', 'explanation ' + (s.right ? 'ok' : 'bad'));
+                ex.appendChild(el('span', 'verdict', s.right ? 'Správně! ' : 'Špatně. '));
+                ex.appendChild(document.createTextNode(q.e));
+                card.appendChild(ex);
+            }
+        }
+
+        function renderOrder(card, q, s) {
+            card.appendChild(el('p', 'type-note', 'Seřaď položky do správného pořadí pomocí tlačítek ↑ a ↓, potom klikni na Zkontrolovat.'));
+            var list = el('div');
+            for (var i = 0; i < s.seq.length; i++) {
+                (function (i) {
+                    var cls = 'order-row';
+                    if (s.done) { cls += (s.seq[i] === i) ? ' correct' : ' wrong'; }
+                    var row = el('div', cls);
+                    row.appendChild(el('span', 'order-num', (i + 1) + '.'));
+                    row.appendChild(el('span', 'order-text', q.items[s.seq[i]]));
+                    var up = el('button', 'arrow-btn', '↑');
+                    up.type = 'button';
+                    var down = el('button', 'arrow-btn', '↓');
+                    down.type = 'button';
+                    if (s.done || i === 0) { up.disabled = true; }
+                    if (s.done || i === s.seq.length - 1) { down.disabled = true; }
+                    up.addEventListener('click', function () {
+                        var t = s.seq[i]; s.seq[i] = s.seq[i - 1]; s.seq[i - 1] = t;
+                        render();
+                    });
+                    down.addEventListener('click', function () {
+                        var t = s.seq[i]; s.seq[i] = s.seq[i + 1]; s.seq[i + 1] = t;
+                        render();
+                    });
+                    row.appendChild(up);
+                    row.appendChild(down);
+                    list.appendChild(row);
+                })(i);
+            }
+            card.appendChild(list);
+            if (!s.done) {
+                var r = el('div', 'row');
+                var chk = el('button', 'btn', 'Zkontrolovat');
+                chk.type = 'button';
+                chk.addEventListener('click', function () {
+                    var ok = true;
+                    for (var i = 0; i < s.seq.length; i++) { if (s.seq[i] !== i) { ok = false; } }
+                    finishQuestion(ok);
+                });
+                r.appendChild(chk);
+                card.appendChild(r);
+            } else {
+                var ex = el('div', 'explanation ' + (s.right ? 'ok' : 'bad'));
+                ex.appendChild(el('span', 'verdict', s.right ? 'Správně! ' : 'Špatné pořadí. '));
+                ex.appendChild(document.createTextNode(q.e));
+                var ol = el('ol', 'correct-order');
+                for (var k = 0; k < q.items.length; k++) { ol.appendChild(el('li', '', q.items[k])); }
+                ex.appendChild(el('div', '', 'Správné pořadí:'));
+                ex.appendChild(ol);
+                card.appendChild(ex);
+            }
+        }
+
+        function renderOpen(card, q, s) {
+            card.appendChild(el('p', 'type-note', 'Otevřená otázka: napiš vlastní odpověď, zobraz vzorovou odpověď a sám se ohodnoť.'));
+            var ta = document.createElement('textarea');
+            ta.placeholder = 'Napiš svou odpověď...';
+            ta.value = s.text;
+            if (s.done) { ta.disabled = true; }
+            ta.addEventListener('input', function () { s.text = ta.value; });
+            card.appendChild(ta);
+
+            if (!s.revealed) {
+                var r = el('div', 'row');
+                var show = el('button', 'btn', 'Zobrazit vzorovou odpověď');
+                show.type = 'button';
+                show.addEventListener('click', function () {
+                    s.text = ta.value;
+                    s.revealed = true;
+                    render();
+                });
+                r.appendChild(show);
+                card.appendChild(r);
+            } else {
+                var ma = el('div', 'model-answer');
+                ma.appendChild(el('b', '', 'Vzorová odpověď: '));
+                ma.appendChild(document.createTextNode(q.m));
+                card.appendChild(ma);
+
+                var r2 = el('div', 'row');
+                var good = el('button', 'btn good', 'Zvládl jsem');
+                good.type = 'button';
+                var bad = el('button', 'btn bad', 'Nezvládl jsem');
+                bad.type = 'button';
+                if (s.done) {
+                    good.disabled = true;
+                    bad.disabled = true;
+                    if (s.grade === 'good') { good.className += ' chosen'; }
+                    if (s.grade === 'bad') { bad.className += ' chosen'; }
+                } else {
+                    good.addEventListener('click', function () { s.grade = 'good'; finishQuestion(true); });
+                    bad.addEventListener('click', function () { s.grade = 'bad'; finishQuestion(false); });
+                }
+                r2.appendChild(good);
+                r2.appendChild(bad);
+                card.appendChild(r2);
+            }
+        }
+
+        function render() {
+            app.innerHTML = '';
+            if (finished) { renderResults(); return; }
+
+            var total = qs.length;
+            var meta = el('div', 'meta');
+            meta.appendChild(el('span', '', 'Otázka ' + (cur + 1) + ' / ' + total));
+            meta.appendChild(el('span', '', 'Skóre: ' + score() + ' / ' + answeredCount()));
+            app.appendChild(meta);
+
+            var track = el('div', 'progress-track');
+            var fill = el('div', 'progress-fill');
+            fill.style.width = (answeredCount() / total * 100) + '%';
+            track.appendChild(fill);
+            app.appendChild(track);
+
+            var q = qs[cur];
+            var s = st[cur];
+            var card = el('div', 'card');
+            card.appendChild(el('span', 'tag cat-' + q.c, CATS[q.c]));
+            card.appendChild(el('p', 'question-text', q.q));
+
+            if (q.t === 'mc') { renderMC(card, q, s); }
+            else if (q.t === 'order') { renderOrder(card, q, s); }
+            else { renderOpen(card, q, s); }
+
+            var nav = el('div', 'nav');
+            var back = el('button', 'nav-btn', '← Zpět');
+            back.type = 'button';
+            back.disabled = (cur === 0);
+            back.addEventListener('click', function () {
+                if (cur > 0) { cur--; render(); }
+            });
+            var isLast = (cur === total - 1);
+            var next = el('button', 'nav-btn', isLast ? 'Zobrazit výsledek' : 'Další →');
+            next.type = 'button';
+            next.disabled = !s.done;
+            next.addEventListener('click', function () {
+                if (!st[cur].done) { return; }
+                if (cur === total - 1) { finished = true; }
+                else { cur++; }
+                render();
+            });
+            nav.appendChild(back);
+            nav.appendChild(next);
+            card.appendChild(nav);
+            app.appendChild(card);
+        }
+
+        function renderResults() {
+            var total = qs.length;
+            var sc = score();
+            var pct = Math.round(sc / total * 100);
+            var card = el('div', 'card results');
+            card.appendChild(el('h2', '', 'Hotovo!'));
+            card.appendChild(el('div', 'big', pct + ' %'));
+            card.appendChild(el('p', '', 'Správně jsi zodpověděl ' + sc + ' z ' + total + ' otázek.'));
+            var msg = 'Ještě si projdi látku a zkus to znovu.';
+            if (pct >= 90) { msg = 'Výborně! Látku máš skvěle zvládnutou.'; }
+            else if (pct >= 70) { msg = 'Dobrá práce, ještě pár drobností a bude to dokonalé.'; }
+            else if (pct >= 50) { msg = 'Slušný základ, doporuč se vrátit k chybným tématům.'; }
+            card.appendChild(el('p', '', msg));
+
+            var r = el('div', 'row');
+            r.style.justifyContent = 'center';
+            var again = el('button', 'btn', 'Začít znovu');
+            again.type = 'button';
+            again.addEventListener('click', function () { init(); render(); });
+            var review = el('button', 'btn', 'Projít otázky');
+            review.type = 'button';
+            review.addEventListener('click', function () { finished = false; cur = 0; render(); });
+            r.appendChild(again);
+            r.appendChild(review);
+            card.appendChild(r);
+            app.appendChild(card);
+        }
+
+        init();
+        render();
+    });
+</script>
+</body>
+</html>

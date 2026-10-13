@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Exploitation Quiz</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f6fa;
+            color: #1a1a2e;
+        }
+        .app {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        h1.title {
+            color: #1a1a2e;
+            font-size: 24px;
+            margin: 0 0 16px 0;
+            text-align: center;
+        }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .progress-outer {
+            flex: 1;
+            height: 14px;
+            background: #e0e0e0;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        .progress-inner {
+            height: 100%;
+            background: #4c6ef5;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .score-badge {
+            background: #1a1a2e;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .card {
+            background: #ffffff;
+            color: #1a1a2e;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+        .category-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+        }
+        .question-text {
+            color: #1a1a2e;
+            font-size: 17px;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .answer-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #d0d3dc;
+            background: #eef0f5;
+            color: #1a1a2e;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .answer-btn:disabled {
+            cursor: default;
+        }
+        .answer-btn.correct {
+            background: #b7e4c7;
+            color: #0b3d1f;
+            border: 1px solid #4caf50;
+            font-weight: 700;
+        }
+        .answer-btn.incorrect {
+            background: #f8c6c6;
+            color: #5a1414;
+            border: 1px solid #e53935;
+            font-weight: 700;
+        }
+        .explanation {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #fff8e1;
+            color: #5a4a00;
+            border: 1px solid #ffd54f;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .order-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #eef0f5;
+            color: #1a1a2e;
+            border: 1px solid #d0d3dc;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 15px;
+        }
+        .order-item.correct {
+            background: #b7e4c7;
+            color: #0b3d1f;
+            border: 1px solid #4caf50;
+        }
+        .order-item.incorrect {
+            background: #f8c6c6;
+            color: #5a1414;
+            border: 1px solid #e53935;
+        }
+        .order-item-text {
+            color: inherit;
+            flex: 1;
+        }
+        .order-btns {
+            display: flex;
+            gap: 6px;
+        }
+        .order-btn {
+            background: #1a1a2e;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .order-btn:disabled {
+            background: #c7c9d1;
+            color: #6b6d75;
+            cursor: default;
+        }
+        .check-btn {
+            margin-top: 16px;
+            background: #4c6ef5;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .check-btn:disabled {
+            background: #c7c9d1;
+            color: #6b6d75;
+            cursor: default;
+        }
+        .open-textarea {
+            width: 100%;
+            min-height: 110px;
+            border-radius: 8px;
+            border: 1px solid #d0d3dc;
+            background: #eef0f5;
+            color: #1a1a2e;
+            font-family: inherit;
+            font-size: 14px;
+            padding: 10px;
+            resize: vertical;
+        }
+        .open-textarea:disabled {
+            background: #e4e6ec;
+            color: #1a1a2e;
+        }
+        .sample-box {
+            margin-top: 14px;
+            padding: 12px 14px;
+            background: #e8f0fe;
+            color: #0d2d6b;
+            border: 1px solid #90b4f5;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.55;
+        }
+        .sample-box .sample-label {
+            color: #0d2d6b;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .grade-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .grade-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #d0d3dc;
+            background: #eef0f5;
+            color: #1a1a2e;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .grade-btn.chosen-correct {
+            background: #b7e4c7;
+            color: #0b3d1f;
+            border: 1px solid #4caf50;
+        }
+        .grade-btn.chosen-incorrect {
+            background: #f8c6c6;
+            color: #5a1414;
+            border: 1px solid #e53935;
+        }
+        .grade-btn:disabled {
+            cursor: default;
+        }
+        .show-answer-btn {
+            margin-top: 14px;
+            background: #1a1a2e;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .show-answer-btn:disabled {
+            background: #c7c9d1;
+            color: #6b6d75;
+            cursor: default;
+        }
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .nav-btn {
+            flex: 1;
+            background: #1a1a2e;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .nav-btn:disabled {
+            background: #c7c9d1;
+            color: #6b6d75;
+            cursor: default;
+        }
+        .summary-card {
+            background: #ffffff;
+            color: #1a1a2e;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .summary-card h2 {
+            color: #1a1a2e;
+            margin-top: 0;
+        }
+        .summary-percent {
+            font-size: 48px;
+            font-weight: 800;
+            color: #4c6ef5;
+            margin: 10px 0;
+        }
+        .summary-detail {
+            color: #1a1a2e;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+        .restart-btn {
+            background: #4c6ef5;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .hidden { display: none; }
+
+        @media (prefers-color-scheme: dark) {
+            body { background: #15161c; color: #eceef5; }
+            h1.title { color: #eceef5; }
+            .progress-outer { background: #2d2f42; }
+            .progress-inner { background: #6c8dfb; }
+            .score-badge { background: #6c8dfb; color: #0e0f16; }
+            .card { background: #1f2130; color: #eceef5; border: 1px solid #2d2f42; }
+            .category-badge { color: #1a1a2e; }
+            .question-text { color: #eceef5; }
+            .answer-btn { background: #2a2c3f; color: #eceef5; border: 1px solid #3b3e59; }
+            .answer-btn.correct { background: #2e5c3d; color: #b7f0c8; border: 1px solid #4caf50; }
+            .answer-btn.incorrect { background: #5c2e2e; color: #f0b7b7; border: 1px solid #e53935; }
+            .explanation { background: #3a331a; color: #ffe49b; border: 1px solid #a8872c; }
+            .order-item { background: #2a2c3f; color: #eceef5; border: 1px solid #3b3e59; }
+            .order-item.correct { background: #2e5c3d; color: #b7f0c8; border: 1px solid #4caf50; }
+            .order-item.incorrect { background: #5c2e2e; color: #f0b7b7; border: 1px solid #e53935; }
+            .order-btn { background: #6c8dfb; color: #0e0f16; }
+            .order-btn:disabled { background: #3a3c4d; color: #7c7f91; }
+            .check-btn { background: #6c8dfb; color: #0e0f16; }
+            .check-btn:disabled { background: #3a3c4d; color: #7c7f91; }
+            .open-textarea { background: #2a2c3f; color: #eceef5; border: 1px solid #3b3e59; }
+            .open-textarea:disabled { background: #24263580; color: #eceef5; }
+            .sample-box { background: #1e2d4a; color: #cfe0ff; border: 1px solid #3f6bc9; }
+            .sample-box .sample-label { color: #cfe0ff; }
+            .grade-btn { background: #2a2c3f; color: #eceef5; border: 1px solid #3b3e59; }
+            .grade-btn.chosen-correct { background: #2e5c3d; color: #b7f0c8; border: 1px solid #4caf50; }
+            .grade-btn.chosen-incorrect { background: #5c2e2e; color: #f0b7b7; border: 1px solid #e53935; }
+            .show-answer-btn { background: #6c8dfb; color: #0e0f16; }
+            .show-answer-btn:disabled { background: #3a3c4d; color: #7c7f91; }
+            .nav-btn { background: #6c8dfb; color: #0e0f16; }
+            .nav-btn:disabled { background: #3a3c4d; color: #7c7f91; }
+            .summary-card { background: #1f2130; color: #eceef5; border: 1px solid #2d2f42; }
+            .summary-card h2 { color: #eceef5; }
+            .summary-percent { color: #6c8dfb; }
+            .summary-detail { color: #eceef5; }
+            .restart-btn { background: #6c8dfb; color: #0e0f16; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <h1 class="title">Binary Exploitation Quiz</h1>
+    <div class="top-bar">
+        <div class="progress-outer"><div class="progress-inner" id="progressInner"></div></div>
+        <div class="score-badge" id="scoreBadge">Score: 0/0</div>
+    </div>
+    <div class="card" id="quizCard"></div>
+    <div class="nav-row" id="navRow">
+        <button class="nav-btn" id="backBtn">Back</button>
+        <button class="nav-btn" id="nextBtn">Next</button>
+    </div>
+    <div class="summary-card hidden" id="summaryCard"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        var categoryColors = {
+            'C and Memory Basics': '#cde7f0',
+            'Stack Layout': '#e0d4f7',
+            'Buffer Overflow': '#ffd9b3',
+            'Shellcode and Payloads': '#ffb3b3',
+            'Binary Protections': '#b3e6cc',
+            'ROP and Bypass': '#ffe08a',
+            'Exploit Primitives': '#c7f0db',
+            'ELF and Linking': '#d6e8ff',
+            'Format Strings': '#f5c2e7',
+            'Tools': '#d9d9d9',
+            'History and Overview': '#f0e68c'
+        };
+
+        var rawQuestions = [
+            { type:'mcq', category:'C and Memory Basics',
+                text:'Why does the C programming language require developers to manually keep track of memory?',
+                options:[
+                    'C provides no built-in bounds checking and no garbage collection, so memory safety is the programmer\u2019s responsibility',
+                    'C automatically frees all memory at the end of every function call',
+                    'C only allows fixed-size arrays that cannot be exceeded',
+                    'C requires a separate compiler pass to track memory for you'
+                ],
+                correctIndex:0,
+                explanation:'C is fast and minimal by design: it has no automatic bounds checking or garbage collector, which is exactly what makes manual memory bugs like buffer overflows possible.'
+            },
+            { type:'mcq', category:'Stack Layout',
+                text:'What allocation discipline does the stack follow?',
+                options:[
+                    'Last In, First Out (LIFO)',
+                    'First In, First Out (FIFO)',
+                    'Random access allocation',
+                    'Priority-based allocation'
+                ],
+                correctIndex:0,
+                explanation:'The stack grows and shrinks in a Last In, First Out order: the most recently pushed data is the first to be popped.'
+            },
+            { type:'mcq', category:'Stack Layout',
+                text:'In a typical stack frame layout for a vulnerable function, what sits directly above the local buffer, moving toward higher addresses?',
+                options:[
+                    'The saved base pointer (rbp)',
+                    'The heap',
+                    'The Global Offset Table',
+                    'The Procedure Linkage Table'
+                ],
+                correctIndex:0,
+                explanation:'Going from low to high addresses the layout is: buffer(s), then the saved rbp, then the saved return address, matching the frame diagrams shown.'
+            },
+            { type:'mcq', category:'Stack Layout',
+                text:'Which saved value tells a function where to resume execution in its caller once it returns?',
+                options:[
+                    'The saved return address (saved rip)',
+                    'The saved stack pointer only',
+                    'The canary value',
+                    'The GOT entry for main'
+                ],
+                correctIndex:0,
+                explanation:'The saved return address, pointed to by the saved rip, tells the CPU where to continue executing once the current function returns.'
+            },
+            { type:'mcq', category:'Buffer Overflow',
+                text:'What is the fundamental cause of a stack buffer overflow?',
+                options:[
+                    'Writing more data into a fixed-size buffer than it was allocated to hold, overwriting adjacent memory',
+                    'Allocating too much memory on the heap',
+                    'Calling a function too many times recursively',
+                    'Running out of available CPU registers'
+                ],
+                correctIndex:0,
+                explanation:'A buffer overflow happens when input exceeds the bounds of its buffer and spills into neighboring stack memory such as saved registers or the return address.'
+            },
+            { type:'mcq', category:'Buffer Overflow',
+                text:'In the code "char user_input[32]; scanf(\"%s\", user_input);", why is this vulnerable?',
+                options:[
+                    'scanf with %s does not limit how many characters it writes, so input longer than 32 bytes overflows the buffer',
+                    'scanf always truncates input safely at 32 characters',
+                    'The %s specifier encrypts the input before storing it',
+                    'scanf cannot be used with character arrays at all'
+                ],
+                correctIndex:0,
+                explanation:'Without a width limit, %s keeps writing characters until it reaches whitespace or end of input, regardless of the destination buffer size.'
+            },
+            { type:'mcq', category:'Shellcode and Payloads',
+                text:'What is shellcode in the context of binary exploitation?',
+                options:[
+                    'Machine code injected by an attacker that is executed directly, often to spawn a shell or run commands',
+                    'A high-level scripting language used only for writing exploits',
+                    'A configuration file used by firewalls',
+                    'A built-in pwndbg command for inspecting the stack'
+                ],
+                correctIndex:0,
+                explanation:'Shellcode is raw machine code, such as the execve("/bin/bash", ...) example, crafted so that when executed it gives the attacker control, typically by spawning a shell.'
+            },
+            { type:'mcq', category:'Shellcode and Payloads',
+                text:'What is the purpose of a NOP slide (NOP sled) placed before shellcode?',
+                options:[
+                    'It widens the landing zone so that even an imprecise jump still slides forward into the shellcode',
+                    'It slows down the CPU clock for easier debugging',
+                    'It encrypts the shellcode so it cannot be detected',
+                    'It marks the exact end of the stack region'
+                ],
+                correctIndex:0,
+                explanation:'A long run of NOP instructions lets execution land anywhere inside the slide and simply fall through until it reaches the real shellcode, tolerating an imprecise return address.'
+            },
+            { type:'mcq', category:'Binary Protections',
+                text:'How does a stack canary help detect a buffer overflow?',
+                options:[
+                    'A secret value is placed before the saved return address and checked before the function returns; if overwritten, the mismatch is detected',
+                    'It encrypts the entire stack frame',
+                    'It physically separates the stack from the heap in memory',
+                    'It randomizes the instruction set used by the CPU'
+                ],
+                correctIndex:0,
+                explanation:'If an overflow has to pass through the canary to reach the saved return address, corrupting it causes a check (such as __stack_chk_fail) to fail before the function returns.'
+            },
+            { type:'mcq', category:'Binary Protections',
+                text:'What does the NX (No eXecute) protection do?',
+                options:[
+                    'It marks regions like the stack as non-executable, so injected shellcode placed there cannot run',
+                    'It disables all function calls in the program',
+                    'It prevents any data from being written to memory',
+                    'It stops the program from reading command line arguments'
+                ],
+                correctIndex:0,
+                explanation:'NX flags data regions such as the stack and heap as non-executable, so even if an attacker writes shellcode there, the CPU refuses to execute it.'
+            },
+            { type:'mcq', category:'ROP and Bypass',
+                text:'What is the standard technique for bypassing NX protection?',
+                options:[
+                    'Return Oriented Programming (ROP), which reuses existing executable code instead of injecting new code',
+                    'Disabling the operating system firewall',
+                    'Directly overwriting the NX bit in RAM from user space',
+                    'Increasing the size of the vulnerable buffer'
+                ],
+                correctIndex:0,
+                explanation:'Since NX blocks execution of injected code, attackers instead chain together existing executable instruction sequences already present in the binary or libraries.'
+            },
+            { type:'mcq', category:'Binary Protections',
+                text:'Why does Position Independent Executable (PIE) make exploitation harder?',
+                options:[
+                    'It randomizes the base address where the binary is loaded, making addresses of code and gadgets unpredictable',
+                    'It prevents the program from ever calling library functions',
+                    'It disables the stack completely',
+                    'It encrypts the binary file on disk so it cannot be read'
+                ],
+                correctIndex:0,
+                explanation:'With PIE, the load address changes on every run, so an attacker cannot assume fixed addresses for functions or gadgets without first leaking one.'
+            },
+            { type:'mcq', category:'ROP and Bypass',
+                text:'What is generally required to defeat ASLR/PIE in practice?',
+                options:[
+                    'An information leak that reveals a runtime address, from which the base address can be calculated',
+                    'A stronger password on the target system',
+                    'Disabling RELRO on the binary',
+                    'Increasing the buffer size used in the overflow'
+                ],
+                correctIndex:0,
+                explanation:'Because addresses are randomized per run, attackers typically need a leaked pointer (for example via a format string bug) to compute the real base address before building a reliable exploit.'
+            },
+            { type:'mcq', category:'ROP and Bypass',
+                text:'What is a "gadget" in Return Oriented Programming?',
+                options:[
+                    'A short sequence of existing instructions, ending in a ret, that can be chained together to perform useful actions',
+                    'A brand new instruction injected by the attacker',
+                    'A graphical debugging panel in pwndbg',
+                    'A type of dynamic memory allocator'
+                ],
+                correctIndex:0,
+                explanation:'Gadgets are fragments of code that already exist in the binary or linked libraries; tools like Ropper or ROPgadget are used to find them.'
+            },
+            { type:'mcq', category:'ROP and Bypass',
+                text:'What event typically triggers the execution of a ROP chain?',
+                options:[
+                    'Overwriting the saved return pointer on the stack so execution jumps into the first gadget',
+                    'Sending a SIGKILL signal to the process',
+                    'Modifying an environment variable before the program starts',
+                    'Changing the file permissions of the binary'
+                ],
+                correctIndex:0,
+                explanation:'Just like a classic stack overflow redirects execution via the return pointer, a ROP chain begins the same way: the overwritten return address points to the first gadget instead of shellcode.'
+            },
+            { type:'mcq', category:'ELF and Linking',
+                text:'What is the key difference between the Procedure Linkage Table (PLT) and the Global Offset Table (GOT)?',
+                options:[
+                    'The PLT holds code stubs, while the GOT holds data, specifically the resolved addresses those stubs jump to',
+                    'The PLT holds data and the GOT holds code stubs',
+                    'Both the PLT and GOT contain only executable code',
+                    'Both the PLT and GOT are located inside the heap'
+                ],
+                correctIndex:0,
+                explanation:'A PLT stub is executable code that looks up the real function address stored in the corresponding GOT entry and then jumps there.'
+            },
+            { type:'mcq', category:'Buffer Overflow',
+                text:'Why can a call like "strcpy(buffer, argv[0])" be dangerous even without any explicit format string?',
+                options:[
+                    'strcpy copies until it hits a null terminator with no regard for the destination buffer size, so an oversized source overflows it',
+                    'strcpy always copies exactly as many bytes as the destination can hold',
+                    'strcpy cannot be used with character arrays',
+                    'strcpy encrypts data automatically, preventing overflow'
+                ],
+                correctIndex:0,
+                explanation:'Unlike bounded functions, strcpy has no built-in limit, so if the source string is longer than the destination buffer, it overflows adjacent stack memory.'
+            },
+            { type:'mcq', category:'Format Strings',
+                text:'What does the %n format specifier allow an attacker to do in a format string vulnerability?',
+                options:[
+                    'Write the number of bytes printed so far to a memory address supplied as an argument, enabling arbitrary memory writes',
+                    'Safely print a newline character with no side effects',
+                    'Read environment variables from the operating system',
+                    'Permanently disable ASLR for the running process'
+                ],
+                correctIndex:0,
+                explanation:'Unlike specifiers that only read values, %n actually writes a value to memory, which is why it is considered one of the most dangerous format string primitives.'
+            },
+            { type:'mcq', category:'Format Strings',
+                text:'What do the %x and %p format specifiers typically allow an attacker to do in a vulnerable printf() call?',
+                options:[
+                    'Leak values from the stack, such as addresses or data, even though they were never explicitly passed as arguments',
+                    'Corrupt heap metadata directly',
+                    'Execute injected shellcode immediately',
+                    'Rewrite the binary\u2019s PLT entries'
+                ],
+                correctIndex:0,
+                explanation:'When the format string is attacker controlled but the argument list does not match, %x and %p print whatever happens to be on the stack, leaking memory contents.'
+            },
+            { type:'mcq', category:'Tools',
+                text:'What is the main purpose of the pwntools framework in exploit development?',
+                options:[
+                    'It is a framework for building exploits that supports debugging locally, exploiting remotely, and resolving symbols from binaries and libraries',
+                    'It is a static source code linter for C programs',
+                    'It is a replacement GUI for GDB with no scripting support',
+                    'It is a firewall configuration utility'
+                ],
+                correctIndex:0,
+                explanation:'Pwntools provides building blocks like process and remote connections, packing helpers, and symbol resolution, which is why it is described as the framework for exploit development.'
+            },
+
+            { type:'order', category:'Stack Layout',
+                text:'Arrange these stack frame components in order from the lowest memory address to the highest, as shown in the vulnerable function\u2019s stack layout.',
+                items:['Local buffer', 'Saved rbp', 'Saved return address (ret)'],
+                explanation:'The layout from low to high addresses is: the buffer, then the saved rbp, then the saved return address at the top of the frame, which is exactly why overflowing the buffer can reach the return address.'
+            },
+            { type:'order', category:'History and Overview',
+                text:'Arrange these stages of binary exploitation history in the order they were presented.',
+                items:['Wide spread use of C', 'Stack smashing', 'Heap exploitation', 'Mitigations', 'Return Oriented Programming (ROP)'],
+                explanation:'The material frames the evolution as: the popularity of C created the conditions for memory bugs, stack smashing came first, heap exploitation followed, mitigations were introduced to stop these attacks, and ROP emerged as a way to work around those mitigations.'
+            },
+            { type:'order', category:'Exploit Primitives',
+                text:'Arrange these concepts in the order they build on each other, from an initial coding mistake to a full exploit.',
+                items:['Bug', 'Vulnerability', 'Primitive', 'Exploit'],
+                explanation:'A bug is a coding mistake; when it has security impact it becomes a vulnerability; when it can be turned into something usable such as a leak or a write it becomes a primitive; and chaining primitives together produces a working exploit.'
+            },
+
+            { type:'open', category:'Binary Protections',
+                text:'Explain how a stack canary protects against buffer overflow attacks on the return address, and describe one way an attacker can still defeat it.',
+                sample:'A canary is a secret value placed on the stack between the local buffer and the saved rbp/return address. Before a function returns, the program compares the current canary value to the original one; if a sequential overflow has overwritten it on the way to the return address, the mismatch is detected and the program aborts instead of returning to an attacker controlled address. However, the canary only protects overflows that must pass through it in order. If the attacker can leak the canary value first, for example through a format string vulnerability or an out of bounds read, they can include the correct canary bytes in their overflow payload, keep the check passing, and still overwrite the return address underneath it.'
+            },
+            { type:'open', category:'ROP and Bypass',
+                text:'Explain what Return Oriented Programming is and why it became necessary once NX (No eXecute) protection was introduced.',
+                sample:'Return Oriented Programming is a code reuse attack: instead of injecting new shellcode, the attacker chains together short existing instruction sequences called gadgets, each ending in a ret, that are already present as executable code in the binary or its libraries. It exists because NX marks writable regions like the stack as non-executable, so shellcode placed there through a buffer overflow can no longer run directly. By overwriting the saved return pointer to point into the first gadget, and having each gadget\u2019s ret continue to the next one, an attacker can still perform meaningful actions, such as setting up arguments and calling a function like system, using only code that was already marked executable.'
+            },
+            { type:'open', category:'ELF and Linking',
+                text:'Explain the relationship between the Procedure Linkage Table (PLT) and the Global Offset Table (GOT), and why this matters when exploiting a dynamically linked binary.',
+                sample:'The PLT is executable code: a small stub generated for each external function a binary calls. The GOT is a data table that holds the actual resolved addresses of those external functions, filled in when the dynamic linker resolves them. When a dynamically linked function is called, execution first goes through its PLT stub, which reads the corresponding GOT entry and jumps to the real address stored there. This matters for exploitation because library addresses are often randomized (ASLR) and not known in advance; an attacker may need to leak a GOT entry to calculate the library\u2019s base address, and in some scenarios overwriting a GOT entry can redirect a future call to attacker controlled code, so understanding both structures is essential for building reliable exploits against dynamically linked binaries.'
+            }
+        ];
+
+        function shuffleIndices(n) {
+            var arr = [];
+            for (var i = 0; i < n; i++) arr.push(i);
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            }
+            return arr;
+        }
+
+        var questions = [];
+        rawQuestions.forEach(function(q) {
+            var copy = JSON.parse(JSON.stringify(q));
+            copy.answered = false;
+            if (copy.type === 'mcq') {
+                var displayOrder = shuffleIndices(copy.options.length);
+                copy.displayOrder = displayOrder;
+                copy.correctDisplayIndex = displayOrder.indexOf(copy.correctIndex);
+                copy.userSelectedDisplayIndex = null;
+            } else if (copy.type === 'order') {
+                copy.displayOrder = shuffleIndices(copy.items.length);
+                copy.arrangement = copy.displayOrder.slice();
+                copy.orderChecked = false;
+                copy.orderCorrect = false;
+            } else if (copy.type === 'open') {
+                copy.userText = '';
+                copy.sampleShown = false;
+                copy.selfGrade = null;
+            }
+            questions.push(copy);
+        });
+
+        var quizOrder = shuffleIndices(questions.length);
+        var currentPos = 0;
+        var maxReached = 0;
+        var total = questions.length;
+
+        var quizCard = document.getElementById('quizCard');
+        var summaryCard = document.getElementById('summaryCard');
+        var navRow = document.getElementById('navRow');
+        var backBtn = document.getElementById('backBtn');
+        var nextBtn = document.getElementById('nextBtn');
+        var progressInner = document.getElementById('progressInner');
+        var scoreBadge = document.getElementById('scoreBadge');
+
+        function computeScore() {
+            var correctCount = 0;
+            var answeredCount = 0;
+            questions.forEach(function(q) {
+                if (q.answered) {
+                    answeredCount++;
+                    if (q.type === 'mcq' && q.userSelectedDisplayIndex === q.correctDisplayIndex) correctCount++;
+                    else if (q.type === 'order' && q.orderCorrect) correctCount++;
+                    else if (q.type === 'open' && q.selfGrade === 'correct') correctCount++;
+                }
+            });
+            return { correctCount: correctCount, answeredCount: answeredCount };
+        }
+
+        function updateHeader() {
+            var score = computeScore();
+            var progressPct = Math.round((score.answeredCount / total) * 100);
+            progressInner.style.width = progressPct + '%';
+            scoreBadge.textContent = 'Score: ' + score.correctCount + '/' + total;
+        }
+
+        function el(tag, className) {
+            var e = document.createElement(tag);
+            if (className) e.className = className;
+            return e;
+        }
+
+        function renderMCQ(q, container) {
+            var list = el('div', 'options-list');
+            q.displayOrder.forEach(function(origIndex, displayPos) {
+                var btn = el('button', 'answer-btn');
+                btn.textContent = q.options[origIndex];
+                btn.type = 'button';
+                if (q.answered) {
+                    btn.disabled = true;
+                    if (displayPos === q.correctDisplayIndex) {
+                        btn.classList.add('correct');
+                    } else if (displayPos === q.userSelectedDisplayIndex) {
+                        btn.classList.add('incorrect');
+                    }
+                } else {
+                    btn.addEventListener('click', function() {
+                        q.answered = true;
+                        q.userSelectedDisplayIndex = displayPos;
+                        renderCurrent();
+                    });
+                }
+                list.appendChild(btn);
+            });
+            container.appendChild(list);
+            if (q.answered) {
+                var exp = el('div', 'explanation');
+                exp.textContent = q.explanation;
+                container.appendChild(exp);
+            }
+        }
+
+        function renderOrder(q, container) {
+            var list = el('div', 'order-list');
+
+            function redraw() {
+                list.innerHTML = '';
+                q.arrangement.forEach(function(origIndex, pos) {
+                    var row = el('div', 'order-item');
+                    if (q.orderChecked) {
+                        row.classList.add(q.orderCorrect ? 'correct' : 'incorrect');
+                    }
+                    var txt = el('span', 'order-item-text');
+                    txt.textContent = (pos + 1) + '. ' + q.items[origIndex];
+                    row.appendChild(txt);
+
+                    var btns = el('div', 'order-btns');
+                    var upBtn = el('button', 'order-btn');
+                    upBtn.type = 'button';
+                    upBtn.textContent = '\u2191';
+                    upBtn.disabled = q.orderChecked || pos === 0;
+                    upBtn.addEventListener('click', function() {
+                        var tmp = q.arrangement[pos - 1];
+                        q.arrangement[pos - 1] = q.arrangement[pos];
+                        q.arrangement[pos] = tmp;
+                        redraw();
+                    });
+                    var downBtn = el('button', 'order-btn');
+                    downBtn.type = 'button';
+                    downBtn.textContent = '\u2193';
+                    downBtn.disabled = q.orderChecked || pos === q.arrangement.length - 1;
+                    downBtn.addEventListener('click', function() {
+                        var tmp = q.arrangement[pos + 1];
+                        q.arrangement[pos + 1] = q.arrangement[pos];
+                        q.arrangement[pos] = tmp;
+                        redraw();
+                    });
+                    btns.appendChild(upBtn);
+                    btns.appendChild(downBtn);
+                    row.appendChild(btns);
+                    list.appendChild(row);
+                });
+            }
+            redraw();
+            container.appendChild(list);
+
+            if (!q.orderChecked) {
+                var checkBtn = el('button', 'check-btn');
+                checkBtn.type = 'button';
+                checkBtn.textContent = 'Check order';
+                checkBtn.addEventListener('click', function() {
+                    var correct = true;
+                    for (var i = 0; i < q.arrangement.length; i++) {
+                        if (q.arrangement[i] !== i) { correct = false; break; }
+                    }
+                    q.orderChecked = true;
+                    q.orderCorrect = correct;
+                    q.answered = true;
+                    renderCurrent();
+                });
+                container.appendChild(checkBtn);
+            } else {
+                var exp = el('div', 'explanation');
+                exp.textContent = q.explanation;
+                container.appendChild(exp);
+            }
+        }
+
+        function renderOpen(q, container) {
+            var textarea = el('textarea', 'open-textarea');
+            textarea.value = q.userText;
+            textarea.placeholder = 'Write your answer here...';
+            textarea.disabled = q.answered;
+            textarea.addEventListener('input', function() {
+                q.userText = textarea.value;
+            });
+            container.appendChild(textarea);
+
+            if (!q.sampleShown) {
+                var showBtn = el('button', 'show-answer-btn');
+                showBtn.type = 'button';
+                showBtn.textContent = 'Show sample answer';
+                showBtn.addEventListener('click', function() {
+                    q.sampleShown = true;
+                    renderCurrent();
+                });
+                container.appendChild(showBtn);
+            } else {
+                var box = el('div', 'sample-box');
+                var label = el('span', 'sample-label');
+                label.textContent = 'Sample answer:';
+                box.appendChild(label);
+                var body = document.createElement('div');
+                body.textContent = q.sample;
+                box.appendChild(body);
+                container.appendChild(box);
+
+                var gradeRow = el('div', 'grade-buttons');
+                var gotIt = el('button', 'grade-btn');
+                gotIt.type = 'button';
+                gotIt.textContent = 'I got it';
+                var missedIt = el('button', 'grade-btn');
+                missedIt.type = 'button';
+                missedIt.textContent = 'I did not get it';
+
+                if (q.answered) {
+                    gotIt.disabled = true;
+                    missedIt.disabled = true;
+                    if (q.selfGrade === 'correct') gotIt.classList.add('chosen-correct');
+                    if (q.selfGrade === 'incorrect') missedIt.classList.add('chosen-incorrect');
+                } else {
+                    gotIt.addEventListener('click', function() {
+                        q.selfGrade = 'correct';
+                        q.answered = true;
+                        renderCurrent();
+                    });
+                    missedIt.addEventListener('click', function() {
+                        q.selfGrade = 'incorrect';
+                        q.answered = true;
+                        renderCurrent();
+                    });
+                }
+                gradeRow.appendChild(gotIt);
+                gradeRow.appendChild(missedIt);
+                container.appendChild(gradeRow);
+            }
+        }
+
+        function renderCurrent() {
+            var q = questions[quizOrder[currentPos]];
+            quizCard.innerHTML = '';
+
+            var badge = el('span', 'category-badge');
+            badge.textContent = q.category;
+            badge.style.backgroundColor = categoryColors[q.category] || '#d9d9d9';
+            quizCard.appendChild(badge);
+
+            var qText = el('div', 'question-text');
+            qText.textContent = q.text;
+            quizCard.appendChild(qText);
+
+            if (q.type === 'mcq') renderMCQ(q, quizCard);
+            else if (q.type === 'order') renderOrder(q, quizCard);
+            else if (q.type === 'open') renderOpen(q, quizCard);
+
+            backBtn.disabled = currentPos === 0;
+
+            var isLast = currentPos === total - 1;
+            if (currentPos < maxReached) {
+                nextBtn.disabled = false;
+                nextBtn.textContent = 'Next \u2192';
+            } else if (q.answered) {
+                nextBtn.disabled = false;
+                nextBtn.textContent = isLast ? 'See results' : 'Next \u2192';
+            } else {
+                nextBtn.disabled = true;
+                nextBtn.textContent = 'Next \u2192';
+            }
+
+            updateHeader();
+        }
+
+        function showSummary() {
+            navRow.classList.add('hidden');
+            quizCard.classList.add('hidden');
+            summaryCard.classList.remove('hidden');
+
+            var score = computeScore();
+            var pct = Math.round((score.correctCount / total) * 100);
+
+            summaryCard.innerHTML = '';
+            var h2 = el('h2');
+            h2.textContent = 'Quiz Complete';
+            summaryCard.appendChild(h2);
+
+            var percentDiv = el('div', 'summary-percent');
+            percentDiv.textContent = pct + '%';
+            summaryCard.appendChild(percentDiv);
+
+            var detail = el('div', 'summary-detail');
+            detail.textContent = 'You answered ' + score.correctCount + ' out of ' + total + ' questions correctly.';
+            summaryCard.appendChild(detail);
+
+            var restartBtn = el('button', 'restart-btn');
+            restartBtn.type = 'button';
+            restartBtn.textContent = 'Restart Quiz';
+            restartBtn.addEventListener('click', function() {
+                window.location.reload();
+            });
+            summaryCard.appendChild(restartBtn);
+        }
+
+        backBtn.addEventListener('click', function() {
+            if (currentPos > 0) {
+                currentPos--;
+                renderCurrent();
+            }
+        });
+
+        nextBtn.addEventListener('click', function() {
+            if (currentPos < maxReached) {
+                currentPos++;
+                renderCurrent();
+            } else {
+                var q = questions[quizOrder[currentPos]];
+                if (q.answered) {
+                    if (currentPos === total - 1) {
+                        showSummary();
+                        return;
+                    }
+                    currentPos++;
+                    if (currentPos > maxReached) maxReached = currentPos;
+                    renderCurrent();
+                }
+            }
+        });
+
+        renderCurrent();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Network Security – Email Security Quiz</title>
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: #f3f4f6;
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  padding: 16px;
+}
+.wrap { max-width: 780px; margin: 0 auto; }
+.title { font-size: 20px; font-weight: 700; margin: 4px 0 12px 0; color: #111827; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.score { font-size: 15px; font-weight: 600; color: #111827; background: #ffffff; border: 1px solid #d1d5db; border-radius: 999px; padding: 4px 14px; }
+.progress-label { font-size: 14px; color: #374151; }
+.progress { width: 100%; height: 10px; background: #d1d5db; border-radius: 999px; overflow: hidden; margin-bottom: 16px; }
+.progress-fill { height: 100%; width: 0%; background: #2563eb; border-radius: 999px; transition: width 0.3s ease; }
+.card { background: #ffffff; color: #111827; border: 1px solid #d1d5db; border-radius: 14px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.qnum { font-size: 13px; font-weight: 600; color: #374151; }
+.badge { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.type-tag { font-size: 12px; font-weight: 600; color: #374151; background: #e5e7eb; border-radius: 6px; padding: 2px 8px; }
+.cat-blue { background: #dbeafe; color: #1e3a8a; }
+.cat-green { background: #dcfce7; color: #14532d; }
+.cat-amber { background: #fef3c7; color: #78350f; }
+.cat-purple { background: #ede9fe; color: #4c1d95; }
+.cat-pink { background: #fce7f3; color: #831843; }
+.cat-teal { background: #ccfbf1; color: #134e4a; }
+.cat-red { background: #fee2e2; color: #7f1d1d; }
+.cat-orange { background: #ffedd5; color: #7c2d12; }
+.question-text { font-size: 18px; font-weight: 600; color: #111827; margin: 0 0 16px 0; }
+.hint { font-size: 14px; color: #374151; margin: 0 0 12px 0; }
+.answers { display: flex; flex-direction: column; gap: 10px; }
+.answer-btn {
+  display: flex; align-items: flex-start; gap: 10px; width: 100%; text-align: left;
+  background: #f9fafb; color: #1a1a2e; border: 2px solid #d1d5db; border-radius: 10px;
+  padding: 12px 14px; font-size: 15px; font-family: inherit; cursor: pointer; line-height: 1.4;
+}
+.answer-btn:hover:not(:disabled) { background: #eff6ff; border-color: #2563eb; }
+.answer-btn:disabled { cursor: default; color: #1a1a2e; opacity: 1; }
+.answer-btn.correct { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+.answer-btn.wrong { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+.letter { font-weight: 700; min-width: 22px; color: #1a1a2e; }
+.answer-btn.correct .letter { color: #14532d; }
+.answer-btn.wrong .letter { color: #7f1d1d; }
+.answer-text { color: #1a1a2e; }
+.answer-btn.correct .answer-text { color: #14532d; }
+.answer-btn.wrong .answer-text { color: #7f1d1d; }
+.explanation { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; font-size: 14.5px; }
+.exp-title { font-weight: 700; margin: 0 0 4px 0; color: #1e3a8a; }
+.exp-title.ok { color: #14532d; }
+.exp-title.bad { color: #7f1d1d; }
+.exp-text { margin: 0; color: #1e3a8a; }
+.order-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.order-item {
+  display: flex; align-items: center; gap: 10px; background: #f9fafb; color: #1a1a2e;
+  border: 2px solid #d1d5db; border-radius: 10px; padding: 8px 10px; font-size: 15px;
+}
+.order-item.draggable { cursor: grab; }
+.order-item.dragging { opacity: 0.5; }
+.order-item.ok { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+.order-item.bad { background: #fee2e2; border-color: #dc2626; color: #7f1d1d; }
+.order-pos { font-weight: 700; min-width: 22px; color: #1a1a2e; }
+.order-text { flex: 1; color: #1a1a2e; }
+.order-item.ok .order-pos, .order-item.ok .order-text { color: #14532d; }
+.order-item.bad .order-pos, .order-item.bad .order-text { color: #7f1d1d; }
+.move-btns { display: flex; gap: 6px; }
+.move-btn {
+  background: #e5e7eb; color: #111827; border: 1px solid #9ca3af; border-radius: 6px;
+  width: 32px; height: 32px; font-size: 13px; cursor: pointer; font-family: inherit;
+}
+.move-btn:hover:not(:disabled) { background: #dbeafe; }
+.move-btn:disabled { color: #4b5563; background: #e5e7eb; cursor: not-allowed; opacity: 0.6; }
+.correct-order { margin-top: 14px; padding: 10px 14px; border-radius: 10px; background: #f0fdf4; border: 1px solid #86efac; color: #14532d; font-size: 14.5px; }
+.correct-order-title { font-weight: 700; margin: 0 0 6px 0; color: #14532d; }
+.correct-order ol { margin: 0; padding-left: 22px; }
+.correct-order li { color: #14532d; margin-bottom: 2px; }
+.primary-btn, .grade-btn {
+  background: #2563eb; color: #ffffff; border: 2px solid #2563eb; border-radius: 10px;
+  padding: 10px 18px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 14px;
+}
+.primary-btn:hover:not(:disabled) { background: #1d4ed8; border-color: #1d4ed8; }
+.primary-btn:disabled { background: #e5e7eb; color: #4b5563; border-color: #9ca3af; cursor: not-allowed; }
+.grade-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.grade-btn.good { background: #16a34a; border-color: #16a34a; color: #ffffff; }
+.grade-btn.bad { background: #dc2626; border-color: #dc2626; color: #ffffff; }
+.grade-btn:disabled { cursor: default; background: #e5e7eb; color: #4b5563; border-color: #9ca3af; }
+.grade-btn.chosen-good:disabled { background: #16a34a; border-color: #166534; color: #ffffff; }
+.grade-btn.chosen-bad:disabled { background: #dc2626; border-color: #991b1b; color: #ffffff; }
+.answer-input {
+  width: 100%; min-height: 130px; padding: 10px 12px; font-size: 15px; font-family: inherit;
+  background: #ffffff; color: #111827; border: 2px solid #d1d5db; border-radius: 10px; resize: vertical;
+}
+.answer-input:disabled { background: #f3f4f6; color: #111827; }
+.model-box { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #f0fdf4; border: 1px solid #86efac; color: #14532d; font-size: 14.5px; }
+.model-title { font-weight: 700; margin: 0 0 6px 0; color: #14532d; }
+.model-text { margin: 0; color: #14532d; white-space: pre-wrap; }
+.self-grade-label { font-size: 14px; color: #374151; margin: 14px 0 0 0; }
+.nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.nav-btn {
+  background: #e5e7eb; color: #111827; border: 2px solid #9ca3af; border-radius: 10px;
+  padding: 10px 18px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.nav-btn:hover:not(:disabled) { background: #dbeafe; border-color: #2563eb; }
+.nav-btn:disabled { background: #e5e7eb; color: #4b5563; border-color: #d1d5db; cursor: not-allowed; opacity: 0.6; }
+.result-title { font-size: 24px; font-weight: 700; margin: 0 0 8px 0; color: #111827; }
+.result-percent { font-size: 56px; font-weight: 800; margin: 8px 0; color: #2563eb; }
+.result-text { font-size: 16px; color: #111827; margin: 0 0 16px 0; }
+.result-sub { font-size: 15px; font-weight: 700; color: #111827; margin: 18px 0 8px 0; }
+.cat-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #e5e7eb; }
+.cat-row-score { font-weight: 700; color: #111827; font-size: 14px; }
+.result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+@media (prefers-color-scheme: dark) {
+  body { background: #0f172a; color: #f1f5f9; }
+  .title { color: #f1f5f9; }
+  .score { color: #f1f5f9; background: #1e293b; border-color: #475569; }
+  .progress-label { color: #cbd5e1; }
+  .progress { background: #334155; }
+  .progress-fill { background: #60a5fa; }
+  .card { background: #1e293b; color: #f1f5f9; border-color: #334155; box-shadow: none; }
+  .qnum { color: #cbd5e1; }
+  .type-tag { color: #e2e8f0; background: #334155; }
+  .cat-blue { background: #1e3a8a; color: #dbeafe; }
+  .cat-green { background: #14532d; color: #dcfce7; }
+  .cat-amber { background: #78350f; color: #fef3c7; }
+  .cat-purple { background: #4c1d95; color: #ede9fe; }
+  .cat-pink { background: #831843; color: #fce7f3; }
+  .cat-teal { background: #134e4a; color: #ccfbf1; }
+  .cat-red { background: #7f1d1d; color: #fee2e2; }
+  .cat-orange { background: #7c2d12; color: #ffedd5; }
+  .question-text { color: #f1f5f9; }
+  .hint { color: #cbd5e1; }
+  .answer-btn { background: #334155; color: #f1f5f9; border-color: #475569; }
+  .answer-btn:hover:not(:disabled) { background: #3b4a63; border-color: #60a5fa; }
+  .answer-btn:disabled { color: #f1f5f9; }
+  .answer-btn.correct { background: #14532d; border-color: #22c55e; color: #dcfce7; }
+  .answer-btn.wrong { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+  .letter { color: #f1f5f9; }
+  .answer-text { color: #f1f5f9; }
+  .answer-btn.correct .letter, .answer-btn.correct .answer-text { color: #dcfce7; }
+  .answer-btn.wrong .letter, .answer-btn.wrong .answer-text { color: #fee2e2; }
+  .explanation { background: #1e3a5f; border-color: #2c5282; color: #dbeafe; }
+  .exp-title { color: #dbeafe; }
+  .exp-title.ok { color: #86efac; }
+  .exp-title.bad { color: #fca5a5; }
+  .exp-text { color: #dbeafe; }
+  .order-item { background: #334155; color: #f1f5f9; border-color: #475569; }
+  .order-item.ok { background: #14532d; border-color: #22c55e; color: #dcfce7; }
+  .order-item.bad { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+  .order-pos, .order-text { color: #f1f5f9; }
+  .order-item.ok .order-pos, .order-item.ok .order-text { color: #dcfce7; }
+  .order-item.bad .order-pos, .order-item.bad .order-text { color: #fee2e2; }
+  .move-btn { background: #475569; color: #f1f5f9; border-color: #64748b; }
+  .move-btn:hover:not(:disabled) { background: #1e3a8a; }
+  .move-btn:disabled { background: #475569; color: #e2e8f0; opacity: 0.5; }
+  .correct-order { background: #14532d; border-color: #22c55e; color: #dcfce7; }
+  .correct-order-title { color: #dcfce7; }
+  .correct-order li { color: #dcfce7; }
+  .primary-btn { background: #60a5fa; color: #0f172a; border-color: #60a5fa; }
+  .primary-btn:hover:not(:disabled) { background: #93c5fd; border-color: #93c5fd; }
+  .primary-btn:disabled { background: #334155; color: #e2e8f0; border-color: #475569; }
+  .grade-btn { color: #0f172a; }
+  .grade-btn.good { background: #4ade80; border-color: #4ade80; color: #052e16; }
+  .grade-btn.bad { background: #f87171; border-color: #f87171; color: #450a0a; }
+  .grade-btn:disabled { background: #334155; color: #e2e8f0; border-color: #475569; }
+  .grade-btn.chosen-good:disabled { background: #4ade80; border-color: #22c55e; color: #052e16; }
+  .grade-btn.chosen-bad:disabled { background: #f87171; border-color: #ef4444; color: #450a0a; }
+  .answer-input { background: #0f172a; color: #f1f5f9; border-color: #475569; }
+  .answer-input:disabled { background: #1e293b; color: #f1f5f9; }
+  .model-box { background: #14532d; border-color: #22c55e; color: #dcfce7; }
+  .model-title { color: #dcfce7; }
+  .model-text { color: #dcfce7; }
+  .self-grade-label { color: #cbd5e1; }
+  .nav-btn { background: #334155; color: #f1f5f9; border-color: #64748b; }
+  .nav-btn:hover:not(:disabled) { background: #1e3a8a; border-color: #60a5fa; }
+  .nav-btn:disabled { background: #334155; color: #e2e8f0; border-color: #475569; opacity: 0.5; }
+  .result-title { color: #f1f5f9; }
+  .result-percent { color: #60a5fa; }
+  .result-text { color: #f1f5f9; }
+  .result-sub { color: #f1f5f9; }
+  .cat-row { border-bottom-color: #334155; }
+  .cat-row-score { color: #f1f5f9; }
+}
+@media (max-width: 520px) {
+  body { padding: 10px; }
+  .card { padding: 14px; }
+  .question-text { font-size: 16.5px; }
+  .result-percent { font-size: 44px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CATS = {
+    arch:    { label: 'Mail architecture', cls: 'cat-blue' },
+    proto:   { label: 'Mail protocols', cls: 'cat-green' },
+    mime:    { label: 'MIME', cls: 'cat-amber' },
+    threats: { label: 'Email threats', cls: 'cat-red' },
+    layers:  { label: 'Security protocols', cls: 'cat-purple' },
+    dns:     { label: 'DNS and DNSSEC', cls: 'cat-teal' },
+    auth:    { label: 'SPF / DKIM / DMARC', cls: 'cat-pink' },
+    pgp:     { label: 'PGP and S/MIME', cls: 'cat-orange' }
+  };
+
+  function mcq(cat, q, correct, wrongs, expl) {
+    return { type: 'mcq', cat: cat, q: q, opts: [correct].concat(wrongs), explain: expl };
+  }
+  function ord(cat, q, items, expl) {
+    return { type: 'order', cat: cat, q: q, items: items, explain: expl };
+  }
+  function open(cat, q, model) {
+    return { type: 'open', cat: cat, q: q, model: model };
+  }
+
+  var QUESTIONS = [
+    mcq('arch',
+      'Which component of the Internet Mail Architecture accepts a message from the sender MUA and hands it to the first MTA?',
+      'Mail Submission Agent (MSA)',
+      ['Mail Delivery Agent (MDA)', 'Message Store (MS)', 'Message Handling System (MHS)'],
+      'The MUA submits the message (ESMTP submission) to the MSA, which passes it via SMTP to the first MTA. The MDA sits on the receiving side, the MS is the mailbox, and the MHS is the whole system of MSA, MTAs and MDA.'),
+
+    mcq('arch',
+      'What is the job of the Mail Delivery Agent (MDA)?',
+      'To deliver the incoming message into the recipient mailbox (message store)',
+      ['To relay messages between mail servers across the Internet', 'To let the user compose and read messages', 'To sign outgoing messages with a DKIM key'],
+      'The last MTA hands the message to the MDA, which puts it into the recipient message store. Relaying is done by MTAs, and composing/reading is done by the MUA.'),
+
+    mcq('proto',
+      'Which pair of protocols is most commonly used by a mail client to fetch messages from a mail server?',
+      'IMAP and POP3',
+      ['SMTP and MIME', 'DNSSEC and DANE', 'SPF and DKIM'],
+      'SMTP moves messages through the Internet from source to destination, while IMAP and POP3 transfer messages between mail servers and clients.'),
+
+    mcq('proto',
+      'How does IMAP differ from POP3?',
+      'IMAP is more complex, provides stronger authentication and offers functions that POP3 does not support',
+      ['IMAP is simpler and has no authentication', 'IMAP is used to transfer mail between MTAs', 'IMAP runs over UDP instead of TCP'],
+      'POP3 lets a client download mail and retrieve or delete it after authorization. IMAP also uses TCP (server port 143) but is more complex with stronger authentication and extra functions. POP1 and POP2 were the simple ones lacking authentication.'),
+
+    mcq('proto',
+      'What does an email message look like at the protocol level (RFC 5322)?',
+      'Plain text of printable ASCII characters: a header section, a blank line, then the body',
+      ['A binary structure encoded as JSON', 'An XML document with separate header and body elements', 'A compressed binary blob with a fixed-size header'],
+      'At the protocol level, email is plain text. There is no binary data and no structured JSON or XML. The header is separated from the body by a blank line.'),
+
+    mcq('proto',
+      'Why can plain SMTP / RFC 5322 not carry international language characters?',
+      'Because it is limited to 7-bit ASCII',
+      ['Because TCP port 25 only accepts Latin traffic', 'Because DNS cannot resolve non-English domains', 'Because every message must be encrypted first'],
+      'SMTP cannot transmit executable files or other binary objects, international characters (7-bit ASCII limitation) or messages over a certain size. MIME addresses these problems.'),
+
+    mcq('mime',
+      'What is the relationship between MIME and SMTP?',
+      'SMTP is the transport mechanism; MIME is the format and encoding mechanism and is not a transport protocol',
+      ['MIME replaces SMTP for transporting multimedia mail', 'MIME is a mail access protocol competing with IMAP', 'MIME encrypts the SMTP connection between servers'],
+      'MIME messages are sent over SMTP, but MIME itself is not a transport protocol. It extends RFC 5322 with new header fields, content formats and transfer encodings.'),
+
+    mcq('mime',
+      'How many new message header fields does MIME define compared to RFC 5322?',
+      'Five',
+      ['Three', 'Seven', 'Ten'],
+      'MIME defines MIME-Version, Content-Type, Content-Transfer-Encoding, Content-ID and Content-Description.'),
+
+    mcq('mime',
+      'Which MIME header field describes the data in the body so that the receiving user agent can pick an appropriate way to present or handle it?',
+      'Content-Type',
+      ['Content-Transfer-Encoding', 'Content-ID', 'Content-Description'],
+      'Content-Type describes the body data with enough detail for the receiving user agent to choose a suitable agent or mechanism for it (for example type/subtype).'),
+
+    mcq('mime',
+      'Which MIME header field indicates the transformation used to represent the body so that it is acceptable for mail transport?',
+      'Content-Transfer-Encoding',
+      ['MIME-Version', 'Content-Description', 'Content-Type'],
+      'Content-Transfer-Encoding states which transformation was applied to the body. Content-ID identifies MIME entities uniquely and Content-Description is a text description of the object.'),
+
+    mcq('threats',
+      'An attacker alters the content of an email while it travels between servers. Which category of email threat is this?',
+      'Integrity-related threat',
+      ['Availability-related threat', 'Authenticity-related threat', 'Confidentiality-related threat'],
+      'Integrity threats result in unauthorized modification of email content. Authenticity threats lead to unauthorized access, confidentiality threats to disclosure of sensitive information, and availability threats prevent users from sending or receiving mail.'),
+
+    mcq('threats',
+      'Which mitigations are listed for email modified in transit or disclosed through monitoring and capturing of email traffic?',
+      'TLS between mail servers and end-to-end email encryption',
+      ['Domain-based authentication and digital signatures', 'Multiple mail servers and cloud-based email providers', 'Blocking all attachments at the gateway'],
+      'Use of TLS to encrypt transfer between servers and end-to-end email encryption protect against modification and disclosure. Domain-based authentication addresses spoofed senders, and redundant servers address DoS/DDoS.'),
+
+    mcq('threats',
+      'What is the main impact on the purported sender when an attacker sends mail from an unauthorized MTA or with a spoofed domain?',
+      'Loss of reputation, and valid email may be blocked as possible spam or phishing',
+      ['The sender can no longer send any email', 'The sender private key is leaked', 'There is no impact on the sender at all'],
+      'For the purported sender the impact is reputational: valid mail from the enterprise may be blocked as spam or phishing. The receiver may get unsolicited bulk email or malicious links.'),
+
+    mcq('layers',
+      'What does STARTTLS do, and what is its limitation?',
+      'It upgrades SMTP connections to TLS, protecting each transport hop but not providing end-to-end protection',
+      ['It encrypts the message body end-to-end so only the recipient can read it', 'It signs DNS records to prevent spoofing', 'It publishes the list of allowed sending servers in DNS'],
+      'STARTTLS secures email in transit (confidentiality, integrity, server authentication via certificates) hop by hop. The content is still visible to every mail server that handles it.'),
+
+    mcq('layers',
+      'Which protocol provides end-to-end protection of message content (body and attachments)?',
+      'S/MIME',
+      ['STARTTLS', 'DNSSEC', 'SPF'],
+      'S/MIME protects message content end-to-end with encryption and digital signatures. It protects content, not all metadata. STARTTLS is hop-by-hop, DNSSEC protects DNS data and SPF is a sender policy.'),
+
+    mcq('layers',
+      'Which of these protocols requires DNSSEC to work, whereas SPF, DKIM and DMARC can work without it?',
+      'DANE',
+      ['S/MIME', 'STARTTLS', 'PGP'],
+      'DANE relies on DNSSEC-validated TLSA records. SPF, DKIM and DMARC can be deployed without DNSSEC, although DNSSEC makes their DNS records trustworthy.'),
+
+    mcq('dns',
+      'What does DNSSEC provide?',
+      'Data origin authentication and data integrity verification of DNS records using digital signatures',
+      ['Encryption of DNS queries so nobody can read them', 'End-to-end protection of the email body', 'A list of IP addresses allowed to send mail for a domain'],
+      'DNSSEC protects DNS clients from accepting forged or altered resource records by signing them. It ensures data comes from the correct source and that a Resource Record was not modified. It does not hide the queries.'),
+
+    mcq('dns',
+      'In a DNS cache poisoning attack over UDP, what must the attacker guess for the forged response to be accepted?',
+      'The transaction ID of the DNS query',
+      ['The private key of the resolver', 'The TLS certificate of the root server', 'The MX priority value'],
+      'DNS has no built-in authentication and UDP needs no handshake, so a resolver trusts any response that matches its request. The attacker has to guess the transaction ID to inject a fake IP address into the cache.'),
+
+    mcq('dns',
+      'Which DNS record type tells a sending mail server where to deliver mail for a domain?',
+      'MX',
+      ['NS', 'TLSA', 'AAAA'],
+      'The MX (Mail Exchange) record specifies the mail servers responsible for receiving email for the domain. NS identifies authoritative name servers, TLSA is used by DANE and AAAA maps a hostname to IPv6.'),
+
+    mcq('auth',
+      'What does SPF define?',
+      'Which mail servers are authorized to send email on behalf of a domain',
+      ['A digital signature over the message header and body', 'The policy for handling failed checks and reporting', 'The TLS certificate of the mail server'],
+      'SPF is a DNS TXT record listing the servers allowed to send for the domain. The receiver compares the sending server IP with the list: on the list means pass, otherwise fail (possible spoofing).'),
+
+    mcq('auth',
+      'Where is the DKIM public key published so that receivers can verify message signatures?',
+      'In a DNS TXT record of the signing domain',
+      ['In the MX record of the receiving domain', 'In the Content-ID header of the message', 'In the recipient mailbox'],
+      'The sending server adds a DKIM-Signature header, and the domain publishes the public key in a TXT record (selector._domainkey.domain). The receiver fetches it from DNS to verify authenticity and integrity.'),
+
+    mcq('auth',
+      'What does a DMARC policy of p=reject tell receiving mail servers to do?',
+      'Drop messages that fail the DMARC check entirely',
+      ['Only monitor and take no action', 'Mark failing messages as spam or suspicious', 'Encrypt the failing messages before delivery'],
+      'DMARC ties SPF and DKIM results to the From domain and defines the failure policy: none = monitor, quarantine = mark as spam/suspicious, reject = drop the message. It also asks receivers to send reports back.'),
+
+    mcq('layers',
+      'What does DANE use to bind a mail server to its TLS certificate?',
+      'DNSSEC-validated TLSA records',
+      ['TXT records containing SPF rules', 'A certificate chain from a public CA only', 'DKIM selectors'],
+      'DANE publishes and verifies TLS certificates in DNS (secured by DNSSEC). This authenticates SMTP servers and addresses weaknesses of the public CA model.'),
+
+    mcq('pgp',
+      'What trust model does PGP use?',
+      'A decentralized web of trust where users sign each other public keys',
+      ['A centralized hierarchy of certificate authorities', 'A chain of trust from the DNS root zone', 'No trust model; keys are never verified'],
+      'PGP users generate their own key pairs and exchange public keys directly, not through a CA. If you trust Bob and Bob signed Alice key, you can trust it too. The downside is manual verification, which does not suit large organizations.'),
+
+    mcq('pgp',
+      'Which statement about S/MIME is correct?',
+      'It uses X.509 certificates issued by CAs within a centralized PKI',
+      ['It relies on a decentralized web of trust', 'Keys are generated by users and exchanged without any CA', 'It only provides confidentiality, not signatures'],
+      'S/MIME uses public-key certificates conforming to X.509 version 3 and a centralized CA hierarchy. Its digital signatures give authentication, message integrity and non-repudiation of origin.'),
+
+    mcq('pgp',
+      'Why is it considered better to sign a message first and then encrypt it, rather than encrypt first and then sign?',
+      'The signature stays confidential, covers the actual message and avoids signing unknown ciphertext',
+      ['It lets any intermediate server verify the signature without decrypting', 'It removes the need for a one-time session key', 'It removes the need for certificates'],
+      'Sign-then-encrypt keeps the signature visible only to the recipient, ensures authenticity and integrity after decryption, provides non-repudiation on the actual message and prevents identity leakage.'),
+
+    mcq('pgp',
+      'Which S/MIME (CMS) content type is used to apply a digital signature to a message?',
+      'SignedData',
+      ['EnvelopedData', 'CompressedData', 'Data'],
+      'SignedData applies a digital signature, EnvelopedData holds encrypted content plus encrypted content-encryption keys for one or more recipients, CompressedData applies compression, and Data is the inner MIME-encoded content.'),
+
+    mcq('pgp',
+      'In typical S/MIME message encryption, how is the one-time session key protected?',
+      'It is encrypted with RSA using the recipient public key and included with the message',
+      ['It is encrypted with the sender private key', 'It is sent unencrypted in a separate email', 'It is derived from the DNS TXT record of the sender'],
+      'The message is encrypted with AES-128 in CBC mode using a one-time session key generated by the sender. That session key is encrypted with RSA under the recipient public key and sent along with the message.'),
+
+    ord('arch',
+      'Put the stations of an email on its way from the author to the recipient into the correct order.',
+      ['Sender MUA', 'Mail Submission Agent (MSA)', 'Message Transfer Agent(s) (MTA)', 'Mail Delivery Agent (MDA)', 'Message Store (mailbox)', 'Recipient MUA'],
+      'The author MUA submits to the MSA, the message is relayed through one or more MTAs via SMTP, the MDA delivers it into the message store, and the recipient MUA reads it (IMAP/POP).'),
+
+    ord('dns',
+      'Put the steps of a DNS lookup for example.com (with a recursive resolver) into the correct order.',
+      ['The client asks the recursive resolver for the A record of example.com', 'The resolver asks a root nameserver where to find the .com servers', 'The resolver asks the .com TLD nameserver for the authoritative nameserver', 'The resolver asks the authoritative nameserver for the A record', 'The resolver returns the IP address to the client'],
+      'Client to resolver, resolver to root, then TLD, then the authoritative nameserver, and finally the answer goes back to the client.'),
+
+    ord('auth',
+      'Order the layers of the email security stack by the stage of the message lifecycle they protect, from first to last.',
+      ['SPF: before sending, who is allowed to send', 'DKIM: during sending, integrity and authenticity', 'DMARC: after sending, policy and reporting', 'DNSSEC + DANE: while delivering, secure DNS and transport'],
+      'Modern email security is a stack of complementary layers: SPF, then DKIM, then DMARC, then DNSSEC and DANE for the DNS and transport layer.'),
+
+    ord('pgp',
+      'Order the typical steps a sender performs when producing a signed and encrypted S/MIME message.',
+      ['Compress the message (optional)', 'Hash the message and sign the digest with the sender private key', 'Encrypt message and signature with a one-time session key (AES-128 CBC)', 'Encrypt the session key with the recipient public key (RSA)', 'Convert the result to an ASCII string using radix-64'],
+      'The message is compressed before encryption, then signed first and encrypted afterwards. The session key is wrapped with the recipient public key, and radix-64 conversion keeps the result e-mail compatible.'),
+
+    open('dns',
+      'Explain why DNS security is critical for email security, and how DNSSEC and DANE help to address the problem.',
+      'Email systems depend heavily on DNS to find and trust mail servers (MX records) and to obtain the SPF, DKIM, DMARC and TLSA records. DNS was designed in the 1980s without built-in authentication or integrity checks, so a resolver trusts any response matching its request. This allows spoofing, cache poisoning and man-in-the-middle attacks. If DNS is compromised, an attacker can redirect, impersonate or intercept email, even when the message itself is encrypted, for example by returning a fake MX record that points to an attacker-controlled server.\n\nDNSSEC adds digital signatures to DNS records, giving data origin authentication and data integrity verification, so forged records are detected and mail servers receive authentic MX, SPF, DKIM and DMARC records. DANE builds on DNSSEC: signed TLSA records bind an SMTP server to its TLS certificate, so the server is authenticated and the weaknesses of the public CA model are avoided.'),
+
+    open('pgp',
+      'Compare PGP/OpenPGP and S/MIME: how do they handle keys and trust, and in which settings is each typically used?',
+      'Both provide end-to-end email encryption and digital signatures (confidentiality, authenticity, integrity), but they differ in key management and trust.\n\nPGP/OpenPGP (Phil Zimmermann, 1991; OpenPGP RFC 4880): users generate their own key pairs and exchange public keys directly, without a CA. Trust is decentralized, a web of trust in which people sign each other keys. It needs manual verification and user awareness, so it does not scale well to large organizations. Messages are ASCII-armored text; common tools are Thunderbird and ProtonMail; typical users are activists, privacy-focused users and small groups.\n\nS/MIME (RFC 5751): uses CA-issued X.509 certificates in a centralized PKI with a CA hierarchy as the trust model. Messages use the MIME type application/pkcs7-mime (Base64). It is supported by Outlook, Apple Mail and Exchange, and is typically used by corporations, governments and enterprises.'),
+
+    open('auth',
+      'Explain how SPF, DKIM and DMARC work together to protect a domain against email spoofing. What does each one check and what does DMARC add?',
+      'All three publish their data in DNS (TXT records) and are checked by the receiving mail server.\n\nSPF lists which mail servers (IP addresses) may send email on behalf of the domain. The receiver checks whether the sending server IP is on the list: pass or fail (possible spoofing).\n\nDKIM lets the sending server add a digital signature to the message header. The domain publishes the public key in a TXT record, and the receiver verifies the signature. A match means the message is authentic for that domain and was not altered in transit.\n\nDMARC combines the two: the receiver checks SPF and DKIM and also whether the domain in the From header aligns with those results. The domain owner publishes a policy (none = monitor, quarantine = treat as suspicious/spam, reject = drop) and asks receivers to send reports. DMARC therefore adds alignment with the visible From domain, an explicit failure policy and visibility into who sends mail on behalf of the domain.')
+  ];
+
+  var TYPE_LABELS = { mcq: 'Výběr z možností', order: 'Seřaď do správného pořadí', open: 'Otevřená otázka' };
+  var LETTERS = ['A', 'B', 'C', 'D'];
+
+  var app = document.getElementById('app');
+  var quiz = [];
+  var states = [];
+  var cur = 0;
+  var view = 'quiz';
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (text !== undefined) { e.textContent = text; }
+    return e;
+  }
+
+  function shuffle(a) {
+    var i, j, t;
+    for (i = a.length - 1; i > 0; i--) {
+      j = Math.floor(Math.random() * (i + 1));
+      t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function newState(q) {
+    var o, same, k;
+    if (q.type === 'mcq') {
+      return { answered: false, chosen: -1, order: shuffle([0, 1, 2, 3]), correct: false };
+    }
+    if (q.type === 'order') {
+      do {
+        o = [];
+        for (k = 0; k < q.items.length; k++) { o.push(k); }
+        shuffle(o);
+        same = true;
+        for (k = 0; k < o.length; k++) { if (o[k] !== k) { same = false; } }
+      } while (same);
+      return { answered: false, order: o, correct: false };
+    }
+    return { answered: false, text: '', revealed: false, grade: null, correct: false };
+  }
+
+  function startQuiz() {
+    quiz = shuffle(QUESTIONS.slice());
+    states = quiz.map(newState);
+    cur = 0;
+    view = 'quiz';
+    render();
+  }
+
+  function stats() {
+    var c = 0, a = 0, i;
+    for (i = 0; i < states.length; i++) {
+      if (states[i].answered) { a++; if (states[i].correct) { c++; } }
+    }
+    return { correct: c, answered: a, total: states.length };
+  }
+
+  function maxIdx() {
+    var i;
+    for (i = 0; i < states.length; i++) {
+      if (!states[i].answered) { return i; }
+    }
+    return states.length - 1;
+  }
+
+  function render() {
+    app.innerHTML = '';
+    if (view === 'results') { renderResults(); } else { renderQuiz(); }
+  }
+
+  function addHeader() {
+    var s = stats();
+    app.appendChild(el('h1', 'title', 'Network Security – Lecture 7: Electronic Mail Security'));
+    var top = el('div', 'topbar');
+    top.appendChild(el('span', 'progress-label', 'Zodpovězeno ' + s.answered + ' z ' + s.total));
+    top.appendChild(el('span', 'score', 'Skóre: ' + s.correct + ' / ' + s.answered));
+    app.appendChild(top);
+    var bar = el('div', 'progress');
+    var fill = el('div', 'progress-fill');
+    fill.style.width = Math.round((s.answered / s.total) * 100) + '%';
+    bar.appendChild(fill);
+    app.appendChild(bar);
+  }
+
+  function addFeedback(card, ok, text) {
+    var box = el('div', 'explanation');
+    box.appendChild(el('p', ok ? 'exp-title ok' : 'exp-title bad', ok ? '✓ Správně' : '✗ Špatně'));
+    box.appendChild(el('p', 'exp-text', text));
+    card.appendChild(box);
+  }
+
+  function renderQuiz() {
+    addHeader();
+    var q = quiz[cur];
+    var st = states[cur];
+    var card = el('div', 'card');
+
+    var meta = el('div', 'meta');
+    meta.appendChild(el('span', 'qnum', 'Otázka ' + (cur + 1) + ' / ' + quiz.length));
+    meta.appendChild(el('span', 'badge ' + CATS[q.cat].cls, CATS[q.cat].label));
+    meta.appendChild(el('span', 'type-tag', TYPE_LABELS[q.type]));
+    card.appendChild(meta);
+    card.appendChild(el('p', 'question-text', q.q));
+
+    if (q.type === 'mcq') { renderMcq(card, q, st); }
+    else if (q.type === 'order') { renderOrder(card, q, st); }
+    else { renderOpen(card, q, st); }
+
+    var nav = el('div', 'nav');
+    var back = el('button', 'nav-btn', '← Zpět');
+    back.disabled = (cur === 0);
+    back.addEventListener('click', function() {
+      if (cur > 0) { cur--; render(); window.scrollTo(0, 0); }
+    });
+    var isLast = (cur === quiz.length - 1);
+    var next = el('button', 'nav-btn', isLast ? 'Výsledky →' : 'Další →');
+    next.disabled = !(st.answered || cur < maxIdx());
+    next.addEventListener('click', function() {
+      if (isLast) {
+        if (states[cur].answered) { view = 'results'; render(); window.scrollTo(0, 0); }
+      } else if (states[cur].answered || cur < maxIdx()) {
+        cur++; render(); window.scrollTo(0, 0);
+      }
+    });
+    nav.appendChild(back);
+    nav.appendChild(next);
+    card.appendChild(nav);
+    app.appendChild(card);
+  }
+
+  function renderMcq(card, q, st) {
+    var list = el('div', 'answers');
+    st.order.forEach(function(optIdx, pos) {
+      var cls = 'answer-btn';
+      if (st.answered) {
+        if (optIdx === 0) { cls += ' correct'; }
+        else if (pos === st.chosen) { cls += ' wrong'; }
+      }
+      var b = el('button', cls);
+      b.appendChild(el('span', 'letter', LETTERS[pos] + '.'));
+      b.appendChild(el('span', 'answer-text', q.opts[optIdx]));
+      b.disabled = st.answered;
+      b.addEventListener('click', function() {
+        if (st.answered) { return; }
+        st.answered = true;
+        st.chosen = pos;
+        st.correct = (optIdx === 0);
+        render();
+      });
+      list.appendChild(b);
+    });
+    card.appendChild(list);
+    if (st.answered) { addFeedback(card, st.correct, q.explain); }
+  }
+
+  function renderOrder(card, q, st) {
+    if (!st.answered) {
+      card.appendChild(el('p', 'hint', 'Přetáhni položky myší, nebo použij tlačítka ▲ / ▼. Poté klikni na Zkontrolovat.'));
+    }
+    var list = el('ul', 'order-list');
+    var dragFrom = -1;
+    st.order.forEach(function(itemIdx, pos) {
+      var cls = 'order-item';
+      if (st.answered) { cls += (itemIdx === pos) ? ' ok' : ' bad'; }
+      else { cls += ' draggable'; }
+      var li = el('li', cls);
+      li.appendChild(el('span', 'order-pos', (pos + 1) + '.'));
+      li.appendChild(el('span', 'order-text', q.items[itemIdx]));
+      if (!st.answered) {
+        li.draggable = true;
+        li.addEventListener('dragstart', function(ev) {
+          dragFrom = pos;
+          li.classList.add('dragging');
+          if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', String(pos)); } catch (e) {} }
+        });
+        li.addEventListener('dragover', function(ev) { ev.preventDefault(); });
+        li.addEventListener('drop', function(ev) {
+          ev.preventDefault();
+          if (dragFrom < 0 || dragFrom === pos) { return; }
+          var moved = st.order.splice(dragFrom, 1)[0];
+          st.order.splice(pos, 0, moved);
+          dragFrom = -1;
+          render();
+        });
+        li.addEventListener('dragend', function() {
+          li.classList.remove('dragging');
+          dragFrom = -1;
+        });
+      }
+      var btns = el('div', 'move-btns');
+      var up = el('button', 'move-btn', '▲');
+      up.setAttribute('aria-label', 'Posunout nahoru');
+      up.disabled = st.answered || pos === 0;
+      up.addEventListener('click', function() {
+        var t = st.order[pos]; st.order[pos] = st.order[pos - 1]; st.order[pos - 1] = t;
+        render();
+      });
+      var down = el('button', 'move-btn', '▼');
+      down.setAttribute('aria-label', 'Posunout dolů');
+      down.disabled = st.answered || pos === st.order.length - 1;
+      down.addEventListener('click', function() {
+        var t = st.order[pos]; st.order[pos] = st.order[pos + 1]; st.order[pos + 1] = t;
+        render();
+      });
+      btns.appendChild(up);
+      btns.appendChild(down);
+      li.appendChild(btns);
+      list.appendChild(li);
+    });
+    card.appendChild(list);
+
+    if (!st.answered) {
+      var check = el('button', 'primary-btn', 'Zkontrolovat');
+      check.addEventListener('click', function() {
+        var ok = true, k;
+        for (k = 0; k < st.order.length; k++) { if (st.order[k] !== k) { ok = false; } }
+        st.answered = true;
+        st.correct = ok;
+        render();
+      });
+      card.appendChild(check);
+    } else {
+      if (!st.correct) {
+        var co = el('div', 'correct-order');
+        co.appendChild(el('p', 'correct-order-title', 'Správné pořadí:'));
+        var ol = el('ol');
+        q.items.forEach(function(t) { ol.appendChild(el('li', '', t)); });
+        co.appendChild(ol);
+        card.appendChild(co);
+      }
+      addFeedback(card, st.correct, q.explain);
+    }
+  }
+
+  function renderOpen(card, q, st) {
+    var ta = el('textarea', 'answer-input');
+    ta.placeholder = 'Napiš svou odpověď (anglicky)...';
+    ta.value = st.text;
+    ta.disabled = st.revealed;
+    ta.addEventListener('input', function() { st.text = ta.value; });
+    card.appendChild(ta);
+
+    if (!st.revealed) {
+      var show = el('button', 'primary-btn', 'Zobrazit vzorovou odpověď');
+      show.addEventListener('click', function() {
+        st.text = ta.value;
+        st.revealed = true;
+        render();
+      });
+      card.appendChild(show);
+      return;
+    }
+
+    var box = el('div', 'model-box');
+    box.appendChild(el('p', 'model-title', 'Vzorová odpověď'));
+    box.appendChild(el('p', 'model-text', q.model));
+    card.appendChild(box);
+    card.appendChild(el('p', 'self-grade-label', st.answered ? 'Tvé hodnocení:' : 'Porovnej svou odpověď se vzorovou a ohodnoť se:'));
+
+    var row = el('div', 'grade-row');
+    var good = el('button', 'grade-btn good', 'Zvládl jsem');
+    var bad = el('button', 'grade-btn bad', 'Nezvládl jsem');
+    if (st.answered) {
+      good.disabled = true;
+      bad.disabled = true;
+      if (st.grade === 'good') { good.className = 'grade-btn good chosen-good'; }
+      else { bad.className = 'grade-btn bad chosen-bad'; }
+    } else {
+      good.addEventListener('click', function() { st.answered = true; st.grade = 'good'; st.correct = true; render(); });
+      bad.addEventListener('click', function() { st.answered = true; st.grade = 'bad'; st.correct = false; render(); });
+    }
+    row.appendChild(good);
+    row.appendChild(bad);
+    card.appendChild(row);
+  }
+
+  function renderResults() {
+    var s = stats();
+    var pct = Math.round((s.correct / s.total) * 100);
+    app.appendChild(el('h1', 'title', 'Network Security – Lecture 7: Electronic Mail Security'));
+    var card = el('div', 'card');
+    card.appendChild(el('p', 'result-title', 'Hotovo!'));
+    card.appendChild(el('p', 'result-percent', pct + ' %'));
+    var msg;
+    if (pct >= 90) { msg = 'Výborně, látku máš skvěle zvládnutou.'; }
+    else if (pct >= 70) { msg = 'Dobrá práce, pár míst by chtělo ještě zopakovat.'; }
+    else if (pct >= 50) { msg = 'Základ tam je, ale doporučuju projít slidy znovu.'; }
+    else { msg = 'Zatím slabší výsledek, projdi si přednášku a zkus to znovu.'; }
+    card.appendChild(el('p', 'result-text', 'Správně ' + s.correct + ' z ' + s.total + ' otázek. ' + msg));
+
+    card.appendChild(el('p', 'result-sub', 'Výsledky podle témat'));
+    var keys = Object.keys(CATS);
+    keys.forEach(function(key) {
+      var tot = 0, ok = 0, i;
+      for (i = 0; i < quiz.length; i++) {
+        if (quiz[i].cat === key) { tot++; if (states[i].correct) { ok++; } }
+      }
+      if (tot === 0) { return; }
+      var row = el('div', 'cat-row');
+      row.appendChild(el('span', 'badge ' + CATS[key].cls, CATS[key].label));
+      row.appendChild(el('span', 'cat-row-score', ok + ' / ' + tot));
+      card.appendChild(row);
+    });
+
+    var actions = el('div', 'result-actions');
+    var review = el('button', 'nav-btn', 'Projít odpovědi');
+    review.addEventListener('click', function() { view = 'quiz'; cur = 0; render(); window.scrollTo(0, 0); });
+    var again = el('button', 'primary-btn', 'Spustit znovu');
+    again.addEventListener('click', function() { startQuiz(); window.scrollTo(0, 0); });
+    actions.appendChild(review);
+    actions.appendChild(again);
+    card.appendChild(actions);
+    app.appendChild(card);
+  }
+
+  startQuiz();
+});
+</script>
+</body>
+</html>

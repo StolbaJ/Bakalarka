@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wireless Security – kvíz</title>
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;background:#f3f4f6;color:#111827;line-height:1.5;}
+button,textarea{font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;font-size:16px;}
+.wrap{max-width:780px;margin:0 auto;padding:16px;}
+.top{margin-bottom:14px;}
+.top-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.title{font-size:20px;font-weight:700;color:#111827;}
+.score{font-size:15px;font-weight:600;color:#111827;}
+.progress{height:10px;background:#d1d5db;border-radius:6px;overflow:hidden;}
+.progress-fill{height:100%;width:0;background:#4338ca;border-radius:6px;transition:width 0.3s;}
+.progress-label{margin-top:6px;font-size:13px;color:#374151;}
+.card{background:#ffffff;color:#111827;border:1px solid #e5e7eb;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;}
+.tag{display:inline-block;font-size:12px;font-weight:600;color:#374151;background:#f3f4f6;border:1px solid #d1d5db;padding:2px 9px;border-radius:6px;}
+.question-text{font-size:18px;font-weight:600;color:#111827;margin-bottom:16px;}
+.answers{display:flex;flex-direction:column;gap:10px;}
+.answer-btn{display:block;width:100%;text-align:left;padding:12px 14px;border:2px solid #d1d5db;border-radius:10px;background:#ffffff;color:#1a1a2e;cursor:pointer;line-height:1.4;}
+.answer-btn:hover:not(:disabled){background:#eef2ff;border-color:#4338ca;color:#1a1a2e;}
+.answer-btn:disabled{cursor:default;background:#ffffff;color:#1a1a2e;border-color:#d1d5db;}
+.answer-btn.correct,.answer-btn.correct:disabled{background:#dcfce7;border-color:#16a34a;color:#14532d;font-weight:600;}
+.answer-btn.wrong,.answer-btn.wrong:disabled{background:#fee2e2;border-color:#dc2626;color:#7f1d1d;font-weight:600;}
+.order-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.order-list li{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid #d1d5db;border-radius:10px;background:#ffffff;color:#1a1a2e;}
+.order-list li.draggable{cursor:grab;}
+.order-list li.dragging{opacity:0.5;}
+.order-list li.ok{background:#dcfce7;border-color:#16a34a;color:#14532d;}
+.order-list li.bad{background:#fee2e2;border-color:#dc2626;color:#7f1d1d;}
+.pos{font-weight:700;color:#374151;min-width:24px;}
+.order-list li.ok .pos{color:#14532d;}
+.order-list li.bad .pos{color:#7f1d1d;}
+.item-text{flex:1;color:#1a1a2e;}
+.order-list li.ok .item-text{color:#14532d;}
+.order-list li.bad .item-text{color:#7f1d1d;}
+.ord-btns{display:flex;gap:6px;}
+.mini-btn{border:1px solid #9ca3af;background:#e5e7eb;color:#111827;border-radius:8px;width:36px;height:36px;cursor:pointer;font-weight:700;}
+.mini-btn:hover:not(:disabled){background:#c7d2fe;color:#111827;}
+.mini-btn:disabled{cursor:not-allowed;background:#e5e7eb;color:#6b7280;}
+.actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;}
+.open-input{width:100%;min-height:120px;padding:10px 12px;border:2px solid #d1d5db;border-radius:10px;background:#ffffff;color:#111827;resize:vertical;}
+.open-input:disabled{background:#f3f4f6;color:#111827;}
+.model-answer{margin-top:14px;padding:12px 14px;background:#eef2ff;color:#1e1b4b;border-left:4px solid #4338ca;border-radius:8px;}
+.model-label{font-weight:700;color:#1e1b4b;margin-bottom:4px;}
+.model-text{color:#1e1b4b;}
+.grade-row{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;}
+.grade-btn{padding:11px 18px;border:2px solid #d1d5db;border-radius:10px;background:#ffffff;color:#1a1a2e;font-weight:600;cursor:pointer;}
+.grade-btn.yes{border-color:#16a34a;}
+.grade-btn.no{border-color:#dc2626;}
+.grade-btn.yes:hover:not(:disabled){background:#dcfce7;color:#14532d;}
+.grade-btn.no:hover:not(:disabled){background:#fee2e2;color:#7f1d1d;}
+.grade-btn:disabled{cursor:default;background:#ffffff;color:#1a1a2e;}
+.grade-btn.yes.picked,.grade-btn.yes.picked:disabled{background:#dcfce7;color:#14532d;}
+.grade-btn.no.picked,.grade-btn.no.picked:disabled{background:#fee2e2;color:#7f1d1d;}
+.explanation{margin-top:16px;padding:12px 14px;background:#f3f4f6;color:#111827;border-left:4px solid #4338ca;border-radius:8px;}
+.explanation strong{color:#111827;}
+.explanation p{margin:8px 0 4px 0;color:#111827;}
+.explanation ol{margin:4px 0 0 0;padding-left:22px;color:#111827;}
+.explanation li{color:#111827;}
+.btn,.nav-btn{border:0;border-radius:10px;padding:11px 18px;font-weight:600;cursor:pointer;background:#4338ca;color:#ffffff;}
+.btn:hover:not(:disabled),.nav-btn:hover:not(:disabled){background:#3730a3;color:#ffffff;}
+.btn:disabled,.nav-btn:disabled{background:#e5e7eb;color:#4b5563;cursor:not-allowed;}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:14px;}
+.result-title{font-size:22px;font-weight:700;color:#111827;margin:0 0 6px 0;}
+.result-percent{font-size:56px;font-weight:800;color:#4338ca;line-height:1.1;}
+.result-line{font-size:17px;color:#111827;margin:6px 0;}
+.result-sub{font-size:15px;color:#374151;margin:4px 0 14px 0;}
+.result-h{font-size:16px;font-weight:700;color:#111827;margin:18px 0 8px 0;}
+.cat-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #e5e7eb;color:#111827;}
+.cat-score{font-weight:600;color:#111827;}
+.cat-0{background:#fee2e2;color:#7f1d1d;}
+.cat-1{background:#ffedd5;color:#7c2d12;}
+.cat-2{background:#dbeafe;color:#1e3a8a;}
+.cat-3{background:#fef9c3;color:#713f12;}
+.cat-4{background:#dcfce7;color:#14532d;}
+.cat-5{background:#f3e8ff;color:#581c87;}
+.cat-6{background:#cffafe;color:#164e63;}
+.cat-7{background:#fce7f3;color:#831843;}
+.cat-8{background:#e0e7ff;color:#312e81;}
+@media (max-width:520px){
+  .wrap{padding:10px;}
+  .card{padding:14px;}
+  .question-text{font-size:17px;}
+  .result-percent{font-size:44px;}
+}
+@media (prefers-color-scheme: dark){
+  body{background:#0f172a;color:#f1f5f9;}
+  .title{color:#f8fafc;}
+  .score{color:#f1f5f9;}
+  .progress{background:#334155;}
+  .progress-fill{background:#818cf8;}
+  .progress-label{color:#cbd5e1;}
+  .card{background:#1e293b;color:#f1f5f9;border-color:#334155;box-shadow:none;}
+  .tag{color:#e2e8f0;background:#0f172a;border-color:#475569;}
+  .question-text{color:#f8fafc;}
+  .answer-btn{background:#334155;color:#f8fafc;border-color:#475569;}
+  .answer-btn:hover:not(:disabled){background:#3b4a63;border-color:#818cf8;color:#f8fafc;}
+  .answer-btn:disabled{background:#334155;color:#f8fafc;border-color:#475569;}
+  .answer-btn.correct,.answer-btn.correct:disabled{background:#14532d;border-color:#22c55e;color:#dcfce7;}
+  .answer-btn.wrong,.answer-btn.wrong:disabled{background:#7f1d1d;border-color:#ef4444;color:#fee2e2;}
+  .order-list li{background:#334155;border-color:#475569;color:#f8fafc;}
+  .order-list li.ok{background:#14532d;border-color:#22c55e;color:#dcfce7;}
+  .order-list li.bad{background:#7f1d1d;border-color:#ef4444;color:#fee2e2;}
+  .pos{color:#cbd5e1;}
+  .order-list li.ok .pos{color:#dcfce7;}
+  .order-list li.bad .pos{color:#fee2e2;}
+  .item-text{color:#f8fafc;}
+  .order-list li.ok .item-text{color:#dcfce7;}
+  .order-list li.bad .item-text{color:#fee2e2;}
+  .mini-btn{background:#475569;color:#f8fafc;border-color:#64748b;}
+  .mini-btn:hover:not(:disabled){background:#6366f1;color:#ffffff;}
+  .mini-btn:disabled{background:#334155;color:#94a3b8;}
+  .open-input{background:#0f172a;color:#f1f5f9;border-color:#475569;}
+  .open-input:disabled{background:#1e293b;color:#f1f5f9;}
+  .model-answer{background:#312e81;color:#e0e7ff;border-left-color:#818cf8;}
+  .model-label{color:#e0e7ff;}
+  .model-text{color:#e0e7ff;}
+  .grade-btn{background:#334155;color:#f8fafc;border-color:#475569;}
+  .grade-btn.yes{border-color:#22c55e;}
+  .grade-btn.no{border-color:#ef4444;}
+  .grade-btn.yes:hover:not(:disabled){background:#14532d;color:#dcfce7;}
+  .grade-btn.no:hover:not(:disabled){background:#7f1d1d;color:#fee2e2;}
+  .grade-btn:disabled{background:#334155;color:#f8fafc;}
+  .grade-btn.yes.picked,.grade-btn.yes.picked:disabled{background:#14532d;color:#dcfce7;}
+  .grade-btn.no.picked,.grade-btn.no.picked:disabled{background:#7f1d1d;color:#fee2e2;}
+  .explanation{background:#0f172a;color:#e2e8f0;border-left-color:#818cf8;}
+  .explanation strong{color:#f8fafc;}
+  .explanation p{color:#e2e8f0;}
+  .explanation ol{color:#e2e8f0;}
+  .explanation li{color:#e2e8f0;}
+  .btn,.nav-btn{background:#4f46e5;color:#ffffff;}
+  .btn:hover:not(:disabled),.nav-btn:hover:not(:disabled){background:#6366f1;color:#ffffff;}
+  .btn:disabled,.nav-btn:disabled{background:#334155;color:#cbd5e1;}
+  .result-title{color:#f8fafc;}
+  .result-percent{color:#a5b4fc;}
+  .result-line{color:#f1f5f9;}
+  .result-sub{color:#cbd5e1;}
+  .result-h{color:#f8fafc;}
+  .cat-row{color:#f1f5f9;border-bottom-color:#334155;}
+  .cat-score{color:#f1f5f9;}
+  .cat-0{background:#7f1d1d;color:#fecaca;}
+  .cat-1{background:#7c2d12;color:#fed7aa;}
+  .cat-2{background:#1e3a8a;color:#bfdbfe;}
+  .cat-3{background:#713f12;color:#fef08a;}
+  .cat-4{background:#14532d;color:#bbf7d0;}
+  .cat-5{background:#581c87;color:#e9d5ff;}
+  .cat-6{background:#164e63;color:#a5f3fc;}
+  .cat-7{background:#831843;color:#fbcfe8;}
+  .cat-8{background:#312e81;color:#c7d2fe;}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  var CATS = [
+    'Wireless threats',
+    'Ineffective defenses',
+    '802.11 basics',
+    'WEP',
+    'WPA / RSN / 802.11i',
+    'Keys',
+    '4-way handshake',
+    'WPS',
+    'WPA3'
+  ];
+
+  function mc(cat, q, correct, wrong, expl) {
+    return { type: 'mc', cat: cat, q: q, correct: correct, wrong: wrong, expl: expl };
+  }
+  function ord(cat, q, items, expl) {
+    return { type: 'order', cat: cat, q: q, items: items, expl: expl };
+  }
+  function opn(cat, q, model) {
+    return { type: 'open', cat: cat, q: q, model: model };
+  }
+
+  var RAW = [
+
+    mc(0,
+      'Which feature of wireless networks makes them more susceptible to eavesdropping and jamming than wired networks?',
+      'They rely on broadcast communications over a shared medium',
+      ['They always use weaker encryption algorithms', 'They have a larger number of user accounts', 'They cannot use any form of authentication'],
+      'The channel is broadcast, so anyone in range can listen or interfere. This is the Channel risk factor, next to Mobility, Resources and Accessibility.'),
+
+    mc(0,
+      'A wireless device is configured to appear as a legitimate access point in order to steal passwords or data from users. What is this threat called?',
+      'Malicious association (e.g. a rogue AP or WiFi Pineapple)',
+      ['Accidental association', 'Network injection', 'Identity theft (MAC spoofing)'],
+      'In malicious association the attacker pretends to be a legitimate AP. Accidental association is only a user locking on to a neighbouring AP by mistake.'),
+
+    mc(0,
+      'What makes ad hoc wireless networks a security threat?',
+      'They are peer-to-peer networks with no access point, so there is no central point of control',
+      ['They always transmit all data unencrypted on every channel', 'They require every user to share a PIN with the AP', 'They can only be used together with WEP'],
+      'Ad hoc networks connect wireless computers directly without an AP between them, so nobody enforces central control.'),
+
+    mc(0,
+      'Deauthentication attacks are given as an example of which wireless threat?',
+      'Network injection',
+      ['Man-in-the-middle attack', 'Accidental association', 'Identity theft (MAC spoofing)'],
+      'Network injection targets APs exposed to nonfiltered traffic such as routing or network management messages. Deauthentication attacks are the lecture example.'),
+
+    mc(1,
+      'Why is turning off SSID broadcasting an ineffective security measure?',
+      'The SSID is still included in management frames and can be found with sniffing tools such as Wireshark or Kismet',
+      ['The SSID is automatically published to the DHCP server', 'Hidden SSIDs disable WPA2 encryption on the AP', 'Clients cannot connect to a hidden network at all'],
+      'Hidden SSIDs still appear in management frames, so simple packet sniffers reveal them and attackers can exploit hidden networks.'),
+
+    mc(1,
+      'Why does MAC address filtering provide little real protection?',
+      'MAC addresses can be observed in traffic and easily spoofed by an attacker',
+      ['MAC addresses are encrypted with a weak key', 'The AP cannot store more than a few MAC addresses', 'MAC filtering disables WPA2 on the network'],
+      'Attackers monitor traffic, learn which MAC addresses are allowed and impersonate them. It only adds administrative overhead.'),
+
+    mc(1,
+      'Why is using a low-power Wi-Fi signal not an effective defence?',
+      'Attackers can use high-gain antennas to pick up the signal from further away',
+      ['Low power signals are not encrypted', 'Low power signals make the SSID visible to everyone', 'The AP automatically switches back to full power when attacked'],
+      'Reducing the signal strength only limits the reach for ordinary devices. A high-gain antenna lets an attacker receive it from a distance.'),
+
+    mc(2,
+      'In IEEE 802.11 terminology, what is a Basic Service Set (BSS)?',
+      'A set of stations controlled by a single coordination function (the AP)',
+      ['A system that interconnects several BSSs and integrated LANs into an ESS', 'Any device that contains an 802.11 conformant MAC and physical layer', 'The wireless medium between an endpoint and an access point'],
+      'A BSS is controlled by a single coordination function. The distribution system interconnects BSSs and LANs to create an ESS, and a station is any device with an 802.11 MAC and physical layer.'),
+
+    mc(2,
+      'What does Open System Authentication in 802.11 provide?',
+      'No cryptographic authentication, only a simple authentication request/response',
+      ['One-sided challenge-response authentication using WEP', 'Mutual authentication using 802.1X and EAP', 'Authentication based on a PIN or a button press'],
+      'Open System Authentication is the default and simplest method (algorithm = 0). Modern networks rely on RSN (WPA2/WPA3) for real authentication, key management and encryption.'),
+
+    mc(3,
+      'Which mechanisms does WEP use to provide confidentiality and integrity?',
+      'RC4-based encryption for confidentiality and CRC for integrity',
+      ['AES-CCMP for confidentiality and HMAC-SHA-1 for integrity', 'TKIP for confidentiality and Michael MIC for integrity', 'SAE for confidentiality and CRC for integrity'],
+      'WEP aims for confidentiality (encryption with RC4) and integrity (CRC). CRC has no cryptographic property, which is one of its weaknesses.'),
+
+    mc(3,
+      'How can an attacker break WEP shared key authentication with a purely passive attack?',
+      'By eavesdropping on the plaintext challenge and its encrypted response, then XOR-ing them to obtain the keystream',
+      ['By brute-forcing the WPS PIN of the access point', 'By forcing the AP to reuse the same GTK', 'By injecting deauthentication frames to learn the PMK'],
+      'The attacker sees both plaintext and ciphertext, so XOR gives the keystream and the attacker can authenticate to the AP. That is why open system is preferred over shared key.'),
+
+    mc(3,
+      'What is the key problem with the WEP Initialization Vector (IV)?',
+      'It is only 24 bits long and sent in cleartext, so IVs (and keystreams) repeat on a busy network',
+      ['It is encrypted with the same key as the data and therefore cannot be changed', 'It is derived from the AP MAC address and never changes', 'It is longer than the shared key and leaks key bits'],
+      'The IV is unique per packet but only 24 bits and transmitted in the clear. On a busy network two packets get the same IV, which means the same keystream.'),
+
+    mc(4,
+      'What was WPA (version 1, 2003) intended to be?',
+      'An intermediate solution, primarily based on TKIP, introduced before 802.11i to quickly strengthen WLAN security',
+      ['The final standard that replaced 802.11i', 'An amendment based only on AES-CCMP and 802.1X', 'A fix for WEP that simply extended the IV to 48 bits'],
+      'WPA1 was an interim measure. It is not part of the 802.11i standard, which was introduced later in 2004.'),
+
+    mc(4,
+      'What is the relationship between 802.11i and RSN?',
+      '802.11i is the amendment that defines the security mechanisms, and an RSN is a network that implements them',
+      ['RSN is an older standard that was replaced by 802.11i', 'RSN is the encryption algorithm used by 802.11i', '802.11i is a kind of RSN used only in enterprise networks'],
+      '802.11i defines mechanisms such as WPA2, AES-CCMP and 802.1X. RSN is the outcome or implementation of this framework: a network using these mechanisms.'),
+
+    mc(4,
+      'Which encryption mechanism did WPA2 (802.11i) introduce for stronger security?',
+      'AES-CCMP',
+      ['RC4 with a 24-bit IV', 'TKIP with the Michael MIC', 'The Dragonfly key exchange'],
+      'WPA2 is part of 802.11i and introduced AES-CCMP. TKIP is kept only for compatibility with older devices but is less secure.'),
+
+    mc(4,
+      'In 802.1X authentication, which role does the access point typically play?',
+      'Authenticator, relaying EAP messages between the supplicant and the authentication server (e.g. RADIUS)',
+      ['Supplicant', 'Authentication server', 'Distribution system'],
+      'The client is the supplicant, the AP (or switch) is the authenticator, and the authentication server (AS) is typically a RADIUS server.'),
+
+    mc(4,
+      'What is stated about the security provided in the protected data transfer phase of an RSN?',
+      'It is not provided end-to-end, only between the station and the AP',
+      ['It is end-to-end between the two communicating end stations', 'It is provided only between the AP and the authentication server', 'No protection is applied during this phase'],
+      'The protection covers the wireless link between the STA and the AP. Traffic behind the AP is not protected by 802.11i.'),
+
+    mc(5,
+      'How is the PMK obtained in WPA2-Personal and in WPA2-Enterprise?',
+      'Personal: derived from the pre-shared key (Wi-Fi password); Enterprise: derived from the EAP / 802.1X authentication',
+      ['Personal: generated by the authentication server; Enterprise: derived from the Wi-Fi password', 'Both are derived from the Group Master Key', 'Both are generated randomly by the AP and sent in cleartext'],
+      'In Personal mode the PMK comes from the PSK. In Enterprise mode it is generated during EAP authentication and shared between the authentication server and the client.'),
+
+    mc(5,
+      'Which statement about the Group Temporal Key (GTK) is correct?',
+      'It is generated by the AP, and clients use it only to decrypt multicast and broadcast frames sent by the AP',
+      ['It is generated by each client and used to encrypt its own traffic', 'It is derived from the PSK and used to encrypt unicast traffic', 'It is identical to the PTK'],
+      'The AP generates the group keys and distributes the GTK to its clients. Clients never use the GTK to encrypt their own traffic.'),
+
+    mc(5,
+      'Which key derived from the PTK is used to encrypt other keys, such as the GTK, during the 4-way handshake?',
+      'EAPOL-Key Encryption Key (KEK)',
+      ['EAPOL-Key Confirmation Key (KCK)', 'Temporal Key (TK)', 'Master Session Key (MSK)'],
+      'KCK verifies the integrity of EAPOL messages, KEK encrypts keys such as the GTK, and TK encrypts the actual data between client and AP.'),
+
+    mc(6,
+      'What is the purpose of the 4-way handshake?',
+      'To derive and confirm the PTK and to deliver the GTK for encryption',
+      ['To authenticate the user against the RADIUS server', 'To discover the AP and its supported data rates', 'To terminate the connection securely'],
+      'The handshake uses the PMK and the nonces of both sides to derive and confirm the PTK, and then distributes the GTK.'),
+
+    mc(7,
+      'What weakness of the PIN-based WPS mode was discovered in 2011?',
+      'A wrong PIN makes the AP send an EAP-NACK revealing whether the first half of the PIN was correct, which drastically reduces the brute-force effort',
+      ['The PIN is transmitted in cleartext in beacon frames', 'The PIN is derived from the MAC address of the AP', 'The PIN is reused as the WEP key'],
+      'Because the first half can be confirmed separately and the last digit is only a checksum, the number of combinations shrinks and brute force becomes practical. This works even with WPA/WPA2 enabled.'),
+
+    mc(7,
+      'Which mitigation was introduced or recommended with WPS 2.0?',
+      'Mandatory lockout after too many failed attempts, with Push-Button Configuration as the only safe method',
+      ['Longer PINs sent over WEP', 'Removing the checksum digit from the PIN', 'Hiding the SSID while WPS is active'],
+      'Vendors also added rate limiting and options to disable WPS completely. Some modern devices allow only the button method (WPS-PBC).'),
+
+    mc(8,
+      'What does WPA3 introduce for stronger key management and protection against dictionary attacks?',
+      'SAE (Simultaneous Authentication of Equals), based on the Dragonfly key exchange',
+      ['TKIP', 'Shared key authentication', 'The WPS PIN method'],
+      'WPA3 (2018) is not part of the original 802.11i, but builds on it. It replaces the PSK handshake with SAE.'),
+
+    mc(8,
+      'What does forward secrecy in WPA3 mean?',
+      'If an attacker later obtains the password, they cannot decrypt previously captured communications',
+      ['The password is automatically rotated every hour', 'Traffic is forwarded through a secure proxy', 'Keys are never stored on the access point'],
+      'Forward secrecy relies on temporary keys, so a future password compromise does not expose past traffic.'),
+
+    ord(4,
+      'Put the phases of RSN (802.11i) operation into the correct order.',
+      ['Discovery', 'Authentication', 'Key management', 'Protected data transfer', 'Connection termination'],
+      'The five phases are Discovery, Authentication, Key management, Protected data transfer and Connection termination.'),
+
+    ord(6,
+      'Put the four messages of the 4-way handshake into the correct order.',
+      ['Message 1: the AP sends its ANonce to the STA', 'Message 2: the STA sends its SNonce and a MIC to the AP', 'Message 3: the AP sends Install PTK together with the encrypted GTK', 'Message 4: the STA sends an acknowledgement to the AP'],
+      'The AP sends the ANonce first so the STA can derive the PTK, then the STA answers with its SNonce, the AP confirms and delivers the GTK, and the STA acknowledges.'),
+
+    ord(5,
+      'Put the WPA2-Personal key chain into the correct order, from the starting point to the key that encrypts the data.',
+      ['Wi-Fi password / pre-shared key (PSK)', 'Pairwise Master Key (PMK)', 'Pairwise Transient Key (PTK), derived in the 4-way handshake', 'Temporal Key (TK), a component of the PTK, encrypts the data'],
+      'The PMK is derived from the PSK (PBKDF2), the PTK is derived from the PMK in the 4-way handshake, and the TK is one of the PTK components used to encrypt data.'),
+
+    ord(2,
+      'Put these wireless security milestones into chronological order (oldest first).',
+      ['IEEE 802.11 standard published (1997)', 'WPA version 1 (2003)', 'IEEE 802.11i / WPA2 (2004)', 'WPA3 (2018)'],
+      'The 802.11 standard came first, WPA1 was the interim solution, 802.11i with WPA2 followed in 2004 and WPA3 was introduced in 2018.'),
+
+    ord(3,
+      'Put the steps of recovering the WEP keystream by exploiting IV reuse into the correct order.',
+      ['Capture many packets until two packets with the same IV (and therefore the same keystream) are found', 'XOR the two ciphertexts, which equals the XOR of the two plaintexts', 'Guess part of one plaintext (e.g. predictable ARP or IP headers) and recover the other plaintext', 'XOR the known plaintext with its ciphertext to recover the keystream'],
+      'IV reuse gives the same keystream. XOR of the ciphertexts cancels it, a plaintext guess reveals the other plaintext, and then plaintext XOR ciphertext reveals the keystream.'),
+
+    ord(4,
+      'Put the steps that happen when a station joins an RSN, before the key handshake, into the correct order.',
+      ['Probe request and probe response', 'Open system authentication (null authentication)', 'Association request and response with security parameters', '802.1X EAP exchange with the authentication server'],
+      'After discovery and open system authentication the STA and AP are associated but not yet authenticated. Only then does the 802.1X EAP exchange (enterprise mode) take place.'),
+
+    opn(3,
+      'Explain why reusing the same IV in WEP allows an attacker to break confidentiality. Describe how the attacker can progress from captured packets to the plaintext and the keystream.',
+      'WEP generates the RC4 keystream from the 24-bit IV (sent in cleartext with every packet) and the shared secret key. Because the IV is so short, on a busy network it restarts and two packets end up with the same IV, which means the same keystream. XOR-ing the two ciphertexts cancels the keystream and gives plaintext 1 XOR plaintext 2. The attacker then guesses part of one plaintext (headers of protocols like ARP or IP are predictable) and recovers the other plaintext. With a known plaintext and its ciphertext, XOR gives the keystream itself. Lesson: the same IV / keystream must never be reused with the same key.'),
+
+    opn(4,
+      'Compare WPA2-Personal and WPA2-Enterprise. How is authentication performed in each, where does the PMK come from, and which roles take part in 802.1X?',
+      'WPA2-Personal uses a Pre-Shared Key (the Wi-Fi password): the PMK is derived directly from the PSK, so everyone knowing the password can connect. WPA2-Enterprise uses 802.1X with EAP: the client (supplicant) authenticates through the AP (authenticator) against an authentication server (typically RADIUS). The PMK is generated during the EAP authentication (from the master session key) and shared between the authentication server and the client. In both modes the PMK is then used in the 4-way handshake to derive the PTK, and both use AES-CCMP for encryption.'),
+
+    opn(6,
+      'Explain why the 4-way handshake is needed and what it achieves. Mention the PMK, the nonces, the PTK and the GTK.',
+      'The PMK is already known to both the STA and the AP (from the PSK or EAP authentication), but it must not be used directly to encrypt traffic. The 4-way handshake proves that both sides know the PMK without sending it and derives fresh session keys. The AP sends its ANonce, the STA replies with its SNonce, and both derive the same PTK from the PMK, the nonces and the MAC addresses. The nonces make the PTK fresh for each session, which protects against replay and man-in-the-middle attacks. The messages are protected by the KCK (integrity) and the AP delivers the GTK encrypted with the KEK for multicast and broadcast traffic. After the handshake the PTK and GTK are installed and the 802.1X controlled port is unblocked for data.')
+
+  ];
+
+  var app = document.getElementById('app');
+  var state = null;
+  var dragFrom = -1;
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i];
+      a[i] = a[j];
+      a[j] = t;
+    }
+    return a;
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) { e.className = cls; }
+    if (text !== undefined) { e.textContent = text; }
+    return e;
+  }
+
+  function isSorted(arr) {
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i] !== i) { return false; }
+    }
+    return true;
+  }
+
+  function init() {
+    var qs = shuffle(RAW.slice());
+    state = { qs: [], current: 0, frontier: 0, score: 0 };
+    qs.forEach(function(r) {
+      var o = { raw: r, done: false, correct: false };
+      if (r.type === 'mc') {
+        var opts = [{ t: r.correct, c: true }];
+        r.wrong.forEach(function(w) { opts.push({ t: w, c: false }); });
+        o.opts = shuffle(opts);
+        o.chosen = -1;
+      } else if (r.type === 'order') {
+        var idx = r.items.map(function(x, i) { return i; });
+        do { shuffle(idx); } while (isSorted(idx));
+        o.arr = idx;
+      } else {
+        o.text = '';
+        o.revealed = false;
+        o.grade = null;
+      }
+      state.qs.push(o);
+    });
+    render();
+  }
+
+  function complete(o, correct) {
+    o.done = true;
+    o.correct = correct;
+    if (correct) { state.score++; }
+    state.frontier++;
+    render();
+  }
+
+  function buildTop() {
+    var total = state.qs.length;
+    var top = el('div', 'top');
+    var row = el('div', 'top-row');
+    row.appendChild(el('div', 'title', 'Wireless Security – kvíz'));
+    row.appendChild(el('div', 'score', 'Skóre: ' + state.score + ' / ' + state.frontier));
+    top.appendChild(row);
+    var bar = el('div', 'progress');
+    var fill = el('div', 'progress-fill');
+    fill.style.width = Math.round(state.frontier / total * 100) + '%';
+    bar.appendChild(fill);
+    top.appendChild(bar);
+    var label = state.current >= total
+      ? 'Hotovo – ' + total + ' z ' + total + ' otázek'
+      : 'Otázka ' + (state.current + 1) + ' z ' + total + ' (zodpovězeno ' + state.frontier + ')';
+    top.appendChild(el('div', 'progress-label', label));
+    return top;
+  }
+
+  function buildMc(o) {
+    var box = el('div', 'answers');
+    o.opts.forEach(function(opt, i) {
+      var b = el('button', 'answer-btn', opt.t);
+      b.type = 'button';
+      if (o.done) {
+        b.disabled = true;
+        if (opt.c) { b.classList.add('correct'); }
+        else if (i === o.chosen) { b.classList.add('wrong'); }
+      } else {
+        b.addEventListener('click', function() {
+          o.chosen = i;
+          complete(o, opt.c);
+        });
+      }
+      box.appendChild(b);
+    });
+    return box;
+  }
+
+  function moveItem(o, from, to) {
+    if (to < 0 || to >= o.arr.length) { return; }
+    var x = o.arr.splice(from, 1)[0];
+    o.arr.splice(to, 0, x);
+  }
+
+  function buildOrder(o) {
+    var wrap = el('div', 'order-wrap');
+    var list = el('ul', 'order-list');
+    var items = o.raw.items;
+    o.arr.forEach(function(itemIdx, p) {
+      var li = el('li');
+      if (!o.done) { li.classList.add('draggable'); li.draggable = true; }
+      if (o.done) { li.classList.add(itemIdx === p ? 'ok' : 'bad'); }
+      li.appendChild(el('span', 'pos', (p + 1) + '.'));
+      li.appendChild(el('span', 'item-text', items[itemIdx]));
+      var btns = el('div', 'ord-btns');
+      var up = el('button', 'mini-btn', '↑');
+      up.type = 'button';
+      up.disabled = o.done || p === 0;
+      up.addEventListener('click', function() { moveItem(o, p, p - 1); render(); });
+      var down = el('button', 'mini-btn', '↓');
+      down.type = 'button';
+      down.disabled = o.done || p === o.arr.length - 1;
+      down.addEventListener('click', function() { moveItem(o, p, p + 1); render(); });
+      btns.appendChild(up);
+      btns.appendChild(down);
+      li.appendChild(btns);
+      if (!o.done) {
+        li.addEventListener('dragstart', function(e) {
+          dragFrom = p;
+          li.classList.add('dragging');
+          if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+            try { e.dataTransfer.setData('text/plain', String(p)); } catch (err) {}
+          }
+        });
+        li.addEventListener('dragover', function(e) { e.preventDefault(); });
+        li.addEventListener('drop', function(e) {
+          e.preventDefault();
+          if (dragFrom >= 0 && dragFrom !== p) { moveItem(o, dragFrom, p); }
+          dragFrom = -1;
+          render();
+        });
+        li.addEventListener('dragend', function() {
+          dragFrom = -1;
+          li.classList.remove('dragging');
+        });
+      }
+      list.appendChild(li);
+    });
+    wrap.appendChild(list);
+    if (!o.done) {
+      var actions = el('div', 'actions');
+      var check = el('button', 'btn', 'Zkontrolovat');
+      check.type = 'button';
+      check.addEventListener('click', function() { complete(o, isSorted(o.arr)); });
+      actions.appendChild(check);
+      wrap.appendChild(actions);
+    }
+    return wrap;
+  }
+
+  function buildOpen(o) {
+    var wrap = el('div', 'open-wrap');
+    var ta = el('textarea', 'open-input');
+    ta.placeholder = 'Napiš svou odpověď...';
+    ta.value = o.text;
+    ta.disabled = o.revealed;
+    ta.addEventListener('input', function() { o.text = ta.value; });
+    wrap.appendChild(ta);
+    if (!o.revealed) {
+      var actions = el('div', 'actions');
+      var show = el('button', 'btn', 'Zobrazit vzorovou odpověď');
+      show.type = 'button';
+      show.addEventListener('click', function() { o.revealed = true; render(); });
+      actions.appendChild(show);
+      wrap.appendChild(actions);
+    } else {
+      var model = el('div', 'model-answer');
+      model.appendChild(el('div', 'model-label', 'Vzorová odpověď'));
+      model.appendChild(el('div', 'model-text', o.raw.model));
+      wrap.appendChild(model);
+      var row = el('div', 'grade-row');
+      var yes = el('button', 'grade-btn yes', 'Zvládl jsem');
+      yes.type = 'button';
+      var no = el('button', 'grade-btn no', 'Nezvládl jsem');
+      no.type = 'button';
+      if (o.done) {
+        yes.disabled = true;
+        no.disabled = true;
+        if (o.grade === true) { yes.classList.add('picked'); }
+        if (o.grade === false) { no.classList.add('picked'); }
+      } else {
+        yes.addEventListener('click', function() { o.grade = true; complete(o, true); });
+        no.addEventListener('click', function() { o.grade = false; complete(o, false); });
+      }
+      row.appendChild(yes);
+      row.appendChild(no);
+      wrap.appendChild(row);
+    }
+    return wrap;
+  }
+
+  function buildExplanation(o) {
+    var box = el('div', 'explanation');
+    var head = el('div');
+    head.appendChild(el('strong', null, 'Vysvětlení: '));
+    head.appendChild(el('span', null, o.raw.expl));
+    box.appendChild(head);
+    if (o.raw.type === 'order' && !o.correct) {
+      box.appendChild(el('p', null, 'Správné pořadí:'));
+      var ol = el('ol');
+      o.raw.items.forEach(function(t) { ol.appendChild(el('li', null, t)); });
+      box.appendChild(ol);
+    }
+    return box;
+  }
+
+  function buildNav() {
+    var total = state.qs.length;
+    var nav = el('div', 'nav');
+    var back = el('button', 'nav-btn', '← Zpět');
+    back.type = 'button';
+    back.disabled = state.current === 0;
+    back.addEventListener('click', function() {
+      if (state.current > 0) { state.current--; render(); window.scrollTo(0, 0); }
+    });
+    nav.appendChild(back);
+    if (state.current < total) {
+      var label = state.current === total - 1 ? 'Zobrazit výsledek →' : 'Další →';
+      var next = el('button', 'nav-btn', label);
+      next.type = 'button';
+      next.disabled = state.current >= state.frontier;
+      next.addEventListener('click', function() {
+        if (state.current < state.frontier) { state.current++; render(); window.scrollTo(0, 0); }
+      });
+      nav.appendChild(next);
+    }
+    return nav;
+  }
+
+  function buildResults() {
+    var total = state.qs.length;
+    var pct = Math.round(state.score / total * 100);
+    var card = el('div', 'card');
+    card.appendChild(el('h2', 'result-title', 'Výsledek kvízu'));
+    card.appendChild(el('div', 'result-percent', pct + ' %'));
+    card.appendChild(el('div', 'result-line', 'Správně: ' + state.score + ' z ' + total + ' otázek'));
+    var msg = pct >= 90 ? 'Výborně, látku máš skvěle zvládnutou.'
+      : (pct >= 70 ? 'Dobrá práce, pár míst si ještě zopakuj.'
+      : (pct >= 50 ? 'Ujde to, projdi si hlavně otázky, které jsi netrefil.'
+      : 'Zopakuj si látku a zkus to znovu.'));
+    card.appendChild(el('div', 'result-sub', msg));
+
+    var types = { mc: [0, 0], order: [0, 0], open: [0, 0] };
+    var cats = {};
+    state.qs.forEach(function(o) {
+      var t = o.raw.type;
+      types[t][1]++;
+      if (o.correct) { types[t][0]++; }
+      if (!cats[o.raw.cat]) { cats[o.raw.cat] = [0, 0]; }
+      cats[o.raw.cat][1]++;
+      if (o.correct) { cats[o.raw.cat][0]++; }
+    });
+
+    card.appendChild(el('div', 'result-h', 'Podle typu otázky'));
+    var typeNames = { mc: 'Výběr ze 4 možností', order: 'Řazení', open: 'Otevřené otázky' };
+    ['mc', 'order', 'open'].forEach(function(k) {
+      var row = el('div', 'cat-row');
+      row.appendChild(el('span', null, typeNames[k]));
+      row.appendChild(el('span', 'cat-score', types[k][0] + ' / ' + types[k][1]));
+      card.appendChild(row);
+    });
+
+    card.appendChild(el('div', 'result-h', 'Podle tématu'));
+    Object.keys(cats).forEach(function(k) {
+      var row = el('div', 'cat-row');
+      row.appendChild(el('span', 'badge cat-' + k, CATS[k]));
+      row.appendChild(el('span', 'cat-score', cats[k][0] + ' / ' + cats[k][1]));
+      card.appendChild(row);
+    });
+
+    var actions = el('div', 'actions');
+    var again = el('button', 'btn', 'Začít znovu');
+    again.type = 'button';
+    again.addEventListener('click', function() { init(); window.scrollTo(0, 0); });
+    actions.appendChild(again);
+    card.appendChild(actions);
+    return card;
+  }
+
+  function render() {
+    app.innerHTML = '';
+    var total = state.qs.length;
+    app.appendChild(buildTop());
+    if (state.current >= total) {
+      app.appendChild(buildResults());
+      app.appendChild(buildNav());
+      return;
+    }
+    var o = state.qs[state.current];
+    var r = o.raw;
+    var card = el('div', 'card');
+    var meta = el('div', 'meta');
+    meta.appendChild(el('span', 'badge cat-' + r.cat, CATS[r.cat]));
+    var tagText = r.type === 'mc' ? 'Výběr ze 4 možností'
+      : (r.type === 'order' ? 'Seřaď do správného pořadí' : 'Otevřená otázka (sám si ohodnotíš)');
+    meta.appendChild(el('span', 'tag', tagText));
+    card.appendChild(meta);
+    card.appendChild(el('div', 'question-text', r.q));
+    if (r.type === 'mc') { card.appendChild(buildMc(o)); }
+    else if (r.type === 'order') { card.appendChild(buildOrder(o)); }
+    else { card.appendChild(buildOpen(o)); }
+    if (o.done && r.type !== 'open') { card.appendChild(buildExplanation(o)); }
+    app.appendChild(card);
+    app.appendChild(buildNav());
+  }
+
+  init();
+});
+</script>
+</body>
+</html>
